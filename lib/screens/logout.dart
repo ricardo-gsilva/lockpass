@@ -35,6 +35,7 @@ class LogoutApp extends StatelessWidget {
           key: CoreKeys.buttonLogout,
           text: CoreStrings.logout,
           backgroundButton: CoreColors.buttonColorSecond,
+          colorText: CoreColors.textPrimary,
           onPressed: () {
             Navigator.popAndPushNamed(context, CoreStrings.nLogin);
           },
