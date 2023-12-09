@@ -279,6 +279,14 @@ mixin _$ConfigPageStore on _ConfigPageStore, Store {
     return _$sharedPrefsAsyncAction.run(() => super.sharedPrefs());
   }
 
+  late final _$deleteAccountAsyncAction =
+      AsyncAction('_ConfigPageStore.deleteAccount', context: context);
+
+  @override
+  Future<bool> deleteAccount() {
+    return _$deleteAccountAsyncAction.run(() => super.deleteAccount());
+  }
+
   late final _$validatePinAsyncAction =
       AsyncAction('_ConfigPageStore.validatePin', context: context);
 
