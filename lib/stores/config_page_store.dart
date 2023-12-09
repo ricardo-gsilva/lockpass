@@ -94,6 +94,15 @@ abstract class _ConfigPageStore with Store{
     }
   }
 
+  Future<bool> sigInOut() async {
+    try {
+      await AuthService().sigInOut();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   @action  
   bool checkPinLength(String pin){    
     if((pin.length < 5) || pin.isEmpty){

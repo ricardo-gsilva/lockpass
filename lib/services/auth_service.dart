@@ -24,6 +24,15 @@ class AuthService {
     });
   }
 
+  Future<bool> sigInOut() async {
+    try {
+      await _auth.signOut();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> deleteAccount() async {
     try {
       await _auth.currentUser?.delete();
@@ -54,7 +63,7 @@ class AuthService {
 
   Future<bool> login(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await _auth.signInWithEmailAndPassword(email: email, password: password);      
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
