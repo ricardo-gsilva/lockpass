@@ -5,6 +5,7 @@ import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_icons.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/screens/delete_account.dart';
 import 'package:lockpass/stores/config_page_store.dart';
 import 'package:lockpass/screens/create_pin.dart';
 import 'package:lockpass/screens/delete_pin.dart';
@@ -14,8 +15,7 @@ import 'package:lockpass/screens/upload_list_logins.dart';
 import 'package:lockpass/widgets/config_options_custom.dart';
 
 class Config extends StatefulWidget {
-  const Config({
-    super.key});
+  const Config({super.key});
 
   @override
   State<Config> createState() => _ConfigState();
@@ -29,7 +29,8 @@ class _ConfigState extends State<Config> {
     showDialog(
         context: context,
         builder: (_) {
-          return CreatePin(pinVerify: store.getPinVerification, title: store.textPin);
+          return CreatePin(
+              pinVerify: store.getPinVerification, title: store.textPin);
         });
   }
 
@@ -65,6 +66,14 @@ class _ConfigState extends State<Config> {
         });
   }
 
+  void showDeleteAccount() {
+    showDialog(
+        context: context,
+        builder: (_) {
+          return const DeleteAccount();
+        });
+  }
+
   @override
   void didChangeDependencies() async {
     await store.verifyPlatform();
@@ -79,71 +88,77 @@ class _ConfigState extends State<Config> {
       body: SingleChildScrollView(
         child: SizedBox(
             child: Column(children: [
-              Observer(
-                builder: (context) {
-                  return ConfigOptions(
-                    key: CoreKeys.createPinConfig,
-                    onTap: () {
-                      showCreatePin();
-                    },
-                    text: store.textPin,
-                    fontSize: 20,
-                    icons: CoreIcons.password,
-                    iconSize: 30,
-                    iconColor: store.colorPin,
-                    textColor: store.colorPin,
-                  );
-                }
-              ),
-              Observer(
-                builder: (context) {
-                  return Visibility(
-                    key: CoreKeys.visibilityDeletePinConfig,
-                    visible: store.visibleRemovePin,
-                    child: ConfigOptions(
-                      key: CoreKeys.deletePinConfig,
-                      onTap: () {
-                        showDeletePin();
-                      },
-                      text: CoreStrings.deletePin,
-                      fontSize: 20,
-                      icons: CoreIcons.delete,
-                      iconSize: 30,
-                    ),
-                  );
-                }
-              ),
-              ConfigOptions(
-                key: CoreKeys.saveListLoginConfig,
-                onTap: ()  async {
-                  showSaveListLogins();                       
-                },
-                text: CoreStrings.saveListLogins,
-                fontSize: 20,
-                icons: CoreIcons.saveAs,
-                iconSize: 30,
-              ),
-              ConfigOptions(
-                key: CoreKeys.updateListConfig,
+          Observer(builder: (context) {
+            return ConfigOptions(
+              key: CoreKeys.createPinConfig,
+              onTap: () {
+                showCreatePin();
+              },
+              text: store.textPin,
+              fontSize: 20,
+              icons: CoreIcons.password,
+              iconSize: 30,
+              iconColor: store.colorPin,
+              textColor: store.colorPin,
+            );
+          }),
+          Observer(builder: (context) {
+            return Visibility(
+              key: CoreKeys.visibilityDeletePinConfig,
+              visible: store.visibleRemovePin,
+              child: ConfigOptions(
+                key: CoreKeys.deletePinConfig,
                 onTap: () {
-                  showUploadListLogins();
+                  showDeletePin();
                 },
-                text: CoreStrings.loadListLogins,
+                text: CoreStrings.deletePin,
                 fontSize: 20,
-                icons: CoreIcons.upload,
+                icons: CoreIcons.delete,
                 iconSize: 30,
               ),
-              ConfigOptions(
-                key: CoreKeys.logoutConfig,
-                onTap: (){
-                  showLogout();
-                },
-                text: CoreStrings.logout,
-                fontSize: 20,
-                icons: CoreIcons.logout,
-                iconSize: 30,
-              )
-            ])),
+            );
+          }),
+          ConfigOptions(
+            key: CoreKeys.saveListLoginConfig,
+            onTap: () async {
+              showSaveListLogins();
+            },
+            text: CoreStrings.saveListLogins,
+            fontSize: 20,
+            icons: CoreIcons.saveAs,
+            iconSize: 30,
+          ),
+          ConfigOptions(
+            key: CoreKeys.updateListConfig,
+            onTap: () {
+              showUploadListLogins();
+            },
+            text: CoreStrings.loadListLogins,
+            fontSize: 20,
+            icons: CoreIcons.upload,
+            iconSize: 30,
+          ),
+          ConfigOptions(
+            key: CoreKeys.logoutConfig,
+            onTap: () {
+              showLogout();
+            },
+            text: CoreStrings.logout,
+            fontSize: 20,
+            icons: CoreIcons.logout,
+            iconSize: 30,
+          ),
+          ConfigOptions(
+            key: CoreKeys.deleteAccount,
+            onTap: () {
+              showDeleteAccount();
+            },
+            text: CoreStrings.deleteAccount,
+            fontSize: 20,
+            icons: CoreIcons.deleteAccount,
+            iconSize: 30,
+          ),
+        ])),
       ),
     );
   }

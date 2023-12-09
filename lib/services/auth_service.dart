@@ -13,30 +13,39 @@ class AuthService {
   User? userApp;
   bool isLoading = true;
 
-  AuthService(){
+  AuthService() {
     _authCheck();
   }
 
-  _authCheck(){
+  _authCheck() {
     _auth.authStateChanges().listen((User? user) {
-      userApp = (user == null)? null : user;
+      userApp = (user == null) ? null : user;
       isLoading = false;
-
     });
   }
 
-  
+  Future<bool> deleteAccount() async {
+    try {
+      await _auth.currentUser?.delete();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code != '200') throw AuthException(e.code);
+      return false;
+    }
+  }
+
   Future<bool> register(String email, String password) async {
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
       _getUser();
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        throw AuthException(CoreStrings.fWeakPassword);        
+        throw AuthException(CoreStrings.fWeakPassword);
       } else if (e.code == 'email-already-in-use') {
         throw AuthException(CoreStrings.fEmailAlreadyInUse);
-      } else if(e.code == 'invalid-email'){
+      } else if (e.code == 'invalid-email') {
         throw AuthException(CoreStrings.fEmailInvalid);
       }
       return false;
@@ -47,14 +56,14 @@ class AuthService {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
       return true;
-    }  on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw AuthException(CoreStrings.fUserNotFound);
-      } else if(e.code == 'invalid-email'){
+      } else if (e.code == 'invalid-email') {
         throw AuthException(CoreStrings.fEmailInvalid);
-      } else if(e.code == 'INVALID_LOGIN_CREDENTIALS'){
+      } else if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
         throw AuthException(CoreStrings.fInvalidLoginCredentials);
-      } else if (e.code == 'wrong-password'){
+      } else if (e.code == 'wrong-password') {
         throw AuthException(CoreStrings.fWrongPassword);
       }
       return false;
@@ -62,22 +71,22 @@ class AuthService {
   }
 
   resetPassword(String email) async {
-    try {      
+    try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw AuthException(CoreStrings.fUserNotFound);
-      } else if(e.code == 'invalid-email'){
+      } else if (e.code == 'invalid-email') {
         throw AuthException(CoreStrings.fEmailInvalid);
-      } else if(e.code == 'INVALID_LOGIN_CREDENTIALS'){
+      } else if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
         throw AuthException(CoreStrings.fInvalidLoginCredentials);
-      } else if (e.code == 'missing-email'){
+      } else if (e.code == 'missing-email') {
         throw AuthException(CoreStrings.missingEmail);
       }
     }
   }
 
-  _getUser(){
+  _getUser() {
     userApp = _auth.currentUser;
   }
 }

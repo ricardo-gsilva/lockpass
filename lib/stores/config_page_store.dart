@@ -10,6 +10,7 @@ import 'package:lockpass/helpers/encrypt_decrypt.dart';
 import 'package:lockpass/database/shared_preferences.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/services/auth_service.dart';
 import 'package:mobx/mobx.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -79,6 +80,18 @@ abstract class _ConfigPageStore with Store{
     SharedPreferences.getInstance().then((value) {
       sharedPref = SharedPrefs(sharedPreferences: value);      
     });
+  }
+
+  @action
+  Future<bool> deleteAccount() async {
+    await sharedPrefs();
+    try {
+      await AuthService().deleteAccount();
+      sharedPref?.removePin();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @action  

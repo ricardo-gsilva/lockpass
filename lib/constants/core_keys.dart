@@ -81,6 +81,7 @@ class CoreKeys {
   static const Key saveListLoginConfig = Key('saveListLoginConfig');
   static const Key updateListConfig = Key('updateListConfig');
   static const Key logoutConfig = Key('logoutConfig');
+  static const Key deleteAccount = Key('deleteAccount');
 
   //Logout
   static const Key titleLogout = Key('titleLogout');
@@ -129,6 +130,11 @@ class CoreKeys {
   static const Key buttonInfoCreatePin = Key('buttonInfoCreatePin');
   static const Key cancelCreatePin = Key('cancelCreatePin');
   static const Key buttonCreatePin = Key('buttonCreatePin');
+
+  // Delete Account
+  static const Key titleDeleteAccount = Key('titleDeleteAccount');
+  static const Key infoDeleteAccount = Key('infoDeleteAccount');
+  static const Key buttonDeleteAccount = Key('buttonDeleteAccount');  
 
   //Card Item
   static const Key buttonSaveEditCardItem = Key('buttonSaveEditCardItem');

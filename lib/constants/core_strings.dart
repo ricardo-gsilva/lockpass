@@ -19,6 +19,8 @@ class CoreStrings {
   static const String delete = 'Excluir';
   static const String deletePin = 'Excluir PIN';
   static const String deleteThisLogin = "Realmente deseja excluir esse login?";
+  static const String deleteAccount = 'Excluir sua Conta';
+  static const String deleteAccountTitle = 'Excluir Conta';
 
   //E
   static const String email = 'Email';
@@ -108,6 +110,7 @@ class CoreStrings {
   static const String wantDeleteRegisteredPin = 'Deseja excluir o PIN cadastrado?';
   static const String wantLogout = 'Você realmente quer deslogar?';
   static const String webSite = 'Site';
+  static const String wantDeleteAccount = 'Você está prestes a excluir o seu login.\n\nSe tiver certeza sobre isso, apenas aperta o botão excluir.';
 
   //Y
   static const String yourUploadedLoginList = 'Sua lista de logins salva foi carregada.';
