@@ -15,14 +15,14 @@ import 'package:lockpass/components/loading_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 import 'package:lockpass/widgets/textformfield_custom.dart';
 
-class CreateUser extends StatefulWidget {
-  const CreateUser({super.key});
+class CreateUserPage extends StatefulWidget {
+  const CreateUserPage({super.key});
 
   @override
-  State<CreateUser> createState() => _CreateUserState();
+  State<CreateUserPage> createState() => _CreateUserPageState();
 }
 
-class _CreateUserState extends State<CreateUser> {
+class _CreateUserPageState extends State<CreateUserPage> {
   LoginStore store = LoginStore();
 
   showInfo() {

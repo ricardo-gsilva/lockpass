@@ -14,7 +14,7 @@ import 'package:lockpass/widgets/textformfield_custom.dart';
 void main() {
   testWidgets('Confirming screen information title properties to create user', (test) async {
     await test.pumpWidget(const MaterialApp(
-      home: CreateUser(),
+      home: CreateUserPage(),
     ));
 
     final TextCustom textCustom = test.widget(find.byKey(CoreKeys.titleCreateUser));
@@ -24,7 +24,7 @@ void main() {
 
   testWidgets('Testing the button to open the information screen to create user', (test) async {
     await test.pumpWidget(const MaterialApp(
-      home: CreateUser(),
+      home: CreateUserPage(),
     ));
 
     final IconButtonCustom iconButtonCustom = test.widget(find.byKey(CoreKeys.infoButtonCreateUser));
@@ -33,7 +33,7 @@ void main() {
 
   testWidgets('Checking the properties of the information alertDialog for user creation', (test) async {
     await test.pumpWidget(const MaterialApp(
-      home: CreateUser(),
+      home: CreateUserPage(),
     ));
 
     await test.tap(find.byIcon(CoreIcons.info));
@@ -51,7 +51,7 @@ void main() {
   group('Checking both texformfield for user creation', () { 
     testWidgets('Checking the email textformfield properties for user creation', (test) async{
       await test.pumpWidget(const MaterialApp(
-        home: CreateUser(),
+        home: CreateUserPage(),
       ));
 
       final TextFormFieldCustom formField = test.widget(find.byKey(CoreKeys.formFieldEmailCreateUser));
@@ -71,7 +71,7 @@ void main() {
 
     testWidgets('Checking the properties of the password textformfield for user creation', (test) async{
       await test.pumpWidget(const MaterialApp(
-        home: CreateUser(),
+        home: CreateUserPage(),
       ));
 
       final TextFormFieldCustom formField = test.widget(find.byKey(CoreKeys.formFieldPasswordCreateUser));
@@ -94,7 +94,7 @@ void main() {
 
     testWidgets('Checking iconbutton to close user creation', (test) async {
       await test.pumpWidget(const MaterialApp(
-        home: CreateUser(),
+        home: CreateUserPage(),
       ));
 
       final IconButtonCustom iconButtonCustom = test.widget(find.byKey(CoreKeys.arrowBackButtonCreateUser));
@@ -103,7 +103,7 @@ void main() {
 
     testWidgets('Testing properties of the user creation button', (test) async {
       await test.pumpWidget(const MaterialApp(
-        home: CreateUser(),
+        home: CreateUserPage(),
       ));
 
       final ButtonCustom buttonCustom = test.widget(find.byKey(CoreKeys.buttonCreateUser));

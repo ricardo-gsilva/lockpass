@@ -23,7 +23,7 @@ void main() {
     );
 
   testWidgets('Testing item card title', (test) async {    
-    await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+    await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
     final TextCustom textCustom = test.widget(find.byKey(CoreKeys.titleLoginCardItem));
     expect(textCustom.text, i.login);
@@ -31,7 +31,7 @@ void main() {
 
   testWidgets('Testing the iconbutton to edit the item', (test) async {
     final cardStore = CardItemStore();
-    await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+    await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
     final IconButtonCustom iconButtonCustom = test.widget(find.byKey(CoreKeys.iconButtonEditCardItem));
     expect(iconButtonCustom.icon, cardStore.icon);
@@ -44,7 +44,7 @@ void main() {
   });
 
   testWidgets('Testing the iconbutton to close the item card', (test) async {
-    await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+    await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
     final IconButtonCustom iconButtonCustom = test.widget(find.byKey(CoreKeys.arrowBackCardItem));
     expect(iconButtonCustom.icon, CoreIcons.arrowBack);
@@ -53,7 +53,7 @@ void main() {
 
   testWidgets('Testing visibility of the edit item button', (test) async {
     final cardStore = CardItemStore();
-    await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+    await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
     final Visibility visibility = test.widget(find.byKey(CoreKeys.visibleButtonSaveEdit));
     expect(visibility.visible, cardStore.edit);
@@ -67,7 +67,7 @@ void main() {
 
   group('Testing the item card and its properties', () { 
     testWidgets('Testing item group and its properties', (test) async {
-      await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+      await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
       final InfoItemCustom infoItemCustom = test.widget(find.byKey(CoreKeys.groupCardItem));
       expect(infoItemCustom.title, CoreStrings.group);
@@ -76,7 +76,7 @@ void main() {
     });
 
     testWidgets('Testing item service and its properties', (test) async {
-      await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+      await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
       final InfoItemCustom infoItemCustom = test.widget(find.byKey(CoreKeys.serviceCardItem));
       expect(infoItemCustom.title, CoreStrings.service);
@@ -85,7 +85,7 @@ void main() {
     });
 
     testWidgets('Testing item website and its properties', (test) async {
-      await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+      await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
       final InfoItemCustom infoItemCustom = test.widget(find.byKey(CoreKeys.webSiteCardItem));
       expect(infoItemCustom.title, CoreStrings.webSite);
@@ -94,7 +94,7 @@ void main() {
     });
 
     testWidgets('Testing item email and its properties', (test) async {
-      await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+      await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
       final InfoItemCustom infoItemCustom = test.widget(find.byKey(CoreKeys.emailCardItem));
       expect(infoItemCustom.title, CoreStrings.email);
@@ -103,7 +103,7 @@ void main() {
     });
 
     testWidgets('Testing item login and its properties', (test) async {
-      await test.pumpWidget(MaterialApp(home: CardItem(itens: i)));
+      await test.pumpWidget(MaterialApp(home: CardItemPage(itens: i)));
 
       final InfoItemCustom infoItemCustom = test.widget(find.byKey(CoreKeys.loginCardItem));
       expect(infoItemCustom.title, CoreStrings.login);

@@ -14,14 +14,14 @@ import 'package:lockpass/screens/save_list_logins.dart';
 import 'package:lockpass/screens/upload_list_logins.dart';
 import 'package:lockpass/widgets/config_options_custom.dart';
 
-class Config extends StatefulWidget {
-  const Config({super.key});
+class ConfigPage extends StatefulWidget {
+  const ConfigPage({super.key});
 
   @override
-  State<Config> createState() => _ConfigState();
+  State<ConfigPage> createState() => _ConfigPageState();
 }
 
-class _ConfigState extends State<Config> {
+class _ConfigPageState extends State<ConfigPage> {
   DataBaseHelper db = DataBaseHelper();
   ConfigPageStore store = ConfigPageStore();
 

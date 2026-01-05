@@ -48,7 +48,7 @@ class _ListItemState extends State<ListItem> {
     showDialog(
         context: context,
         builder: (_) {
-          return CardItem(itens: itensModel, listType: widget.listTypes);
+          return CardItemPage(itens: itensModel, listType: widget.listTypes);
         });
   }
 

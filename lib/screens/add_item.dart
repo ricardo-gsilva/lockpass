@@ -15,17 +15,17 @@ import 'package:lockpass/widgets/field_custom.dart';
 import 'package:lockpass/widgets/iconbutton_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 
-class AddItem extends StatefulWidget {
+class AddItemPage extends StatefulWidget {
   final List<ItensModel>? itens;
-  const AddItem({
+  const AddItemPage({
     this.itens,
     super.key});
 
   @override
-  State<AddItem> createState() => _AddItemState();
+  State<AddItemPage> createState() => _AddItemPageState();
 }
 
-class _AddItemState extends State<AddItem> {
+class _AddItemPageState extends State<AddItemPage> {
   AddItemStore store = AddItemStore();
 
   @override

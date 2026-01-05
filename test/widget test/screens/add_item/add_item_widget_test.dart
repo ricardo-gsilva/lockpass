@@ -12,14 +12,14 @@ import 'package:lockpass/widgets/iconbutton_custom.dart';
 void main(){
   TestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('Checking dropdown visibility', (test) async {    
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final Visibility visibility = test.widget(find.byKey(CoreKeys.visibilityDropDownAddItem));
     expect(visibility.visible, false);
   });
 
   testWidgets('Testing form field to add the group referring to the item', (test) async {
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final FieldCustom fieldCustomNewGroup = test.widget(find.byKey(CoreKeys.fieldCustomAddNewGroup));
     expect(fieldCustomNewGroup.title, CoreStrings.addNewGroup);
@@ -32,7 +32,7 @@ void main(){
   });
 
   testWidgets('Testing form field for item creation service', (test) async {
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final FieldCustom fieldCustomService = test.widget(find.byKey(CoreKeys.fieldCustomService));
     expect(fieldCustomService.title, CoreStrings.nameService);
@@ -45,7 +45,7 @@ void main(){
   });
 
   testWidgets('Testing form field for item creation website', (test) async {
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final FieldCustom fieldCustomWebSite = test.widget(find.byKey(CoreKeys.fieldCustomWebSite));
     expect(fieldCustomWebSite.title, CoreStrings.webSite);
@@ -58,7 +58,7 @@ void main(){
   });
 
   testWidgets('Testing form field for the email registered for item creation', (test) async {
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final FieldCustom fieldCustomEmailRegister = test.widget(find.byKey(CoreKeys.fieldCustomEmailRegister));
     expect(fieldCustomEmailRegister.title, CoreStrings.emailRegister);
@@ -71,7 +71,7 @@ void main(){
   });
 
   testWidgets('Testing formfield for item creation login', (test) async {
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final FieldCustom fieldCustomLogin = test.widget(find.byKey(CoreKeys.fieldCustomLogin));
     expect(fieldCustomLogin.title, CoreStrings.login);
@@ -83,7 +83,7 @@ void main(){
   });
 
   testWidgets('Testing formfield for item creation password', (test) async {
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final FieldCustom fieldCustomPassword = test.widget(find.byKey(CoreKeys.fieldCustomPassword));
     expect(fieldCustomPassword.title, CoreStrings.password);
@@ -103,7 +103,7 @@ void main(){
   });
 
   testWidgets('Testing the properties of the button to create item', (test) async {
-    await test.pumpWidget(const MaterialApp(home: AddItem(),));
+    await test.pumpWidget(const MaterialApp(home: AddItemPage(),));
 
     final ButtonCustom buttonAddItem = test.widget(find.byKey(CoreKeys.buttonCustomCreateItem));
     expect(buttonAddItem.height, 50);

@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
         context: context,
         builder: (_) {
           return Observer(builder: (context) {
-            return const CreateUser();
+            return const CreateUserPage();
           });
         });
   }

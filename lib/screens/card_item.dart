@@ -16,16 +16,16 @@ import 'package:lockpass/widgets/iconbutton_custom.dart';
 import 'package:lockpass/widgets/info_item_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 
-class CardItem extends StatefulWidget {
+class CardItemPage extends StatefulWidget {
   final List<TypeModel>? listType;
   final ItensModel? itens;
-  const CardItem({this.listType, this.itens, super.key});
+  const CardItemPage({this.listType, this.itens, super.key});
 
   @override
-  State<CardItem> createState() => _CardItemState();
+  State<CardItemPage> createState() => _CardItemPageState();
 }
 
-class _CardItemState extends State<CardItem> {
+class _CardItemPageState extends State<CardItemPage> {
   CardItemStore store = CardItemStore();
 
   @override

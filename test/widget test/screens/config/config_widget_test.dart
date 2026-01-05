@@ -10,7 +10,7 @@ import 'package:lockpass/widgets/config_options_custom.dart';
 void main(){
   testWidgets('Testing properties of the Create Pin button on the Config screen', (test) async {
     final configStore = ConfigPageStore();
-    await test.pumpWidget(const MaterialApp(home: Config()));
+    await test.pumpWidget(const MaterialApp(home: ConfigPage()));
 
     final ConfigOptions configOptions = test.widget(find.byKey(CoreKeys.createPinConfig));
     expect(configOptions.text, configStore.textPin);
@@ -22,14 +22,14 @@ void main(){
   });
 
   testWidgets('Testing visibility of the delete PIN button', (test) async {
-    await test.pumpWidget(const MaterialApp(home: Config()));
+    await test.pumpWidget(const MaterialApp(home: ConfigPage()));
 
     final Visibility visibility = test.widget(find.byKey(CoreKeys.visibilityDeletePinConfig));
     expect(visibility.visible, false);
   });
 
   testWidgets('Testing properties of the Save Login List button on the Config screen', (test) async {
-    await test.pumpWidget(const MaterialApp(home: Config()));
+    await test.pumpWidget(const MaterialApp(home: ConfigPage()));
 
     final ConfigOptions configOptions = test.widget(find.byKey(CoreKeys.saveListLoginConfig));
     expect(configOptions.text, CoreStrings.saveListLogins);
@@ -39,7 +39,7 @@ void main(){
   });
 
   testWidgets('Testing properties of the Load Login List button on the Config screen', (test) async {
-    await test.pumpWidget(const MaterialApp(home: Config()));
+    await test.pumpWidget(const MaterialApp(home: ConfigPage()));
 
     final ConfigOptions configOptions = test.widget(find.byKey(CoreKeys.updateListConfig));
     expect(configOptions.text, CoreStrings.loadListLogins);
@@ -49,7 +49,7 @@ void main(){
   });
 
   testWidgets('Testing properties of the logout button from the config screen', (test) async {
-    await test.pumpWidget(const MaterialApp(home: Config()));
+    await test.pumpWidget(const MaterialApp(home: ConfigPage()));
 
     final ConfigOptions configOptions = test.widget(find.byKey(CoreKeys.logoutConfig));
     expect(configOptions.text, CoreStrings.logout);

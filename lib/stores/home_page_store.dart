@@ -171,8 +171,8 @@ abstract class HomePageStoreBase with Store {
   List<Widget> screens() {
     listScreens = [
       ListItem(mode: mode, itens: filterItens, listTypes: listTypes, getData: getData,),
-      AddItem(itens: listItens),
-      const Config(),
+      AddItemPage(itens: listItens),
+      const ConfigPage(),
     ];
     return listScreens;
   }
