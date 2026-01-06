@@ -125,8 +125,8 @@ class CoreStrings {
   static const String missingEmail = 'Campo de email vazio!';
 
   //Page Navigation
-  static const String nHome = '/home';
-  static const String nLogin = '/login';
+  static const String homePage = '/home';
+  static const String loginPage = '/login';
 
   //Info
   static const String invalidSignatureZip = 'Assinatura do PIN inválida.';

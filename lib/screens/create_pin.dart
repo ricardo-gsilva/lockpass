@@ -33,7 +33,7 @@ class CreatePin extends StatelessWidget {
               onPressed: () {
                 if (pinCreate && newPin!) {
                   Navigator.of(context).pop();
-                  Navigator.of(context).popAndPushNamed(CoreStrings.nLogin);
+                  Navigator.of(context).popAndPushNamed(CoreStrings.loginPage);
                 } else if (pinCreate) {
                   pinVerify!();
                   Navigator.of(context).pop();

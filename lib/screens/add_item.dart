@@ -177,7 +177,7 @@ class _AddItemPageState extends State<AddItemPage> {
                                   password: passEncrypted,
                                 );
                                 store.addItem(i);
-                                Navigator.popAndPushNamed(context, CoreStrings.nHome);
+                                Navigator.popAndPushNamed(context, CoreStrings.homePage);
                           } else {
                             showToast(
                               context: context,

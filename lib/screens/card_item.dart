@@ -46,7 +46,7 @@ class _CardItemPageState extends State<CardItemPage> {
               Navigator.pop(context);
             } else {
               Navigator.pop(context);
-              Navigator.popAndPushNamed(context, CoreStrings.nHome);
+              Navigator.popAndPushNamed(context, CoreStrings.homePage);
             }
           } else {
             store.changeIcon(store.edit);
@@ -99,7 +99,7 @@ class _CardItemPageState extends State<CardItemPage> {
                               bool save = await store.saveEditItem(i);
                               if (save) {
                                   Navigator.pop(context);
-                                  Navigator.popAndPushNamed(context, CoreStrings.nHome);
+                                  Navigator.popAndPushNamed(context, CoreStrings.homePage);
                                   showMessage(CoreStrings.updateSucess);
                                 } else {
                                   showMessage(CoreStrings.updateError);
@@ -160,7 +160,7 @@ class _CardItemPageState extends State<CardItemPage> {
                         Navigator.pop(context);
                       } else {
                         Navigator.pop(context);
-                        Navigator.popAndPushNamed(context, CoreStrings.nHome);
+                        Navigator.popAndPushNamed(context, CoreStrings.homePage);
                       }
                     } else {
                       store.changeIcon(store.edit);
@@ -203,7 +203,7 @@ class _CardItemPageState extends State<CardItemPage> {
                           if (save) {
                             Navigator.pop(context);
                             Navigator.popAndPushNamed(
-                                context, CoreStrings.nHome);
+                                context, CoreStrings.homePage);
                             showMessage(CoreStrings.updateSucess);
                           } else {
                             showMessage(CoreStrings.updateError);

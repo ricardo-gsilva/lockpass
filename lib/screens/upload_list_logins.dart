@@ -125,7 +125,7 @@ class _UploadListLoginsState extends State<UploadListLogins> {
                       if (verify) {
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
-                        Navigator.popAndPushNamed(context, CoreStrings.nHome);
+                        Navigator.popAndPushNamed(context, CoreStrings.homePage);
                         showToast(
                             CoreStrings.yourUploadedLoginList,
                             context: context,
@@ -238,7 +238,7 @@ class _UploadListLoginsState extends State<UploadListLogins> {
                       EncryptDecrypt().isolateUnzip(descryptPass.text, store.zipFile);
                       Navigator.of(context).pop();
                       Navigator.of(context).pop();
-                      Navigator.popAndPushNamed(context, CoreStrings.nHome);
+                      Navigator.popAndPushNamed(context, CoreStrings.homePage);
                       showToast(
                           CoreStrings.loadedList,
                           context: context,

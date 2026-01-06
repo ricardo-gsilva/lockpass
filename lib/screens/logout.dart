@@ -40,7 +40,7 @@ class LogoutApp extends StatelessWidget {
           colorText: CoreColors.textPrimary,
           onPressed: () {
             store.sigInOut();
-            Navigator.popAndPushNamed(context, CoreStrings.nLogin);
+            Navigator.popAndPushNamed(context, CoreStrings.homePage);
           },
         )
       ],

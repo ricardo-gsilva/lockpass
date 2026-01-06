@@ -20,7 +20,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   void initState() {
     store.getVersion();
     Future.delayed(const Duration(seconds: 4), () {
-      Navigator.of(context).popAndPushNamed(CoreStrings.nLogin);
+      Navigator.of(context).popAndPushNamed(CoreStrings.loginPage);
     });
     super.initState();
   }

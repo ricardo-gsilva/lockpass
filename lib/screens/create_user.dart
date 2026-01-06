@@ -138,7 +138,7 @@ class _CreateUserPageState extends State<CreateUserPage> {
                           context: context,
                           store.exception);
                       Navigator.of(context).pop();
-                      Navigator.of(context).popAndPushNamed(CoreStrings.nHome);
+                      Navigator.of(context).popAndPushNamed(CoreStrings.homePage);
                     } else {
                       showToast(
                           duration: const Duration(seconds: 3),

@@ -41,7 +41,7 @@ class DeleteAccount extends StatelessWidget {
           backgroundButton: CoreColors.buttonColorSecond,
           onPressed: () {
             store.deleteAccount();
-            Navigator.popAndPushNamed(context, CoreStrings.nLogin);
+            Navigator.popAndPushNamed(context, CoreStrings.loginPage);
           },
         )
       ],

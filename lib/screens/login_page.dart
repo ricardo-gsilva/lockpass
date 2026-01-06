@@ -119,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                                 String pin = await store.pinDecrypt();
                                 bool completed = await EncryptDecrypt().isolateCreateZip(store.path, pin, CoreStrings.automatic);
                                 if (completed) {
-                                  Navigator.of(context).pushNamedAndRemoveUntil(CoreStrings.nHome, (route) => false);
+                                  Navigator.of(context).pushNamedAndRemoveUntil(CoreStrings.homePage, (route) => false);
                                 }
                               } else {
                                 showToast(
@@ -149,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                                 String pin = await store.pinDecrypt();
                                 await EncryptDecrypt().isolateCreateZip(store.path, pin, CoreStrings.automatic);                                
                               }
-                              Navigator.of(context).pushNamedAndRemoveUntil(CoreStrings.nHome, (route) => false);
+                              Navigator.of(context).pushNamedAndRemoveUntil(CoreStrings.homePage, (route) => false);
                             } else {
                               showToast(
                                   duration: const Duration(seconds: 3),
