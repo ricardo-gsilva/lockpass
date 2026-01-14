@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/features/splash/presentation/cubit/splash_state.dart';
+import 'package:lockpass/features/splash/presentation/state/splash_state.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class SplashCubit extends Cubit<SplashState> {

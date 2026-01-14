@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/screens/splash_screen.dart';
+import 'package:lockpass/features/splash/presentation/pages/splash_screen_page.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 
 void main(){

@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/features/splash/presentation/cubit/splash_cubit.dart';
-import 'package:lockpass/features/splash/presentation/cubit/splash_state.dart';
+import 'package:lockpass/features/splash/presentation/controller/splash_controller.dart';
+import 'package:lockpass/features/splash/presentation/state/splash_state.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 
 class SplashScreenPage extends StatefulWidget {
@@ -19,16 +19,16 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   @override
   void initState() {
     super.initState();
-    // Future.delayed(const Duration(seconds: 4), () {
-    //   if (!mounted) return;
-    //   Navigator.of(context).popAndPushNamed(CoreStrings.loginPage);
-    // });
+    Future.delayed(const Duration(seconds: 4), () {
+      if (!mounted) return;
+      Navigator.of(context).popAndPushNamed(CoreStrings.loginPage);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SplashCubit()..loadPackageInfo(),
+      create: (context) => SplashController()..loadPackageInfo(),
       child: Scaffold(
         backgroundColor: CoreColors.primaryColor,
         body: Stack(
@@ -71,7 +71,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                   alignment: Alignment.bottomCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 15),
-                    child: BlocBuilder<SplashCubit, SplashState>(
+                    child: BlocBuilder<SplashController, SplashState>(
                       builder: (context, state) {
                         return TextCustom(
                           key: CoreKeys.appVersionSplashScreen,
@@ -80,18 +80,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                           color: CoreColors.textSecundary,
                         );
                       },
-                    ),
-                    // child: Observer(
-                    //   builder: (context) {
-                    //     return TextCustom(
-                    //       key: CoreKeys.appVersionSplashScreen,
-                    //       // text: 'v${store.packageInfo?.version?? ''}',
-                    //       text: 'v${SplashCubit().packageInfo?.version ?? ''}',
-                    //       fontSize: 16,
-                    //       color: CoreColors.textSecundary,
-                    //     );
-                    //   }
-                    // ),
+                    ),                    
                   ),
                 ),
               ],

@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
+import 'package:lockpass/features/splash/presentation/pages/splash_screen_page.dart';
 import 'package:lockpass/screens/add_item.dart';
 import 'package:lockpass/screens/card_item.dart';
 import 'package:lockpass/screens/config.dart';
 import 'package:lockpass/screens/create_user.dart';
 import 'package:lockpass/screens/home_page.dart';
 import 'package:lockpass/screens/login_page.dart';
-import 'package:lockpass/screens/splash_screen.dart';
 
 class AppRoutes {
   static const splash = '/splashScreen';

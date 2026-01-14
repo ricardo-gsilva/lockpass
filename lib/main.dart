@@ -3,17 +3,19 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/app_routes.dart';
+import 'package:lockpass/core/di/get_it.dart';
+import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  setupGetIt();
   runApp(const MyApp());
 }
 
