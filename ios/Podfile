@@ -29,7 +29,6 @@ flutter_ios_podfile_setup
 
 target 'Runner' do
   use_frameworks!
-  use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
@@ -40,19 +39,5 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
-
-    target.build_configurations.each do |config|
-      # iOS mínimo
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
-
-      # Swift moderno (necessário para Firebase 12.x)
-      config.build_settings['SWIFT_VERSION'] = '5.9'
-
-      # Flags exigidas pelo FirebaseCoreInternal
-      config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
-      config.build_settings['OTHER_SWIFT_FLAGS'] << '-enable-experimental-feature AccessLevelOnImport'
-    end
   end
 end
-
-

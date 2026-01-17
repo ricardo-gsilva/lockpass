@@ -70,6 +70,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     store.emailController.dispose();
     store.passwordController.dispose();
+    
     super.dispose();
   }
 
@@ -93,9 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20, right: 20),
-                        child: store.pinCreated == false
-                            ? _credentialLoginAndPassword()
-                            : _credentialPin(),
+                        child: _credentialLoginAndPassword(),
                       ),
                     ),
                     ButtonCustom(
@@ -164,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: TextButtonCustom(
-                        key: CoreKeys.enterWithPinOrEmailLoginPage,
+                        key: CoreKeys.enterWithPin,
                         onPressed: () {
                           store.changeLoginWithPin(true);
                         },

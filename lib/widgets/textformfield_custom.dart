@@ -12,6 +12,7 @@ class TextFormFieldCustom extends StatelessWidget {
   final Color? colorIcon;
   final Color? fillColor;
   final Color? colorBorder;
+  final Color? colorErrorBorder;
   final Color? colorErrorText;
   final double? fonteSize;
   final IconData? icons;
@@ -32,6 +33,7 @@ class TextFormFieldCustom extends StatelessWidget {
     this.cursorColor = CoreColors.textPrimary,
     this.colorTextLabel = CoreColors.textPrimary,
     this.colorErrorText = CoreColors.textPrimary,
+    this.colorErrorBorder = CoreColors.textPrimary,
     this.colorBorder = CoreColors.textPrimary,
     this.fillColor = CoreColors.transparent,
     this.fonteSize,
@@ -49,6 +51,13 @@ class TextFormFieldCustom extends StatelessWidget {
     this.readOnly = false,    
     super.key});
 
+  OutlineInputBorder _border(Color color) {
+    return OutlineInputBorder(
+      borderSide: BorderSide(color: color, width: 1.3),
+      borderRadius: BorderRadius.circular(6),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -59,7 +68,7 @@ class TextFormFieldCustom extends StatelessWidget {
           readOnly: readOnly!,     
           maxLength: maxLength,
           onChanged: onChanged,
-          autovalidateMode: AutovalidateMode.always,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           validator: validator,     
           keyboardType: keyboardType,
           controller: controller,
@@ -68,21 +77,12 @@ class TextFormFieldCustom extends StatelessWidget {
           obscureText: obscureText!,
           style: TextStyle(color: colorTextInput),
           decoration: InputDecoration(    
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: colorBorder!)
-              ),
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.amber)
-              ),
-              errorBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: colorBorder!)
-              ),
-              enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1, color: colorBorder!)),
+              border: _border(colorBorder!),
+              focusedBorder: _border(CoreColors.focusedBorder),
+              errorBorder: _border(colorErrorBorder!),
+              enabledBorder: _border(colorBorder!),              
+              focusedErrorBorder: _border(colorErrorBorder!),
               errorStyle: TextStyle(color: colorErrorText!),
-              focusedErrorBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: colorBorder!)
-              ),
               counterStyle: const TextStyle(color: CoreColors.textSecundary),
               errorText: errorText,
               suffixIcon: icon,

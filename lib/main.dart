@@ -7,6 +7,7 @@ import 'package:lockpass/core/di/get_it.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/firebase_options.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
@@ -16,11 +17,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   setupGetIt();
-  runApp(const MyApp());
+  runApp(const MainLockPass());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainLockPass extends StatelessWidget {
+  const MainLockPass({super.key});
 
   @override
   Widget build(BuildContext context) {    

@@ -18,7 +18,7 @@ class CoreKeys {
   static const Key forgotPasswordLoginPage = Key('forgotPasswordLoginPage');
   static const Key forgotPinLoginPage = Key('forgotPinLoginPage');
   static const Key buttonEnterLoginPage = Key('buttonEnterLoginPage');
-  static const Key enterWithPinOrEmailLoginPage = Key('enterWithPinOrEmailLoginPage');
+  static const Key enterWithPin = Key('enterWithPin');
 
   //ResetPin
   static const Key titleResetPin = Key('titleResetPin');

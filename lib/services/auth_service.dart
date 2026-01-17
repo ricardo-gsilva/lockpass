@@ -70,7 +70,7 @@ class AuthService {
         throw AuthException(CoreStrings.fUserNotFound);
       } else if (e.code == 'invalid-email') {
         throw AuthException(CoreStrings.fEmailInvalid);
-      } else if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+      } else if (e.code == 'invalid-credential') {
         throw AuthException(CoreStrings.fInvalidLoginCredentials);
       } else if (e.code == 'wrong-password') {
         throw AuthException(CoreStrings.fWrongPassword);
@@ -79,7 +79,7 @@ class AuthService {
     }
   }
 
-  resetPassword(String email) async {
+  Future<void>resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
@@ -87,7 +87,7 @@ class AuthService {
         throw AuthException(CoreStrings.fUserNotFound);
       } else if (e.code == 'invalid-email') {
         throw AuthException(CoreStrings.fEmailInvalid);
-      } else if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+      } else if (e.code == 'invalid-credential') {
         throw AuthException(CoreStrings.fInvalidLoginCredentials);
       } else if (e.code == 'missing-email') {
         throw AuthException(CoreStrings.missingEmail);

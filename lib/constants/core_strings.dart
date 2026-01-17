@@ -80,7 +80,7 @@ class CoreStrings {
   
   //R
   static const String regExpValidatePin = r'^(?:([0-9])(?!\1)){5}$';
-  static const String regExpValidateEmail = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+  static const String regExpValidateEmail = r'^[^@]+@[^@]+\.[^@]+$';
   static const String register1 = 'Cadastro';
   static const String register2 = 'Cadastrar';
   static const String registerHere = 'Não tem login? Crie aqui!';

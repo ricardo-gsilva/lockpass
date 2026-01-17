@@ -50,8 +50,8 @@ dependencies:
   mobx: ^2.2.1
   flutter_mobx: ^2.2.0
   aespack: ^0.0.3
-  firebase_core: 2.24.0
-  firebase_auth: 4.15.0
+  firebase_core: 2.24.2
+  firebase_auth: ^4.16.0
   package_info_plus: ^9.0.0
   # google_mobile_ads: ^3.1.0
   overlay_loading_progress: ^1.0.1

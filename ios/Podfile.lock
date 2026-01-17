@@ -42,11 +42,11 @@ PODS:
     - FirebaseAuth (~> 10.18.0)
   - Firebase/CoreOnly (10.18.0):
     - FirebaseCore (= 10.18.0)
-  - firebase_auth (4.15.0):
+  - firebase_auth (4.16.0):
     - Firebase/Auth (= 10.18.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.24.0):
+  - firebase_core (2.24.2):
     - Firebase/CoreOnly (= 10.18.0)
     - Flutter
   - FirebaseAppCheckInterop (10.29.0)
@@ -173,8 +173,8 @@ SPEC CHECKSUMS:
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   file_picker: b159e0c068aef54932bb15dc9fd1571818edaf49
   Firebase: 414ad272f8d02dfbf12662a9d43f4bba9bec2a06
-  firebase_auth: 02d1a6340f81020cc302fb8fea8518908c546cec
-  firebase_core: f802c5c1f6caff9b8d38b591a36e7b25f8878936
+  firebase_auth: 8e9ec02991ca4659111cc671c84d0c010b6bfb26
+  firebase_core: 0af4a2b24f62071f9bf283691c0ee41556dcb3f5
   FirebaseAppCheckInterop: 6a1757cfd4067d8e00fccd14fcc1b8fd78cfac07
   FirebaseAuth: 12314b438fa76048540c8fb86d6cfc9e08595176
   FirebaseCore: 2322423314d92f946219c8791674d2f3345b598f
@@ -193,6 +193,6 @@ SPEC CHECKSUMS:
   sqflite: 31f7eba61e3074736dff8807a9b41581e4f7f15a
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
 
-PODFILE CHECKSUM: 9a882d40c8886bfadeee96be4c3ae66e5f0ff896
+PODFILE CHECKSUM: 53a6aebc29ccee84c41f92f409fc20cd4ca011f1
 
 COCOAPODS: 1.16.2

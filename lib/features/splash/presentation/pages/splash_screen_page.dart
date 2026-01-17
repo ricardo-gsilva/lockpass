@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/features/login/presentation/pages/login_page.dart';
 import 'package:lockpass/features/splash/presentation/controller/splash_controller.dart';
 import 'package:lockpass/features/splash/presentation/state/splash_state.dart';
 import 'package:lockpass/widgets/text_custom.dart';
@@ -21,7 +22,8 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     super.initState();
     Future.delayed(const Duration(seconds: 4), () {
       if (!mounted) return;
-      Navigator.of(context).popAndPushNamed(CoreStrings.loginPage);
+      // Navigator.of(context).popAndPushNamed(CoreStrings.loginPage);
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginPage1()));
     });
   }
 

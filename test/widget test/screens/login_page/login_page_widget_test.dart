@@ -127,7 +127,7 @@ void main() {
         home: LoginPage(),
       ));
 
-      final finderTextEnterPin = find.byKey(CoreKeys.enterWithPinOrEmailLoginPage);
+      final finderTextEnterPin = find.byKey(CoreKeys.enterWithPin);
       expect(finderTextEnterPin, findsOneWidget);
 
       final TextButtonCustom textButtonCustom = test.widget(finderTextEnterPin);
@@ -202,7 +202,7 @@ void main() {
       await test.tap(find.text(CoreStrings.enterPin));
       await test.pump();
 
-      final finderTextEnterPin = find.byKey(CoreKeys.enterWithPinOrEmailLoginPage);
+      final finderTextEnterPin = find.byKey(CoreKeys.enterWithPin);
       expect(finderTextEnterPin, findsOneWidget);
 
       final TextButtonCustom textButtonCustom = test.widget(finderTextEnterPin);

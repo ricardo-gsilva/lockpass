@@ -8,6 +8,7 @@ class CoreColors {
 
   static const Color selectBottomBar = Color (0xFFFFBF00);
   static const Color selectBorder = Color (0xFFFFBF00);
+  static const Color focusedBorder = Color (0xFFFFBF00);
   static const Color unselectBottomBar =  Color (0xFFFFFFFF);
   static const Color buttonColorPrimary =  Color (0xFFFFFFFF);
   static const Color buttonColorSecond =  Color (0xFFFFBF00);
@@ -20,5 +21,6 @@ class CoreColors {
   static const Color deleteItem = Color(0xFFF44336);
   static const Color transparent = Color(0x00000000);
   static const Color pinIsEmpty = Color(0xFF2E7D32);
+  static const Color alertError = Color(0xFFF44336);
   
 }
