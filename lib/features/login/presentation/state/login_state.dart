@@ -3,7 +3,7 @@ class LoginState {
   final bool confirmLogin;
   final bool resetPass;
   final String exception;
-  final String? message;
+  final String message;
   final bool isLoading;
   final bool isPinLoginMode;
   final bool sufixIcon;
@@ -17,7 +17,7 @@ class LoginState {
     this.confirmLogin = false,
     this.resetPass = false,
     this.exception = '',
-    this.message,
+    this.message = '',
     this.isLoading = false,
     this.isPinLoginMode = false,
     this.sufixIcon = true,

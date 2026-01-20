@@ -1,14 +1,8 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:lockpass/components/loading_custom.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/services/auth_service.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
-
-// enum LoginMode { email, pin }
 
 class LoginController extends Cubit<LoginState> {
   final AuthService _authService;
@@ -54,32 +48,78 @@ class LoginController extends Cubit<LoginState> {
     ));
   }
 
-  Future<void> submitLogin(
-    BuildContext context,
+  Future<void> loginWithEmailAndPassword(
     String email,
     String password,
   ) async {
-    LoadingCustom().startLoading(context);
-
-    final ok = await loginWithEmailAndPassword(email, password);
-
-    if (ok) {
-      await _vaultService.initializeVaultEnvironment();
-
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRoutes.home,
-        (route) => false,
-      );
-    } else {
-      showToast(
-        duration: const Duration(seconds: 3),
-        context: context,
-        state.exception,
-      );
+    final emailValidation = validateEmail(email);
+    if (emailValidation != null) {
+      emit(
+        state.copyWith(
+          confirmLogin: false,
+          exception: emailValidation,
+        ));
+        return;
+    }
+    
+    if (password.isEmpty) {
+      emit(
+        state.copyWith(
+          confirmLogin: false,
+          exception: "Digite sua senha.",
+        ));
+        return;
     }
 
-    LoadingCustom().stopLoading();
-  } 
+    emit( 
+      state.copyWith(
+        isLoading: true,
+        confirmLogin: false,
+        exception: '',
+        message: '',
+      ),
+    );
+
+    final stopWatch = Stopwatch()..start();
+
+    try {
+      await _authService.login(email, password);
+
+      await _waitMinLoadingTime(stopWatch);
+
+      await _vaultService.initializeVaultEnvironment();
+
+      emit(
+        state.copyWith(
+          isLoading: false,
+          confirmLogin: true,
+          exception: '',
+        ),
+      );
+    } on AuthException catch (e) {
+
+      await _waitMinLoadingTime(stopWatch);
+
+      emit(
+        state.copyWith(
+          isLoading: false,
+          confirmLogin: false,
+          exception: e.message,
+        ),
+      );
+    }
+  }
+
+  Future<void> _waitMinLoadingTime(
+    Stopwatch stopWatch, {
+    Duration minDuration = const Duration(milliseconds: 1500),
+  }) async {
+    final elapsed = stopWatch.elapsed;
+    if (elapsed < minDuration) {
+      await Future.delayed(minDuration - elapsed);
+    }
+  }
+
 
   /// equivalente ao: checkPinLength()
   bool isPinLengthValid(String pin) => pin.isNotEmpty && pin.length >= 5;
@@ -114,34 +154,7 @@ class LoginController extends Cubit<LoginState> {
       return false;
     }
     return true;
-  }
-
-  /// equivalente ao: login(login, password)
-  //Future<bool> loginWithEmail({
-  Future<bool> loginWithEmailAndPassword(String login, String password) async {
-    try {
-      final ok = await _authService.login(login, password);
-
-      emit(state.copyWith(
-        confirmLogin: ok,
-        exception: '',
-      ));
-
-      return ok;
-    } on AuthException catch (e) {
-      emit(state.copyWith(
-        confirmLogin: false,
-        exception: e.message,
-      ));
-      return false;
-    } catch (e) {
-      emit(state.copyWith(
-        confirmLogin: false,
-        exception: e.toString(),
-      ));
-      return false;
-    }
-  }
+  }  
 
   /// equivalente ao fluxo do PIN na page:
   /// checkPin(pin) -> pinDecrypt() -> isolateCreateZip(path, pin)
@@ -223,21 +236,49 @@ class LoginController extends Cubit<LoginState> {
     }
   }
 
+  void clearFeedback() {
+    emit(state.copyWith(
+      resetPass: false,
+      exception: '',
+      message: '',
+    ));
+  }
+
   /// equivalente ao: resetPassword()
-  Future<bool> resetPassword({required String email}) async {
+  Future<void> resetPassword({required String email}) async {
+    final validation = validateEmail(email);
+    if (validation != null) {
+      emit(state.copyWith(
+        resetPass: true,
+        exception: validation,
+        message: '',
+        isLoading: false,
+      ));
+      return;
+    }
+
+    emit(state.copyWith(
+      resetPass: true,
+      isLoading: true,
+      exception: '',
+      message: '',
+    ));
+
     try {
       await _authService.resetPassword(email);
 
       emit(state.copyWith(
-        resetPass: true,
-        exception:
-            'Um email foi enviado para $email. O email contém um link para redefinir sua senha!',
+        isLoading: false,
+        message:
+            'Enviamos um e-mail para o endereço que você digitou. O e-mail contém um link para redefinir sua senha!',
       ));
-
-      return true;
-    } catch (e) {
-      emit(state.copyWith(exception: e.toString()));
-      return false;
+    } on AuthException catch (e) {
+      
+      emit(state.copyWith(
+        isLoading: false,
+        exception: e.message,
+        ),
+      );
     }
   }
 }

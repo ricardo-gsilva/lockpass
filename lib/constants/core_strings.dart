@@ -123,6 +123,7 @@ class CoreStrings {
   static const String fInvalidLoginCredentials = 'Email ou senha incorretos. Tente novamente!';
   static const String fWrongPassword = 'Um ou mais campos estão vazios!';
   static const String missingEmail = 'Campo de email vazio!';
+  static const String fUserDisabled = 'Este usuário foi desabilitado.';
 
   //Page Navigation
   static const String homePage = '/home';

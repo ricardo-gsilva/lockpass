@@ -192,9 +192,10 @@ abstract class LoginStoreBase with Store {
   @action
   Future<bool> login(String login, String password) async {
     try {
-      return await AuthService().login(login, password);
+      return true;
+      // return await AuthService().login(login, password);
     } on AuthException catch (e) {
-      exception = e.message;
+      // exception = e.message;
       return false;
     }
   }
@@ -206,7 +207,7 @@ abstract class LoginStoreBase with Store {
       exception = CoreStrings.userCreateSucess;
       return true;
     } on AuthException catch (e) {
-      exception = e.message;
+      // exception = e.message;
       return false;
     }
   }
@@ -219,7 +220,7 @@ abstract class LoginStoreBase with Store {
           'Um email foi enviado para $email. O email contém um link para redefinir sua senha!';
       return true;
     } on AuthException catch (e) {
-      exception = e.message;
+      // exception = e.message;
       return false;
     }
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/di/get_it.dart';
-import 'package:lockpass/core/ui/bottom_sheet_utils.dart';
+import 'package:lockpass/core/navigation/app_routes.dart';
+import 'package:lockpass/core/utils/bottom_sheet_utils.dart';
+import 'package:lockpass/core/utils/snack_bar_utils.dart';
 import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/features/login/presentation/widgets/create_account_bottom_sheet.dart';
@@ -48,15 +50,21 @@ class _LoginPageState extends State<LoginPage1> {
     return BlocProvider.value(
       value: loginController,
       child: BlocListener<LoginController, LoginState>(
-        listenWhen: (prev, curr) => prev.userCreate != curr.userCreate,
+        listenWhen: (prev, curr) => prev.exception != curr.exception 
+          || prev.confirmLogin != curr.confirmLogin,
         listener: (context, state) {
-          if (state.userCreate) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Conta criada com sucesso!"),
-                backgroundColor: Colors.green,
-              ),
-            );            
+          if (state.exception.isNotEmpty) {
+            SnackUtils.showError(context, content: state.exception);
+            loginController.clearFeedback();
+            return;
+          }
+
+          if (state.confirmLogin == true) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              AppRoutes.home,
+              (route) => false,
+            );
+            loginController.clearFeedback();
           }
         },
         child: Scaffold(
@@ -76,6 +84,7 @@ class _LoginPageState extends State<LoginPage1> {
                     SizedBox(
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20, right: 20),
+                        /// LOGIN FIELDS  
                         child: LoginFields(
                             controller: loginController,
                             emailController: emailController,
@@ -117,9 +126,12 @@ class _LoginPageState extends State<LoginPage1> {
                         onPressed: () {
                           showCustomBottomSheet(
                             context: context,
-                            child: ResetPasswordBottomSheet(
-                              controller: loginController,
-                              resetPasswordController: resetPasswordController,
+                            child: BlocProvider.value(
+                              value: loginController,
+                              child: ResetPasswordBottomSheet(
+                                controller: loginController,
+                                resetPasswordController: resetPasswordController,
+                              ),
                             ),
                           );
                         },
@@ -127,21 +139,26 @@ class _LoginPageState extends State<LoginPage1> {
                         colorText: CoreColors.textSecundary,
                       ),
                     ),
-                    ButtonCustom(
-                      key: CoreKeys.buttonEnterLoginPage,
-                      height: 50,
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      backgroundButton: CoreColors.buttonColorSecond,
-                      text: CoreStrings.enter,
-                      colorText: CoreColors.textPrimary,
-                      fontSize: 18,
-                      onPressed: () async {
-                        await loginController.submitLogin(
-                          context,
-                          emailController.text,
-                          passwordController.text,
+                    BlocBuilder<LoginController, LoginState>(
+                      bloc: loginController,
+                      builder: (context, state) {
+                        return ButtonCustom(
+                          key: CoreKeys.buttonEnterLoginPage,
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.75,
+                          backgroundButton: CoreColors.buttonColorSecond,
+                          text: state.isLoading? "Entrando..." : CoreStrings.enter,
+                          colorText: CoreColors.textPrimary,
+                          fontSize: 18,
+                          isLoading: state.isLoading,
+                          onPressed: () async {
+                            await loginController.loginWithEmailAndPassword(
+                              emailController.text,
+                              passwordController.text,
+                            );
+                          },
                         );
-                      },
+                      }
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10),

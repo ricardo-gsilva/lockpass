@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/core/errors/auth_errors_type.dart';
 
 class AuthException implements Exception {
   String message;
@@ -61,21 +62,24 @@ class AuthService {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<void> login(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);      
-      return true;
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw AuthException(CoreStrings.fUserNotFound);
-      } else if (e.code == 'invalid-email') {
-        throw AuthException(CoreStrings.fEmailInvalid);
-      } else if (e.code == 'invalid-credential') {
-        throw AuthException(CoreStrings.fInvalidLoginCredentials);
-      } else if (e.code == 'wrong-password') {
-        throw AuthException(CoreStrings.fWrongPassword);
-      }
-      return false;
+      throw AuthException(e.code.toAuthErrorType().message);
+      // if (e.code == 'user-not-found') {
+      //   throw AuthException(CoreStrings.fUserNotFound);
+      // } else if (e.code == 'invalid-email') {
+      //   throw AuthException(CoreStrings.fEmailInvalid);
+      // } else if (e.code == 'invalid-credential') {
+      //   throw AuthException(CoreStrings.fInvalidLoginCredentials);
+      // } else if (e.code == 'wrong-password') {
+      //   throw AuthException(CoreStrings.fWrongPassword);
+      // } else if (e.code == 'user-disabled') {
+      //   throw AuthException(CoreStrings.fUserDisabled);
+      // } else {
+      //   throw AuthException("Não foi possível realizar o login. Tente novamente.");
+      // }
     }
   }
 
