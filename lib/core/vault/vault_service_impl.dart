@@ -3,16 +3,23 @@ import 'dart:io';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
 import 'package:lockpass/database/shared_preferences.dart';
+import 'package:lockpass/services/auth_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VaultServiceImpl implements VaultService {
-  SharedPrefs? _sharedPrefs;
+  SharedPrefs? sharedPrefs;
   String? _storagePath;
+  final AuthService _authService;
+
+  VaultServiceImpl(this._authService);
+
+  @override
+  String get userId => _authService.currentUserId;
 
   void ensureInitialized() {
-    if (_sharedPrefs == null) {
+    if (sharedPrefs == null) {
       throw StateError('VaultService not initialized. Call init() first.');
     }
   }
@@ -29,8 +36,14 @@ class VaultServiceImpl implements VaultService {
     
   @override
   Future<void> initializePreferences() async {
+      if (sharedPrefs != null) return;
     final prefs = await SharedPreferences.getInstance();
-    _sharedPrefs = SharedPrefs(sharedPreferences: prefs);
+    sharedPrefs = SharedPrefs(sharedPreferences: prefs);
+  }
+
+  @override
+  Future<SharedPrefs> prefs() async {
+    return sharedPrefs!;
   }
   
   @override
@@ -68,27 +81,57 @@ class VaultServiceImpl implements VaultService {
 
   @override
   Future<bool> hasStoragePermission() async {
-    // Se for Android, verifica permissão de storage
-    if (Platform.isAndroid) {
-      return await Permission.storage.isGranted;
+    if (!Platform.isAndroid) return true;
+
+    final granted = await Permission.storage.isGranted;
+    if (sharedPrefs != null) {
+      sharedPrefs?.setPermissionStorage(granted);
     }
-    // iOS, Web, Desktop → não exigem permissão
-    return true;
+    return granted;
   }
 
   @override
   Future<void> requestStoragePermission() async {
-    // Apenas Android exige permissão explícita
+    ensureInitialized();
+
     if (Platform.isAndroid) {
-      await Permission.storage.request();
+      final status = await Permission.storage.request();
+      sharedPrefs?.setPermissionStorage(status.isGranted);
     }
   }
+
   
   @override
   Future<bool> verifyPin(String pin) {
     // TODO: implement verifyPin
     throw UnimplementedError();
   }
+
+  @override
+  Future<bool> getHideCreatePinInfo() async {
+    ensureInitialized();
+    return sharedPrefs?.getHideCreatePinInfo() ?? false;
+  }
+
+  @override
+  Future<void> setHideCreatePinInfo(bool value) async {
+    ensureInitialized();
+    sharedPrefs?.setHideCreatePinInfo(value);
+  }
+  
+  @override
+  Future<bool> shouldShowCreatePinInfo() async {
+    if (sharedPrefs == null) {
+      await initializePreferences();
+    }
+    final isVisible = sharedPrefs?.getVisibleInfoCreatePin()?? false;
+    if (isVisible) return false;
+    
+    final checkPin = sharedPrefs?.getPin(userId) ?? '';
+    return checkPin.isEmpty;
+  }
+  
+
 
 
 //    @override
@@ -114,21 +157,15 @@ class VaultServiceImpl implements VaultService {
   //   }
   // }
 
-//   @override
-//   Future<void> requestStoragePermission() async {
-//     _ensureInitialized();
 
-//     final status = await Permission.storage.request();
-//     _sharedPrefs!.setPermissionStorage(status.isGranted);
-//   }
 
-//   @override
-//   Future<bool> hasPin() async {
-//     _ensureInitialized();
+  // @override
+  // Future<bool> hasPin() async {
+  //   _ensureInitialized();
 
-//     final encryptedPin = _sharedPrefs!.getPin() ?? '';
-//     return encryptedPin.isNotEmpty;
-//   }
+  //   final encryptedPin = _sharedPrefs!.getPin() ?? '';
+  //   return encryptedPin.isNotEmpty;
+  // }
 
 //   @override
 //   Future<String> getDecryptedPin() async {

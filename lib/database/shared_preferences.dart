@@ -5,16 +5,20 @@ class SharedPrefs {
 
   final SharedPreferences sharedPreferences;
 
-  static const String pinKey = 'pin';
   static const String permissionStorageKey = 'permissionStorage';
   static const String visibleInfoCreatePinKey = 'visibleInfoCreatePin';
+  String _pinKey(String userId) => 'pin_$userId';
   
-  Future<bool> setSavePin(String pin) async {
-    return sharedPreferences.setString(pinKey, pin);
+  Future<bool> setSavePin(String userId, String pin) async {
+    return sharedPreferences.setString(_pinKey(userId), pin);
   }
 
-  String getPin() {
-    return sharedPreferences.getString(pinKey)?? '';
+  String getPin(String userId) {
+    return sharedPreferences.getString(_pinKey(userId))?? '';
+  }
+
+  Future<void> removePin(String userId) async {
+    sharedPreferences.remove(_pinKey(userId));
   }
 
   Future<bool> setPermissionStorage(bool permissionStorage) async {
@@ -25,15 +29,21 @@ class SharedPrefs {
     return sharedPreferences.getBool(permissionStorageKey)?? false;
   }
 
+  ///remover
   Future<bool> setVisibleInfoCreatePin(bool visibleInfoCreatePin) async {
     return sharedPreferences.setBool(visibleInfoCreatePinKey, visibleInfoCreatePin);
   }
 
+  Future<bool> setHideCreatePinInfo(bool hideCreatePinInfo) async {
+    return sharedPreferences.setBool(visibleInfoCreatePinKey, hideCreatePinInfo);
+  }
+
+  ///remover
   bool getVisibleInfoCreatePin() {
     return sharedPreferences.getBool(visibleInfoCreatePinKey)?? false;
   }
 
-  removePin() async {
-    sharedPreferences.remove(pinKey);
+  bool getHideCreatePinInfo() {
+    return sharedPreferences.getBool(visibleInfoCreatePinKey)?? false;
   }
 }

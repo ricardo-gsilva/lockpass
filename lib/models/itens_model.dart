@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 class ItensModel {
+  String? userId;
   int? id;
   String? type;
   String? service;
@@ -11,6 +12,7 @@ class ItensModel {
   String? password;
   
   ItensModel({
+    this.userId,
     this.id,
     this.type,
     this.service,
@@ -21,6 +23,7 @@ class ItensModel {
   });
 
   ItensModel.empty():
+    userId = '',
     id = 0,
     type = '',
     service = '',
@@ -31,6 +34,7 @@ class ItensModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'userId': userId,
       'id': id,
       'type': type,
       'service': service,
@@ -43,6 +47,7 @@ class ItensModel {
 
   factory ItensModel.fromMap(Map<String, dynamic> map) {
     return ItensModel(
+      userId: map['userId'] != null ? map['userId'] as String : null,
       id: map['id'] != null ? map['id'] as int : null,
       type: map['type'] != null ? map['type'] as String : null,
       service: map['service'] != null ? map['service'] as String : null,
@@ -53,12 +58,34 @@ class ItensModel {
     );
   }
 
+  ItensModel copyWith({
+    String? userId,
+    int? id,
+    String? type,
+    String? service,
+    String? site,
+    String? email,
+    String? login,
+    String? password,
+  }) {
+    return ItensModel(
+      userId: userId ?? this.userId,
+      id: id ?? this.id,
+      type: type ?? this.type,
+      service: service ?? this.service,
+      site: site ?? this.site,
+      email: email ?? this.email,
+      login: login ?? this.login,
+      password: password ?? this.password,
+    );
+  }
+
   String toJson() => json.encode(toMap());
 
   factory ItensModel.fromJson(String source) => ItensModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'ItensModel(id: $id, type: $type, service: $service, site: $site, email: $email, login: $login, password: $password)';
+    return 'ItensModel(userId: $userId, id: $id, type: $type, service: $service, site: $site, email: $email, login: $login, password: $password)';
   }
 }

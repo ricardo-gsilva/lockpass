@@ -87,7 +87,7 @@ abstract class _ConfigPageStore with Store{
     await sharedPrefs();
     try {
       await AuthService().deleteAccount();
-      sharedPref?.removePin();
+      // sharedPref?.removePin();
       return true;
     } catch (e) {
       return false;
@@ -128,13 +128,13 @@ abstract class _ConfigPageStore with Store{
   savePin(String pin) async {
     await sharedPrefs();
     final String pinEncrypt = await EncryptDecrypt.encrypted(pin);    
-    await sharedPref?.setSavePin(pinEncrypt);
+    // await sharedPref?.setSavePin(pinEncrypt);
   }
 
   @action
   removePin() async{
     await sharedPrefs();
-    sharedPref?.removePin();
+    // sharedPref?.removePin();
     sharedPref?.setVisibleInfoCreatePin(false);
     getPinVerification();
   }
@@ -142,10 +142,10 @@ abstract class _ConfigPageStore with Store{
   @action
   getPinVerification() async {
     await sharedPrefs();
-    String getEncryptPin = sharedPref?.getPin()?? '';
-    String pinDecrypt = await EncryptDecrypt.decrypt(getEncryptPin);
+    // String getEncryptPin = sharedPref?.getPin()?? '';
+    // String pinDecrypt = await EncryptDecrypt.decrypt(getEncryptPin);
 
-    pin = int.parse(pinDecrypt);
+    // pin = int.parse(pinDecrypt);
 
     if(pin != 0){
       colorPin = CoreColors.textPrimary;
@@ -192,11 +192,11 @@ abstract class _ConfigPageStore with Store{
   @action
   Future<String> pinDecrypt() async {
     await sharedPrefs();
-    String getEncryptPin = sharedPref?.getPin() ?? '0';
-    String pinDecrypt = getEncryptPin != '0'
-        ? await EncryptDecrypt.decrypt(getEncryptPin)
-        : getEncryptPin;
-    return pinDecrypt;
+    // String getEncryptPin = sharedPref?.getPin() ?? '0';
+    // String pinDecrypt = getEncryptPin != '0'
+    //     ? await EncryptDecrypt.decrypt(getEncryptPin)
+    //     : getEncryptPin;
+    return '';
   }
 
   @action

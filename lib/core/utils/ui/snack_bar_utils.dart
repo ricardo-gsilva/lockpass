@@ -20,7 +20,7 @@ class SnackUtils {
   static void showError(
     BuildContext context, {
     required String content,
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 3),
   }) {
     _show(
       context,

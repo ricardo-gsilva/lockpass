@@ -154,9 +154,9 @@ class CoreStrings {
   static const String infoSaveList = 'Você irá salvar um arquivo zip contendo sua lista de logins salvos no App.';
   static const String choiceFile = 'Você precisa escolher um arquivo para ser carregado.';
   static const String loadedList = 'Sua lista de logins salva, foi carregada.';
-  static const String pinInfo = 'Não digite números iguais em sequência\n'
+  static const String pinInfo = 'Para validar seu PIN, nāo repita o mesmo número em sequência.\n'
                     '\n'
-                    'Ex: 11111, 25400 ou 78883.'
+                    'Ex: 11111, 25400, 78883.'
                     '\n\n';                 
                     
   static const String pinVazio = 'O PIN está vazio ou contém menos do que 5 números.\n'
@@ -166,7 +166,7 @@ class CoreStrings {
                     'Ex: 14279 ou 43835.\n'
                     '\n';
   static const String pinCreated = 'PIN criado com Sucesso';
-  static const String pinUseInfo = 'Guarde o número do seu PIN para poder acessar o App e ter acesso as suas senhas.';
+  static const String pinUseInfo = 'Guarde o número do seu PIN, para poder acessar o App e ter acesso as suas senhas.';
   static const String invalidePin = 'PIN Inválido';
   static const String infoSaveBackUpIos = 'Para acessar seu arquivo de backup, acesse "No Meu Iphone"'
             'e procure pela pasta "LockPass", nessa pasta estará o arquivo "lockpass_db_manual".\n'

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/helpers/encrypt_decrypt.dart';
 import 'package:lockpass/models/itens_model.dart';
 import 'package:lockpass/constants/core_colors.dart';
@@ -177,7 +178,8 @@ class _AddItemPageState extends State<AddItemPage> {
                                   password: passEncrypted,
                                 );
                                 store.addItem(i);
-                                Navigator.popAndPushNamed(context, CoreStrings.homePage);
+                                // Navigator.popAndPushNamed(context, CoreStrings.homePage);
+                                Navigator.popAndPushNamed(context, AppRoutes.home);
                           } else {
                             showToast(
                               context: context,

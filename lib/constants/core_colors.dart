@@ -9,6 +9,7 @@ class CoreColors {
   static const Color selectBottomBar = Color (0xFFFFBF00);
   static const Color selectBorder = Color (0xFFFFBF00);
   static const Color focusedBorder = Color (0xFFFFBF00);
+  static const Color dropDownField = Color (0xFFFFBF00);
   static const Color unselectBottomBar =  Color (0xFFFFFFFF);
   static const Color buttonColorPrimary =  Color (0xFFFFFFFF);
   static const Color buttonColorSecond =  Color (0xFFFFBF00);

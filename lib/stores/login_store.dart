@@ -124,11 +124,11 @@ abstract class LoginStoreBase with Store {
   @action
   Future<String> pinDecrypt() async {
     await sharedPrefs();
-    String getEncryptPin = sharedPref?.getPin() ?? '0';
-    String pinDecrypt = getEncryptPin != '0'
-        ? await EncryptDecrypt.decrypt(getEncryptPin)
-        : getEncryptPin;
-    return pinDecrypt;
+    // String getEncryptPin = sharedPref?.getPin() ?? '0';
+    // String pinDecrypt = getEncryptPin != '0'
+    //     ? await EncryptDecrypt.decrypt(getEncryptPin)
+    //     : getEncryptPin;
+    return 'pinDecrypt';
   }
 
   @action
@@ -158,8 +158,8 @@ abstract class LoginStoreBase with Store {
   @action
   Future<bool> checkPin(String pin) async {
     await sharedPrefs();
-    String pinEncrypt = sharedPref?.getPin() ?? '';
-    String pinDecrypt = await EncryptDecrypt.decrypt(pinEncrypt);
+    // String pinEncrypt = sharedPref?.getPin() ?? '';
+    // String pinDecrypt = await EncryptDecrypt.decrypt(pinEncrypt);
 
     if (pin == pinDecrypt) {
       return true;
@@ -171,12 +171,13 @@ abstract class LoginStoreBase with Store {
   @action
   Future<bool> pinIsValid() async {
     await sharedPrefs();
-    String checkPin = sharedPref?.getPin() ?? '';
-    if (checkPin.isNotEmpty) {
-      return true;
-    } else {
-      return false;
-    }
+    // String checkPin = sharedPref?.getPin() ?? '';
+    // if (checkPin.isNotEmpty) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+    return false;
   }
 
   @action

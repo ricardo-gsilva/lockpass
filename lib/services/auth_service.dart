@@ -18,11 +18,32 @@ class AuthService {
     _authCheck();
   }
 
+  String get currentUserId => _auth.currentUser?.uid ?? '';
+
   _authCheck() {
     _auth.authStateChanges().listen((User? user) {
       userApp = (user == null) ? null : user;
       isLoading = false;
     });
+  }
+
+  Future<bool> reauthenticateWithPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final user = _auth.currentUser;      
+      if (user == null) return false;   
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(e.message!);
+    }
   }
 
   Future<bool> sigInOut() async {

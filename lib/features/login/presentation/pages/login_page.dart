@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/di/get_it.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
-import 'package:lockpass/core/utils/bottom_sheet_utils.dart';
-import 'package:lockpass/core/utils/snack_bar_utils.dart';
+import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
+import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
 import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/features/login/presentation/widgets/create_account_bottom_sheet.dart';
@@ -28,11 +28,12 @@ class _LoginPageState extends State<LoginPage1> {
   TextEditingController pinController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController resetPasswordController = TextEditingController();
-  late final loginController = getIt<LoginController>();
+  late final LoginController loginController;
 
   @override
   void initState() {
     super.initState();
+    loginController = getIt<LoginController>();
     loginController.init();
   }
 
@@ -42,6 +43,7 @@ class _LoginPageState extends State<LoginPage1> {
     passwordController.dispose();
     pinController.dispose();
     resetPasswordController.dispose();
+    loginController.close();
     super.dispose();
   }
 

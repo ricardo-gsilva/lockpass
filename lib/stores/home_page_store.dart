@@ -82,12 +82,13 @@ abstract class HomePageStoreBase with Store {
     if (isVisible) {
       return false;
     } else {
-      String checkPin = sharedPref?.getPin() ?? '';
-      if (checkPin.isEmpty) {
-        return true;
-      } else {
-        return false;
-      }
+      // String checkPin = sharedPref?.getPin() ?? '';
+      // if (checkPin.isEmpty) {
+      //   return true;
+      // } else {
+      //   return false;
+      // }
+      return false;
     }    
   }
 

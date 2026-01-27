@@ -2,27 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/core/utils/extensions/string_extensions.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
-import 'package:lockpass/features/login/presentation/state/login_state.dart';
+import 'package:lockpass/core/utils/validators/validators.dart';
+import 'package:lockpass/features/config/presentation/controller/config_controller.dart';
+import 'package:lockpass/features/config/presentation/state/config_state.dart';
 import 'package:lockpass/widgets/button_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 import 'package:lockpass/widgets/textformfield_custom.dart';
-import '../controller/login_controller.dart';
 
-class CreateAccountBottomSheet extends StatefulWidget {
-  final LoginController controller;
-
-  const CreateAccountBottomSheet({
+class ResetPinBottomSheet extends StatefulWidget {
+  const ResetPinBottomSheet({
     super.key,
-    required this.controller,
   });
 
   @override
-  State<CreateAccountBottomSheet> createState() =>
-      _CreateAccountBottomSheetState();
+  State<ResetPinBottomSheet> createState() => _ResetPinBottomSheetState();
 }
 
-class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
+class _ResetPinBottomSheetState extends State<ResetPinBottomSheet> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -35,29 +33,25 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginController, LoginState>(
-      listenWhen: (prev, curr) => prev.exception != curr.exception || prev.message != curr.message,
+    final controller = context.read<ConfigController>();
+    return BlocListener<ConfigController, ConfigState>(
+      listenWhen: (previous, current) =>
+          previous.errorMessage != current.errorMessage ||
+          previous.successMessage != current.successMessage,
       listener: (context, state) {
-        if (state.userCreate) {
-          Navigator.pop(context,(
-              email: emailController.text,
-              password: passwordController.text,
-            ),
-          );
-          SnackUtils.showSuccess(
-            context,
-            content: state.message
-          );           
+        if (state.successMessage.isNotNullOrBlank) {
+          if(Navigator.of(context).canPop()){
+            Navigator.of(context).pop();
+          }
+          SnackUtils.showSuccess(context, content: state.successMessage);
         }
-        if (state.exception.isNotEmpty) {
-          SnackUtils.showError(
-            context, 
-            content: state.exception
-          );          
+        if (state.errorMessage.isNotNullOrBlank) {
+          SnackUtils.showError(context, content: state.errorMessage);
         }
       },
       child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: GestureDetector(
           onTap: () => Navigator.pop(context),
           behavior: HitTestBehavior.opaque,
@@ -77,19 +71,26 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(24)),
                     ),
-                    child: BlocBuilder<LoginController, LoginState>(
+                    child: BlocBuilder<ConfigController, ConfigState>(
                         builder: (context, state) {
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const TextCustom(
-                            text: CoreStrings.register1,
+                            text: "Resetar PIN",
                             color: CoreColors.textSecundary,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
+                          const TextCustom(
+                            text:
+                                "Confirme sua identidade digitando seu e-mail e senha cadastrados. Após a validação, você poderá criar um novo PIN de acesso.",
+                            color: CoreColors.textSecundary,
+                            fontSize: 15,
+                          ),
                           const SizedBox(height: 24),
+
                           /// EMAIL
                           TextFormFieldCustom(
                             label: CoreStrings.email,
@@ -101,11 +102,14 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                             colorErrorText: CoreColors.textSecundary,
                             colorErrorBorder: CoreColors.alertError,
                             validator: (value) {
-                              return widget.controller
-                                  .validateEmail(value ?? '');
+                              if (value.isBlank) return CoreStrings.fillField;
+                              if (!value.isValidEmail)
+                                return CoreStrings.emailInvalid;
+                              return null;
                             },
                           ),
                           const SizedBox(height: 16),
+
                           /// PASSWORD
                           TextFormFieldCustom(
                             label: CoreStrings.password,
@@ -122,26 +126,28 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                                     : Icons.visibility,
                                 color: CoreColors.textSecundary,
                               ),
-                              onPressed:
-                                  widget.controller.togglePasswordVisibility,
+                              onPressed: controller.togglePasswordVisibility,
                             ),
                           ),
                           const SizedBox(height: 24),
+
                           /// BOTÃO CRIAR
                           ButtonCustom(
                             isLoading: state.isLoading,
                             backgroundButton: CoreColors.buttonColorSecond,
                             colorText: CoreColors.textPrimary,
                             text: state.isLoading
-                                ? 'Criando conta... '
-                                : CoreStrings.register2,
+                                ? 'Resetando... '
+                                : "Resetar PIN",
                             onPressed: () async {
-                              await widget.controller.register(
-                                  email: emailController.text,
-                                  password: passwordController.text);
+                              await controller.reauthenticate(
+                                email: emailController.text,
+                                password: passwordController.text,
+                              );
                             },
                           ),
                           const SizedBox(height: 12),
+
                           /// Cancelar
                           TextButton(
                             onPressed: () => Navigator.pop(context),

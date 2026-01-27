@@ -6,7 +6,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DataBaseHelper {
-
   static DataBaseHelper? _dataBaseHelper;
   static Database? _database;
 
@@ -15,7 +14,8 @@ class DataBaseHelper {
   String colTypeType = 'typeType';
   String colTypeVisible = 'typeVisible';
 
-  String itensTable = 'itensTable';  
+  String itensTable = 'itensTable';
+  String colUserId = 'userId';
   String colId = 'id';
   String colType = 'type';
   String colService = 'service';
@@ -23,22 +23,27 @@ class DataBaseHelper {
   String colEmail = 'email';
   String colLogin = 'login';
   String colPassword = 'password';
-  
+
   DataBaseHelper._createInstance();
 
-  factory DataBaseHelper(){
-    return _dataBaseHelper ??= DataBaseHelper._createInstance();    
+  factory DataBaseHelper() {
+    return _dataBaseHelper ??= DataBaseHelper._createInstance();
   }
 
   Future<Database> get database async {
     return _database ??= await initializeDatabase();
-  }  
+  }
 
-  Future<Database> initializeDatabase() async {    
+  Future<Database> initializeDatabase() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String path = '${directory.path}_itens.db';
 
-    return await openDatabase(path, version: 1, onCreate: _createDb);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createDb,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   void _createDb(Database db, int newVersion) async {
@@ -48,12 +53,12 @@ class DataBaseHelper {
           $colTypeType TEXT,
           $colTypeVisible TEXT
         )  
-      '''
-    );
+      ''');
 
     await db.execute('''
         CREATE TABLE $itensTable(
           $colId INTEGER PRIMARY KEY AUTOINCREMENT,
+          $colUserId TEXT
           $colType TEXT,
           $colService TEXT,
           $colSite TEXT,
@@ -61,14 +66,19 @@ class DataBaseHelper {
           $colLogin TEXT,
           $colPassword TEXT
         )  
-      '''
-    );
+      ''');
   }
 
-  Future<int> addItem(ItensModel itens) async {
-    Database db = await this.database;
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute("ALTER TABLE $itensTable ADD COLUMN $colUserId TEXT");
+    }
+  }
 
-    return await db.insert(itensTable, itens.toMap());
+  Future<int> addItem(ItensModel item) async {
+    final db = await database;
+
+    return db.insert(itensTable, item.toMap());
   }
 
   Future<int> addType(TypeModel type) async {
@@ -77,64 +87,71 @@ class DataBaseHelper {
     return await db.insert(typeTable, type.toMap());
   }
 
-  Future<ItensModel> getItem(int id) async {
+  Future<ItensModel> getItem(int id, String userId) async {
     Database db = await this.database;
-    List<Map<String, dynamic>> maps = await db.query(
+    final maps = await db.query(
       itensTable,
-      columns: [colId, colType, colService, colSite, colEmail, colLogin, colPassword],
-      where: '$colId = ?',
-      whereArgs: [id]
+      where: '$colId = ?',  
+      whereArgs: [id, userId],
     );
 
-    if(maps.isNotEmpty){
-      return ItensModel.fromMap(maps.first);
-    } else {
-      return ItensModel.empty();
-    }
+    if (maps.isNotEmpty) return ItensModel.fromMap(maps.first);
+    return ItensModel.empty();
+  }
+
+  Future<List<ItensModel>> getItensByUser(String userId) async {
+    Database db = await database;
+
+    final table = await db.query(
+      itensTable,
+      where: '$colUserId = ?',
+      whereArgs: [userId],
+    );
+
+    return table.isNotEmpty
+        ? table.map((i) => ItensModel.fromMap(i)).toList()
+        : [];
   }
 
   Future<List<ItensModel>> getItens() async {
     Database db = await this.database;
     var table = await db.query(itensTable);
 
-    return table.isNotEmpty? table.map(
-      (i) => ItensModel.fromMap(i)).toList() : [];
+    return table.isNotEmpty
+        ? table.map((i) => ItensModel.fromMap(i)).toList()
+        : [];
   }
 
   Future<List<TypeModel>> getType() async {
     Database db = await this.database;
     var table = await db.query(typeTable);
 
-    return table.isNotEmpty? table.map(
-      (i) => TypeModel.fromMap(i)).toList() : [];
+    return table.isNotEmpty
+        ? table.map((i) => TypeModel.fromMap(i)).toList()
+        : [];
   }
 
-  Future<int> updateItem(ItensModel itens) async{
+  Future<int> updateItem(ItensModel itens) async {
     Database db = await this.database;
-    return await db.update(
-      itensTable, itens.toMap(),
-      where: '$colId = ?',
-      whereArgs: [itens.id]
-    );
+    return await db.update(itensTable, itens.toMap(),
+        where: '$colId = ?', whereArgs: [itens.id]);
   }
 
-  Future<int> deleteItem(ItensModel itens) async{
+  Future<int> deleteItem(ItensModel itens) async {
     Database db = await this.database;
-    return await db.delete(
-      itensTable,
-      where: '$colId = ?',
-      whereArgs:  [itens.id]
-    );
+    return await db
+        .delete(itensTable, where: '$colId = ?', whereArgs: [itens.id]);
   }
 
-  Future<int> countItens() async{
+  Future<int> countItens() async {
     Database db = await this.database;
-    List<Map<String, dynamic>> count = await db.rawQuery('SELECT COUNT (*) from $itensTable');
+    List<Map<String, dynamic>> count =
+        await db.rawQuery('SELECT COUNT (*) from $itensTable');
 
-    return Sqflite.firstIntValue(count)!;    
+    return Sqflite.firstIntValue(count)!;
   }
 
-  Future closeDataBase() async{
+  Future closeDataBase() async {
     Database db = await this.database;
     return db.close();
   }

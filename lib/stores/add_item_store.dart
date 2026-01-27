@@ -94,7 +94,7 @@ abstract class AddItemStoreBase with Store {
   }
 
   @action
-  addItem(ItensModel item){
+  addItem(ItensModel item) {
     listItens.add(item.type!);
     db.addItem(item);
     clearController();

@@ -1,3 +1,5 @@
+import 'package:lockpass/database/shared_preferences.dart';
+
 abstract class VaultService {
   Future<String> getStoragePath();
   Future<bool> hasStoragePermission();
@@ -8,6 +10,12 @@ abstract class VaultService {
   Future<bool> verifyPin(String pin);
   Future<void> initializePreferences();
   Future<void> initializeVaultEnvironment();
+  Future<bool> shouldShowCreatePinInfo();
+  Future<bool> getHideCreatePinInfo();
+  Future<void> setHideCreatePinInfo(bool value);
+  Future<SharedPrefs> prefs();
+  String get userId;
+
 }
 
 /*
