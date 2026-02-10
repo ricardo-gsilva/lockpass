@@ -93,7 +93,6 @@ class AddItemController extends Cubit<AddItemState> {
     if (elapsed < minDuration) {
       await Future.delayed(minDuration - elapsed);
     }
-
     try {
       await _db.addItem(item);      
 
@@ -102,7 +101,12 @@ class AddItemController extends Cubit<AddItemState> {
         message: "Item salvo com sucesso!",
         createdItem: true
       ));
-    } catch (e) {
+    } catch (e, s) {
+      print('❌ ERRO AO SALVAR ITEM');
+      
+
+  print(e);
+  print(s);
       emit( state.copyWith(
         isLoading: false,
         exception: "Erro ao salvar item!",

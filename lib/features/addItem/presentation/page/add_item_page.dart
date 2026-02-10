@@ -208,10 +208,7 @@ class _AddItemPage1State extends State<AddItemPage1> {
                             keyboardType: TextInputType.text,
                             controller: passwordController,
                             obscureText: state.obscureText,
-                            validator: (value) {
-                              if (value.isBlank) return CoreStrings.fillField;
-                              return null;
-                            },
+                            validator: (value) => value.passwordError,
                             icon: IconButtonCustom(
                                 key: CoreKeys.visibilityPasswordAddItem,
                                 color: CoreColors.textPrimary,

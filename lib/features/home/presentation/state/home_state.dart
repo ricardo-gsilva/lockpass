@@ -1,71 +1,89 @@
+import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
+import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/models/itens_model.dart';
 import 'package:lockpass/models/type_model.dart';
 
 class HomeState {
-  final List<ItensModel> listItens;  
-  final List<TypeModel> listTypes;  
-  final List<ItensModel> filterItens;
-  final List<String> typeLenghtClear;
-  final List<String> filterType;
-  final List<TypeModel> type;
+  final HomeTab currentTab;
+  final List<ItensModel> allItems;
+  final List<TypeModel> allTypes;
+  final List<ItensModel> filteredItems;
+  final ListViewEnum viewMode;
+  final String? selectedType;
+  final String? expandedTypeKey;
   final bool searchTextField;
-  final int pin;
-  final String? path;
-  final int selectedIndex;
-  final int mode;
-  final bool isChecked;
   final String searchText;
+  final int selectedIndex;
+  final bool isLoading;
+  final String errorMessage;
+  final String succesMessage;
   final bool showPinAlert;
+  final bool hideCreatePinInfo;
+  final String? path;
+  final bool itemRemoved;
+  final String? userEmail;
 
-
+  
   const HomeState({
-    this.listItens = const [],
-    this.listTypes = const [],
-    this.filterItens = const [],
-    this.typeLenghtClear = const [],
-    this.filterType = const [],
-    this.type = const [],
+    this.currentTab = HomeTab.list,
+    this.allItems = const [],
+    this.allTypes = const [],
+    this.filteredItems = const [],
+    this.viewMode = ListViewEnum.list,
+    this.selectedType,
+    this.expandedTypeKey,
     this.searchTextField = false,
-    this.pin = 0,
-    this.path,
-    this.selectedIndex = 0,
-    this.mode = 0,
-    this.isChecked = false,
     this.searchText = '',
+    this.selectedIndex = 0,
+    this.isLoading = false,
+    this.errorMessage = '',
+    this.succesMessage = '',
     this.showPinAlert = false,
+    this.hideCreatePinInfo = false,
+    this.path,
+    this.itemRemoved = false,
+    this.userEmail = '',
   });
 
   HomeState copyWith({
-    List<ItensModel>? listItens,
-    List<TypeModel>? listTypes,
-    List<ItensModel>? filterItens,
-    List<String>? typeLenghtClear,
-    List<String>? filterType,
-    List<TypeModel>? type,
+    HomeTab? currentTab,
+    List<ItensModel>? allItems,
+    List<TypeModel>? allTypes,
+    List<ItensModel>? filteredItems,
+    ListViewEnum? viewMode,
+    String? selectedType,
+    String? expandedTypeKey,
     bool? searchTextField,
-    int? pin,
-    String? path,
-    int? selectedIndex,
-    int? mode,
-    bool? isChecked,
     String? searchText,
+    int? selectedIndex,
+    bool? isLoading,
+    String? errorMessage,
+    String? succesMessage,
     bool? showPinAlert,
+    bool? hideCreatePinInfo,
+    String? path,
+    bool? itemRemoved,
+    String? userEmail,
   }) {
     return HomeState(
-      listItens: listItens ?? this.listItens,
-      listTypes: listTypes ?? this.listTypes,
-      filterItens: filterItens ?? this.filterItens,
-      typeLenghtClear: typeLenghtClear ?? this.typeLenghtClear,
-      filterType: filterType ?? this.filterType,
-      type: type ?? this.type,
+      currentTab: currentTab ?? this.currentTab,
+      allItems: allItems ?? this.allItems,
+      allTypes: allTypes ?? this.allTypes,
+      filteredItems: filteredItems ?? this.filteredItems,
+      viewMode: viewMode ?? this.viewMode,
+      selectedType: selectedType ?? this.selectedType,
+      expandedTypeKey: expandedTypeKey ?? this.expandedTypeKey,
       searchTextField: searchTextField ?? this.searchTextField,
-      pin: pin ?? this.pin,
-      path: path ?? this.path,
-      selectedIndex: selectedIndex ?? this.selectedIndex,
-      mode: mode ?? this.mode,
-      isChecked: isChecked ?? this.isChecked,
       searchText: searchText ?? this.searchText,
+      selectedIndex: selectedIndex ?? this.selectedIndex,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+      succesMessage: succesMessage ?? this.succesMessage,
       showPinAlert: showPinAlert ?? this.showPinAlert,
+      hideCreatePinInfo: hideCreatePinInfo ?? this.hideCreatePinInfo,
+      path: path ?? this.path,
+      itemRemoved: itemRemoved ?? this.itemRemoved,
+      userEmail: userEmail ?? this.userEmail,
     );
   }
-}
+}   

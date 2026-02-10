@@ -20,6 +20,14 @@ class TypeModel {
     };
   }
 
+  TypeModel copyWith({ bool? visible }) {
+    return TypeModel(
+      typeId: typeId,
+      type: type,
+      visible: visible ?? this.visible,
+    );
+  }
+
   factory TypeModel.fromMap(Map<String, dynamic> map) {
     return TypeModel(
       typeId: map['typeId'] != null ? map['typeId'] as int : null,

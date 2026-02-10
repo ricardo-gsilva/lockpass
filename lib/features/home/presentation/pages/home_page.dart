@@ -4,14 +4,16 @@ import 'package:lockpass/core/di/get_it.dart';
 import 'package:lockpass/features/addItem/presentation/page/add_item_page.dart';
 import 'package:lockpass/features/config/presentation/page/config_page.dart';
 import 'package:lockpass/features/home/presentation/controller/home_controller.dart';
+import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
+import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/features/home/presentation/state/home_state.dart';
+import 'package:lockpass/features/home/presentation/widgets/list_item_grouped_widget.dart';
+import 'package:lockpass/features/home/presentation/widgets/list_item_widget.dart';
 import 'package:lockpass/models/itens_model.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_icons.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/screens/config.dart';
-import 'package:lockpass/screens/list_item.dart';
 import 'package:lockpass/widgets/iconbutton_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 import 'package:lockpass/widgets/textformfield_custom.dart';
@@ -37,7 +39,6 @@ class _HomePage1State extends State<HomePage1> {
       homeController.init();
     });
     print("🔥 HOME INITSTATE");
-
   }
 
   @override
@@ -46,15 +47,6 @@ class _HomePage1State extends State<HomePage1> {
     homeController.close();
     super.dispose();
   }
-
-  // @override
-  // void didChangeDependencies() async {
-  //   bool getPin = await store.getPin();
-  //   if (getPin) {
-  //     showCreatePin();
-  //   }
-  //   super.didChangeDependencies();
-  // }
 
   void showCreatePinDialog(BuildContext context, HomeState state) {
     showDialog(
@@ -112,7 +104,7 @@ class _HomePage1State extends State<HomePage1> {
                       Checkbox(
                         activeColor: CoreColors.primaryColor,
                         checkColor: CoreColors.textSecundary,
-                        value: state.isChecked,
+                        value: state.hideCreatePinInfo,
                         onChanged: (value) {
                           if (value == null) return;
                           homeController.setHideCreatePinInfo(value);
@@ -130,7 +122,7 @@ class _HomePage1State extends State<HomePage1> {
   }
 
   @override
-  Widget build(BuildContext context) {   
+  Widget build(BuildContext context) {
     return BlocProvider.value(
       value: homeController,
       child: BlocListener<HomeController, HomeState>(
@@ -144,31 +136,42 @@ class _HomePage1State extends State<HomePage1> {
         },
         child: BlocBuilder<HomeController, HomeState>(
           builder: (context, state) {
-             final screens = <Widget>[
-              ListItem(
-                mode: context.select((HomeController c) => c.state.mode),
-                itens: context.select((HomeController c) => c.state.filterItens),
-                listTypes: context.select((HomeController c) => c.state.listTypes),
-                getData: context.read<HomeController>().getData,
-              ),
+            final screens = <Widget>[
+              if (state.viewMode == ListViewEnum.list)
+                BlocProvider.value(
+                  value: homeController,
+                  child: ListItemWidget(),
+                )
+              else
+                BlocProvider.value(
+                  value: homeController,
+                  child: ListItemGroupedWidget(),
+                ),
               AddItemPage1(
-                  itens: context.select((HomeController c) => c.state.listItens)),
+                itens: context.select((HomeController c) => c.state.allItems),
+              ),
               const ConfigPage1(),
             ];
+            if (state.isLoading) {
+              return CircularProgressIndicator(                
+                color: CoreColors.primaryColor,
+              );
+            }
             return Scaffold(
               backgroundColor: CoreColors.secondColor,
               appBar: AppBar(
                 centerTitle: true,
                 toolbarHeight: 76,
                 backgroundColor: CoreColors.primaryColor,
-                title: state.searchTextField
+                title: state.searchTextField && state.currentTab == HomeTab.list
                     ? TextFormFieldCustom(
                         key: CoreKeys.formFieldSearchItem,
                         label: CoreStrings.searchLogin,
-                        colorTextLabel: CoreColors.selectBorder,
+                        colorTextLabel: CoreColors.textSecundary,
+                        colorFocusedBorder: CoreColors.unselectBottomBar,
                         keyboardType: TextInputType.text,
                         controller: _searchController,
-                        cursorColor: CoreColors.textPrimary,
+                        cursorColor: CoreColors.textSecundary,
                         colorTextInput: CoreColors.textPrimary,
                         onChanged: (value) {
                           homeController.searchList(value);
@@ -181,7 +184,7 @@ class _HomePage1State extends State<HomePage1> {
                       ),
                 actions: [
                   Visibility(
-                      visible: state.selectedIndex == 0,
+                      visible: state.currentTab == HomeTab.list,
                       child: IconButtonCustom(
                         key: CoreKeys.iconButtonSearch,
                         onPressed: () {
@@ -191,8 +194,42 @@ class _HomePage1State extends State<HomePage1> {
                         color: CoreColors.textSecundary,
                       )),
                 ],
+                leading: MenuAnchor(
+                  // Estilização do menu para combinar com seus cards amarelos
+                  style: MenuStyle(
+                    backgroundColor:
+                        WidgetStateProperty.all(CoreColors.titleItem),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  builder: (context, controller, child) {
+                    return IconButton(
+                      onPressed: () {
+                        if (controller.isOpen) {
+                          controller.close();
+                        } else {
+                          controller.open();
+                        }
+                      },
+                      icon:
+                          const Icon(Icons.account_circle, color: Colors.white),
+                    );
+                  },
+                  menuChildren: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextCustom(
+                        text:
+                            'Logado: ${state.userEmail}', // O email que você quer mostrar
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              body: state.filterItens.isEmpty && state.selectedIndex == 0
+              body: state.filteredItems.isEmpty &&
+                      state.currentTab == HomeTab.list
                   ? Center(
                       child: TextCustom(
                         key: CoreKeys.notFoundItem,
@@ -210,10 +247,12 @@ class _HomePage1State extends State<HomePage1> {
                 unselectedItemColor: CoreColors.unselectBottomBar,
                 items: [
                   BottomNavigationBarItem(
-                    icon: state.mode == 0
+                    icon: state.viewMode == ListViewEnum.list
                         ? const Icon(CoreIcons.list)
                         : const Icon(CoreIcons.group),
-                    label: state.mode == 0 ? CoreStrings.list : CoreStrings.group,
+                    label: state.viewMode == ListViewEnum.list
+                        ? CoreStrings.list
+                        : CoreStrings.group,
                   ),
                   const BottomNavigationBarItem(
                     icon: Icon(CoreIcons.add),

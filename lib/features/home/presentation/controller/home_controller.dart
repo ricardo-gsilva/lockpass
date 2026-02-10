@@ -1,34 +1,52 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+
+import 'package:flutter_archive/flutter_archive.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/paths/lockpass_paths.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
 import 'package:lockpass/database/database_helper.dart';
+import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
+import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/models/itens_model.dart';
 import 'package:lockpass/models/type_model.dart';
+import 'package:lockpass/services/auth_service.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import '../state/home_state.dart';
 
 class HomeController extends Cubit<HomeState> {
   final DataBaseHelper _db;
   final VaultService _vaultService;
+  final AuthService _authService;
 
   HomeController({
     required DataBaseHelper db,
     required VaultService vaultService,
-  }) : _db = db,
+    required AuthService authService,
+  })  : _db = db,
         _vaultService = vaultService,
-  super(const HomeState());
+        _authService = authService,
+        super(const HomeState());
 
   // ============================
   // INIT (novo)
   // ============================
   Future<void> init() async {
+    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(
+      userEmail: _authService.currentUserEmail,
+    ));
     await _vaultService.initializeVaultEnvironment();
     await getPlatform();
-    await getPin();
+    // await getPin();
     await getData();
+    await createAutomaticBackup();
+    emit(state.copyWith(isLoading: false));
     print("✅ HOME CONTROLLER INIT()");
-
   }
+
+  // 🔹 UID seguro (sem exception)
+  String get _uid => _authService.currentUserId;
 
   // ============================
   // visibleSearch() (igual)
@@ -45,21 +63,15 @@ class HomeController extends Cubit<HomeState> {
     // bool salvo: "não mostrar novamente o aviso"
     final hide = await _vaultService.getHideCreatePinInfo();
 
-    if (hide) {      
-      emit(state.copyWith(
-        showPinAlert: false,
-        isChecked: true        
-      ));
+    if (hide) {
+      emit(state.copyWith(showPinAlert: false, hideCreatePinInfo: true));
       return false;
     }
-    
+
     final hasPin = await _vaultService.hasPin();
     final show = !hasPin;
 
-    emit(state.copyWith(
-      showPinAlert: show,
-      isChecked: false
-    ));
+    emit(state.copyWith(showPinAlert: show, hideCreatePinInfo: false));
 
     return show;
   }
@@ -69,7 +81,7 @@ class HomeController extends Cubit<HomeState> {
   // Agora: grava apenas no settings
   // ============================
   Future<void> setHideCreatePinInfo(bool check) async {
-    emit(state.copyWith(isChecked: check));
+    emit(state.copyWith(hideCreatePinInfo: check));
     await _vaultService.setHideCreatePinInfo(check);
     await getPin();
   }
@@ -93,42 +105,75 @@ class HomeController extends Cubit<HomeState> {
   // ============================
   // getData() (igual)
   // ============================
-  Future<void> getData() async {
-    if (state.mode == 0) {
-      final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-      if(uid.isNullOrBlank) return;
 
-      final list = await _db.getItensByUser(uid);
+  Future<void> getData() async {
+    try {
+      emit(state.copyWith(isLoading: true, errorMessage: null));
+      if (_uid.isEmpty) {
+        emit(state.copyWith(isLoading: false));
+        return;
+      }
+
+      final items = await _db.getItensByUser(_uid);
+
+      final sortedItems = [...items]
+        ..sort((a, b) => (a.service ?? '').compareTo(b.service ?? ''));
+
+      final types = sortedItems
+          .map((e) => e.type)
+          .whereType<String>()
+          .toSet()
+          .map((t) => TypeModel.fromMap({'type': t}))
+          .toList();
 
       emit(state.copyWith(
-        listItens: list,
+        allItems: sortedItems,
+        filteredItems: sortedItems,
+        allTypes: types,
+        isLoading: false,
       ));
-
-      // Mantém comportamento original
-      filterList(list, state.searchText);
-
-      if (list.isNotEmpty) {
-        searchList(state.searchText);
-      }
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'Erro ao carregar itens',
+      ));
     }
   }
 
   // ============================
   // searchList(String search) (igual)
   // ============================
-  List<ItensModel> searchList(String search) {
-    emit(state.copyWith(searchText: search));
-    filterList(state.listItens, search);
-    return state.filterItens;
+  void searchList(String search) {
+    final query = search.toLowerCase();
+
+    final filtered = state.allItems.where((e) {
+      return (e.service?.toLowerCase().contains(query) ?? false) ||
+          (e.login?.toLowerCase().contains(query) ?? false);
+    }).toList();
+
+    filtered.sort(
+      (a, b) => (a.service ?? '').compareTo(b.service ?? ''),
+    );
+
+    final updatedTypes = buildTypesFromFiltered(filtered);
+
+    emit(state.copyWith(
+      filteredItems: filtered,
+      allTypes: updatedTypes,
+    ));
   }
+
+
 
   // ============================
   // loadingWidget(List<ItensModel> list) (igual)
   // ============================
   bool loadingWidget(List<ItensModel> list) {
-    if (list.isEmpty && state.selectedIndex == 0) {
+    // if (list.isEmpty && state.selectedIndex == 0) {
+      if (list.isEmpty && state.currentTab == HomeTab.list) {
       return true;
-    } else if (list.isNotEmpty && state.selectedIndex == 0) {
+      } else if (list.isNotEmpty && state.currentTab == HomeTab.list) {
+    // } else if (list.isNotEmpty && state.selectedIndex == 0) {
       return false;
     } else {
       return false;
@@ -138,34 +183,56 @@ class HomeController extends Cubit<HomeState> {
   // ============================
   // filterList(List<ItensModel> itens, String search) (igual)
   // ============================
-  void filterList(List<ItensModel> itens, String search) {
+  void filterList(String search) {
     final searchLower = search.toLowerCase();
 
-    final filterItens = itens
-        .where((e) => (e.login ?? '').toLowerCase().contains(searchLower))
+    // 🔹 filtra a partir da fonte única
+    final filteredItems = state.allItems.where((item) {
+      return (item.login ?? '').toLowerCase().contains(searchLower) ||
+          (item.service ?? '').toLowerCase().contains(searchLower);
+    }).toList();
+
+    // 🔹 extrai os tipos únicos a partir do resultado
+    final types = filteredItems
+        .map((e) => e.type)
+        .whereType<String>()
+        .toSet()
+        .map((t) => TypeModel.fromMap({'type': t}))
         .toList();
 
-    final filterType = <String>[];
-    for (final item in filterItens) {
-      filterType.add(item.type.toString());
-    }
-
-    final typeLenghtClear = filterType.toSet().toList();
-
-    final types = <TypeModel>[];
-    for (final t in typeLenghtClear) {
-      types.add(TypeModel.fromMap({"type": t}));
-    }
-
-    final listTypes = types.toSet().toList();
-
     emit(state.copyWith(
-      filterItens: filterItens,
-      filterType: filterType,
-      typeLenghtClear: typeLenghtClear,
-      type: types,
-      listTypes: listTypes,
+      filteredItems: filteredItems,
+      allTypes: types,
     ));
+  }
+
+  Future<void> createAutomaticBackup() async {
+    try {
+      final dbDir = await LockPassPaths.dbDir;
+      final dbFile = File(p.join(dbDir.path, 'lockpass_itens.db'));
+
+      // Verifica se o banco existe antes de tentar copiar
+      if (await dbFile.exists()) {
+        final appDir = await getApplicationDocumentsDirectory();
+        final backupFile = File(p.join(appDir.path, 'LPB_automatic.zip'));
+
+        if (await backupFile.exists()) {
+          await backupFile
+              .delete(); // Remove o arquivo antigo antes de criar o novo
+          print("🗑️ Backup antigo removido para atualização.");
+        }
+
+        // Cria o ZIP (sobrescrevendo o anterior se existir)
+        await ZipFile.createFromDirectory(
+          sourceDir: dbDir,
+          zipFile: backupFile,
+        );
+        print("✅ Backup automático atualizado com sucesso.");
+      }
+    } catch (e) {
+      // Como é silencioso, apenas logamos o erro para não atrapalhar o login do usuário
+      print("❌ Erro ao gerar backup automático: $e");
+    }
   }
 
   // ============================
@@ -185,28 +252,111 @@ class HomeController extends Cubit<HomeState> {
   // ============================
   // onItemTapped(int index) (igual)
   // ============================
-  Future<void> onItemTapped(int index) async {
-    int mode = state.mode;
-
-    if (index > 0) {
-      if (mode == 1 || mode == 0) {
-        mode = 1;
-      }
-    } else if (index == 0 && mode == 0) {
-      mode = 1;
+  void onItemTapped(int index) {
+    final tab = _mapIndexToTab(index);
+    if (tab == HomeTab.list) {
+      final nextView = state.viewMode == ListViewEnum.list
+          ? ListViewEnum.grouped
+          : ListViewEnum.list;
+      getData();
+      emit(state.copyWith(
+        currentTab: tab,
+        selectedIndex: index,
+        viewMode: nextView,
+        searchTextField: false
+      ));
     } else {
-      mode = 0;
+      emit(state.copyWith(
+        currentTab: tab,
+        selectedIndex: index,
+      ));
     }
+  }
+
+  HomeTab _mapIndexToTab(int index) {
+    switch (index) {
+      case 0:
+        return HomeTab.list;
+      case 1:
+        return HomeTab.add;
+      case 2:
+        return HomeTab.config;
+      default:
+        return HomeTab.list;
+    }
+  }
+
+  void toggleGroup(TypeModel type) {
+    final updatedTypes = state.allTypes.map((t) {
+      if (t.type == type.type) {
+        // se já estava aberto → fecha
+        return t.copyWith(visible: !t.visible!);
+      } else {
+        // fecha todos os outros
+        return t.copyWith(visible: false);
+      }
+    }).toList();
 
     emit(state.copyWith(
-      selectedIndex: index,
-      mode: mode,
+      allTypes: updatedTypes,
     ));
+  }
 
-    if (mode == 0) {
-      await getData();
+  Future<void> deleteItem(ItensModel item) async {
+    try {
+      emit(state.copyWith(isLoading: true, errorMessage: ''));
+
+      await _db.deleteItem(item);
+
+      final updatedAllItems = state.allItems
+          .where((e) => e.id != item.id) // ajuste se o campo não for `id`
+          .toList();
+
+      final updatedFilteredItems = updatedAllItems.where((e) {
+        return state.filteredItems.isEmpty ||
+            state.filteredItems.any((f) => f.id == e.id);
+      }).toList();
+
+      emit(state.copyWith(
+        allItems: updatedAllItems,
+        filteredItems: updatedFilteredItems,
+        isLoading: false,
+        succesMessage: 'Item removido com sucesso',
+        itemRemoved: true,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'Erro ao excluir item! Tente novamente.',
+        itemRemoved: false,
+      ));
+    }
+  }
+
+  List<TypeModel> updatedAllTypes() {
+    final groupedItems = <String, List<ItensModel>>{};
+
+    for (final item in state.filteredItems) {
+      final key = item.type ?? '';
+      groupedItems.putIfAbsent(key, () => []).add(item);
     }
 
-    filterList(state.listItens, state.searchText);
+    final groupKeys = groupedItems.keys.toList();
+    
+    return groupKeys.map((t) => TypeModel(type: t)).toList();
   }
+
+  List<TypeModel> buildTypesFromFiltered(List<ItensModel> items) {
+  final groupedItems = <String, List<ItensModel>>{};
+
+  for (final item in items) {
+    final key = item.type ?? '';
+    groupedItems.putIfAbsent(key, () => []).add(item);
+  }
+
+  return groupedItems.keys
+      .map((t) => TypeModel(type: t))
+      .toList();
+}
+
 }
