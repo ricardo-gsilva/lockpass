@@ -131,11 +131,15 @@ class CoreStrings {
 
   //Info
   static const String invalidSignatureZip = 'Assinatura do PIN inválida.';
-  static const String infoChooseFileUpload = 'Escolha o arquivo contendo a lista de login que você salvou!\n\n'
-                      'Você poderá encontrar a lista com o nome de "lockpass_db_manual".\n\n'
-                      'Caso nunca tenha salvo sua lista de logins, poderá carregar'
-                      ' a lista salva automaticamente ao entrar no app. O nome do arquivo é'
-                      ' lockpass_db_automatic.';
+  static const String infoChooseFileUpload = ''' 
+    Escolha o arquivo contendo o backup de logins que você salvou!
+
+    Você poderá encontrar os seus arquivos manuais com o nome 'LPB' + (data) + (hora) na pasta que você criou para salvar sua lista de logins.
+
+    Caso nunca tenha exportado sua lista manualmente, você pode carregar o backup salvo automaticamente pelo sistema. O nome desse arquivo é LPB_automatic.
+
+    O backup automático salva a sua última lista de logins no momento exato em que você acessa o app."
+  ''';
   static const String manyEmptyFields = 'Um ou mais campos necessários não foram preenchidos.';
   static const String updateSucess = 'Você atualizou as informações com sucesso!';
   static const String updateError = 'Houve um erro na atualização.';
@@ -152,6 +156,11 @@ class CoreStrings {
   static const String receivePasswordResetLink = 'Utilize seu email cadastrado para receber um link de redefinição de senha.';
   static const String wantSaveListLogin = 'Deseja salvar sua lista de logins?';
   static const String infoSaveList = 'Você irá salvar um arquivo zip contendo sua lista de logins salvos no App.';
+  static const String infoSaveListIos = 'Você irá salvar um arquivo ZIP contendo sua lista de logins.\n\n'
+           'Dica: No iPhone, caso o local selecionado esteja vazio, '
+           'crie uma pasta manualmente clicando nos "..." para autorizar o salvamento.';
+  static const String infoSaveListAndroid = 'No seu Android, você irá salvar um arquivo ZIP contendo sua lista de logins no local escolhido do seu dispositivo.\n\n'
+         'Você pode criar uma pasta com nome próprio se preferir.';
   static const String choiceFile = 'Você precisa escolher um arquivo para ser carregado.';
   static const String loadedList = 'Sua lista de logins salva, foi carregada.';
   static const String pinInfo = 'Para validar seu PIN, nāo repita o mesmo número em sequência.\n'

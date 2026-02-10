@@ -10,11 +10,11 @@ abstract class VaultService {
   Future<bool> verifyPin(String pin);
   Future<void> initializePreferences();
   Future<void> initializeVaultEnvironment();
-  Future<bool> shouldShowCreatePinInfo();
+  // Future<bool> shouldShowCreatePinInfo();
   Future<bool> getHideCreatePinInfo();
   Future<void> setHideCreatePinInfo(bool value);
   Future<SharedPrefs> prefs();
-  String get userId;
+  // String get userId;
 
 }
 

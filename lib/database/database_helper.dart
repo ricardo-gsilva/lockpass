@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:lockpass/core/paths/lockpass_paths.dart';
 import 'package:lockpass/models/itens_model.dart';
 import 'package:lockpass/models/type_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -12,7 +11,6 @@ class DataBaseHelper {
   String typeTable = 'typeTable';
   String colTypeId = 'typeId';
   String colTypeType = 'typeType';
-  String colTypeVisible = 'typeVisible';
 
   String itensTable = 'itensTable';
   String colUserId = 'userId';
@@ -35,11 +33,11 @@ class DataBaseHelper {
   }
 
   Future<Database> initializeDatabase() async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    String path = '${directory.path}_itens.db';
+    final dbDir = await LockPassPaths.dbDir;
+    final dbPath = '${dbDir.path}/lockpass_itens.db';
 
     return await openDatabase(
-      path,
+      dbPath,
       version: 2,
       onCreate: _createDb,
       onUpgrade: _onUpgrade,
@@ -50,15 +48,14 @@ class DataBaseHelper {
     await db.execute('''
         CREATE TABLE $typeTable(
           $colTypeId INTEGER PRIMARY KEY AUTOINCREMENT,
-          $colTypeType TEXT,
-          $colTypeVisible TEXT
+          $colTypeType TEXT
         )  
       ''');
 
     await db.execute('''
         CREATE TABLE $itensTable(
           $colId INTEGER PRIMARY KEY AUTOINCREMENT,
-          $colUserId TEXT
+          $colUserId TEXT,
           $colType TEXT,
           $colService TEXT,
           $colSite TEXT,
@@ -71,7 +68,7 @@ class DataBaseHelper {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      await db.execute("ALTER TABLE $itensTable ADD COLUMN $colUserId TEXT");
+      await db.execute("ALTER TABLE $itensTable ADD COLUMN $colType TEXT");
     }
   }
 
@@ -91,7 +88,7 @@ class DataBaseHelper {
     Database db = await this.database;
     final maps = await db.query(
       itensTable,
-      where: '$colId = ?',  
+      where: '$colId = ? AND $colUserId = ?',
       whereArgs: [id, userId],
     );
 
@@ -151,8 +148,17 @@ class DataBaseHelper {
     return Sqflite.firstIntValue(count)!;
   }
 
-  Future closeDataBase() async {
-    Database db = await this.database;
-    return db.close();
+  Future<void> closeDatabase() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
+  }
+
+  Future<void> deleteLocalDatabase() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = '${directory.path}/lockpass_itens.db';
+
+    await deleteDatabase(path);
   }
 }

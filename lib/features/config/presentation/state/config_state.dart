@@ -16,6 +16,18 @@ class ConfigState extends Equatable {
   final bool isFormValid;
   final bool obscureText;
   final bool sufixIcon;
+  final bool isCheckingPin;
+  final String folderName;
+  final String selectedFolderPath;
+  final bool selectedFolder;
+  final String? selectedZipPath;
+  final String? selectedZipName;
+  final bool hasSelectedZip;
+  final bool isRestoring;
+  final bool resetPass;
+  final String currentPassword;
+  final String newPassword;
+  final bool updatedPassword;
 
   const ConfigState({
     this.isLoading = false,
@@ -33,6 +45,18 @@ class ConfigState extends Equatable {
     this.isFormValid = false,
     this.obscureText = false,
     this.sufixIcon = false,
+    this.isCheckingPin = false,
+    this.folderName = '',
+    this.selectedFolderPath = '',
+    this.selectedFolder = false,
+    this.selectedZipPath,
+    this.selectedZipName,
+    this.hasSelectedZip = false,
+    this.isRestoring = false,
+    this.resetPass = false,
+    this.currentPassword = '',
+    this.newPassword = '',
+    this.updatedPassword = false,
   });
 
   ConfigState copyWith({
@@ -51,6 +75,18 @@ class ConfigState extends Equatable {
     bool? isFormValid,
     bool? obscureText,
     bool? sufixIcon,
+    bool? isCheckingPin,
+    String? folderName,
+    bool? selectedFolder,
+    String? selectedFolderPath,
+    String? selectedZipPath,
+    String? selectedZipName,
+    bool? hasSelectedZip,
+    bool? isRestoring,
+    bool? resetPass,
+    String? currentPassword,
+    String? newPassword,
+    bool? updatedPassword,
   }) {
     return ConfigState(
       isLoading: isLoading ?? this.isLoading,
@@ -68,6 +104,18 @@ class ConfigState extends Equatable {
       isFormValid: isFormValid ?? this.isFormValid,
       obscureText: obscureText ?? this.obscureText,
       sufixIcon: sufixIcon ?? this.sufixIcon,
+      isCheckingPin: isCheckingPin ?? this.isCheckingPin,
+      folderName: folderName ?? this.folderName,
+      selectedFolder: selectedFolder ?? this.selectedFolder,
+      selectedFolderPath: selectedFolderPath ?? this.selectedFolderPath,
+      selectedZipPath: selectedZipPath ?? this.selectedZipPath,
+      selectedZipName: selectedZipName ?? this.selectedZipName,
+      hasSelectedZip: hasSelectedZip ?? this.hasSelectedZip,
+      isRestoring: isRestoring ?? this.isRestoring,
+      resetPass: resetPass ?? this.resetPass,
+      currentPassword: currentPassword ?? this.currentPassword,
+      newPassword: newPassword ?? this.newPassword,
+      updatedPassword: updatedPassword ?? this.updatedPassword,
     );
   }
 
@@ -86,5 +134,17 @@ class ConfigState extends Equatable {
         isFormValid,
         obscureText,
         sufixIcon,
+        isCheckingPin,
+        folderName,
+        selectedFolder,
+        selectedFolderPath,
+        selectedZipPath,
+        selectedZipName,
+        hasSelectedZip,
+        isRestoring,
+        resetPass,
+        currentPassword,
+        newPassword,
+        updatedPassword,
       ];
 }

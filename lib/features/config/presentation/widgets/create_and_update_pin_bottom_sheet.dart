@@ -4,7 +4,6 @@ import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_icons.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/core/utils/extensions/string_extensions.dart';
 import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
@@ -31,7 +30,8 @@ class CreateAndUpdatePinBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<CreateAndUpdatePinBottomSheet> createState() => _CreatePinBottomSheetState();
+  State<CreateAndUpdatePinBottomSheet> createState() =>
+      _CreatePinBottomSheetState();
 }
 
 class _CreatePinBottomSheetState extends State<CreateAndUpdatePinBottomSheet> {
@@ -59,25 +59,17 @@ class _CreatePinBottomSheetState extends State<CreateAndUpdatePinBottomSheet> {
         key: CoreKeys.alertDialogInfoCreatePin,
         title: titleInfo,
         content: msg,
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-    );
-  }
-
-  Future<void> _showSuccessAndClose() async {
-    showDialog(
-      context: context,
-      builder: (_) => InfoDialog(
-        key: CoreKeys.alertDialogInfoCreatePin,
-        title: CoreStrings.pinCreated,
-        content: CoreStrings.pinUseInfo,
-        onPressed: () async {
-          // Atualiza visual da config (hasPin)
-          await context.read<ConfigController>().getPinVerification();
-
-          Navigator.of(context).pop(); // fecha InfoDialog
-          Navigator.of(context).pop(); // fecha BottomSheet
-        },
+        widgets: [
+          TextButtonCustom(
+            key: CoreKeys.cancelCreatePin,
+            text: "Fechar",
+            colorText: CoreColors.textPrimary,
+            fontSize: 16,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -87,11 +79,12 @@ class _CreatePinBottomSheetState extends State<CreateAndUpdatePinBottomSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final controller = context.read<ConfigController>();
     return BlocListener<ConfigController, ConfigState>(
-      listenWhen: (previous, current) => previous.errorMessage != current.errorMessage 
-      || previous.successMessage != current.successMessage,
+      listenWhen: (previous, current) =>
+          previous.errorMessage != current.errorMessage ||
+          previous.successMessage != current.successMessage,
       listener: (context, state) {
         if (state.successMessage.isNotNullOrBlank) {
-          if(Navigator.of(context).canPop()) Navigator.of(context).pop();
+          if (Navigator.of(context).canPop()) Navigator.of(context).pop();
           SnackUtils.showSuccess(context, content: state.successMessage);
         }
         if (state.errorMessage.isNotNullOrBlank) {
@@ -168,9 +161,8 @@ class _CreatePinBottomSheetState extends State<CreateAndUpdatePinBottomSheet> {
                                   icon: CoreIcons.info,
                                   iconSize: 22,
                                   color: CoreColors.textSecundary,
-                                  // onPressed: () => _showInfo(
-                                      // CoreStrings.pinInfo, CoreStrings.info),
-                                  onPressed: () {controller.removePin();},
+                                  onPressed: () => _showInfo(
+                                      CoreStrings.pinInfo, CoreStrings.info),
                                 ),
                               ],
                             ),
@@ -215,7 +207,6 @@ class _CreatePinBottomSheetState extends State<CreateAndUpdatePinBottomSheet> {
                                           Navigator.of(context).pop();
                                           showCustomBottomSheet(
                                             context: context,
-                                            useRootNavigator: true,
                                             child: BlocProvider.value(
                                               value: controller,
                                               child: ResetPinBottomSheet(),
@@ -275,16 +266,20 @@ class _CreatePinBottomSheetState extends State<CreateAndUpdatePinBottomSheet> {
                                   child: ButtonCustom(
                                     key: CoreKeys.buttonCreatePin,
                                     colorText: CoreColors.textPrimary,
-                                    text: CoreStrings.save,
+                                    text: state.isLoading
+                                        ? "Salvando..."
+                                        : CoreStrings.save,
                                     fontSize: 16,
                                     backgroundButton:
                                         CoreColors.buttonColorSecond,
                                     onPressed: !state.isFormValid
                                         ? null
                                         : () async {
-                                            final newAndUpdatePin = newAndUpdatePinController.text;
-                                            final currentPin = currentPinController.text;
-                                            await controller.savePin(currentPin, newAndUpdatePin, widget.hasPin);
+                                            await controller.savePin(
+                                              currentPinController.text,
+                                              newAndUpdatePinController.text,
+                                              widget.hasPin,
+                                            );
                                           },
                                   ),
                                 ),

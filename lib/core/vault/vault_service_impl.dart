@@ -15,8 +15,8 @@ class VaultServiceImpl implements VaultService {
 
   VaultServiceImpl(this._authService);
 
-  @override
-  String get userId => _authService.currentUserId;
+  // @override
+  // String get userId => _authService.currentUserId;
 
   void ensureInitialized() {
     if (sharedPrefs == null) {
@@ -110,26 +110,26 @@ class VaultServiceImpl implements VaultService {
   @override
   Future<bool> getHideCreatePinInfo() async {
     ensureInitialized();
-    return sharedPrefs?.getHideCreatePinInfo() ?? false;
+    return sharedPrefs?.getVisibleCreatePinInfo() ?? false;
   }
 
   @override
   Future<void> setHideCreatePinInfo(bool value) async {
     ensureInitialized();
-    sharedPrefs?.setHideCreatePinInfo(value);
+    sharedPrefs?.setVisibleCreatePinInfo(value);
   }
   
-  @override
-  Future<bool> shouldShowCreatePinInfo() async {
-    if (sharedPrefs == null) {
-      await initializePreferences();
-    }
-    final isVisible = sharedPrefs?.getVisibleInfoCreatePin()?? false;
-    if (isVisible) return false;
+  // @override
+  // Future<bool> shouldShowCreatePinInfo() async {
+  //   if (sharedPrefs == null) {
+  //     await initializePreferences();
+  //   }
+  //   final isVisible = sharedPrefs?.getVisibleInfoCreatePin()?? false;
+  //   if (isVisible) return false;
     
-    final checkPin = sharedPrefs?.getPin(userId) ?? '';
-    return checkPin.isEmpty;
-  }
+  //   final checkPin = sharedPrefs?.getPin(userId) ?? '';
+  //   return checkPin.isEmpty;
+  // }
   
 
 
