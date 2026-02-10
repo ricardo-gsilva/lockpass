@@ -4,11 +4,11 @@ import 'package:lockpass/core/di/get_it.dart';
 import 'package:lockpass/features/config/presentation/page/config_page.dart';
 import 'package:lockpass/features/home/presentation/controller/home_controller.dart';
 import 'package:lockpass/features/home/presentation/pages/home_page.dart';
+import 'package:lockpass/features/login/presentation/pages/login_page.dart';
 import 'package:lockpass/features/splash/presentation/pages/splash_screen_page.dart';
 import 'package:lockpass/screens/add_item.dart';
 import 'package:lockpass/screens/card_item.dart';
 import 'package:lockpass/screens/create_user.dart';
-import 'package:lockpass/screens/login_page.dart';
 
 class AppRoutes {
   static const splash = '/splashScreen';
@@ -21,7 +21,7 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> get routes => {
     splash: (_) => const SplashScreenPage(),
-    login: (_) => const LoginPage(),
+    login: (_) => const LoginPage1(),
     home: (_) => BlocProvider(
       create: (_) => getIt<HomeController>(),
       child: const HomePage1()),

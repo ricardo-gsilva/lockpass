@@ -4,6 +4,7 @@ import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_icons.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/core/utils/validators/validators.dart';
 import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/widgets/iconbutton_custom.dart';
@@ -42,8 +43,9 @@ class LoginFields extends StatelessWidget {
                   cursorColor: CoreColors.textSecundary,
                   colorTextInput: CoreColors.textSecundary,
                   colorBorder: CoreColors.textSecundary,
-                  validator: (value) =>
-                      controller.validateEmail(value ?? ''),
+                  validator: (value) {
+                    return value.isValidEmail ? null : value.emailError;
+                  }
                 ),
               ),
             ),
@@ -68,6 +70,7 @@ class LoginFields extends StatelessWidget {
                       colorTextInput: CoreColors.textSecundary,
                       colorBorder: CoreColors.textSecundary,
                       obscureText: state.obscureText,
+                      validator: (value) => value.passwordError,
                       icon: IconButtonCustom(
                         key: CoreKeys.iconVisibilityPasswordLogin,
                         color: CoreColors.textSecundary,

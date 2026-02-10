@@ -1,0 +1,4 @@
+enum EntryStatus {
+  showLoginOnly,
+  allowPinLogin,
+}

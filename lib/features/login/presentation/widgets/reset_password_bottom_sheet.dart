@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_strings.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
+import 'package:lockpass/core/utils/validators/validators.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/widgets/button_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
@@ -82,7 +83,7 @@ class ResetPasswordBottomSheet extends StatelessWidget {
                               colorTextLabel: CoreColors.textSecundary,
                               colorBorder: CoreColors.textSecundary,
                               validator: (value) {
-                                return controller.validateEmail(value ?? '');
+                                return value.isValidEmail ? null : value.emailError;
                               },
                             ),
                                           

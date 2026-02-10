@@ -52,8 +52,9 @@ class _LoginPageState extends State<LoginPage1> {
     return BlocProvider.value(
       value: loginController,
       child: BlocListener<LoginController, LoginState>(
-        listenWhen: (prev, curr) => prev.exception != curr.exception 
-          || prev.confirmLogin != curr.confirmLogin,
+        listenWhen: (prev, curr) =>
+            prev.exception != curr.exception ||
+            prev.confirmLogin != curr.confirmLogin,
         listener: (context, state) {
           if (state.exception.isNotEmpty) {
             SnackUtils.showError(context, content: state.exception);
@@ -69,87 +70,91 @@ class _LoginPageState extends State<LoginPage1> {
             loginController.clearFeedback();
           }
         },
-        child: Scaffold(
-          backgroundColor: CoreColors.primaryColor,
-          body: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Center(
-              child: SingleChildScrollView(
-                child: Flex(
-                  direction: Axis.vertical,
-                  children: [
-                    SizedBox(
-                      key: CoreKeys.appIconLoginPage,
-                      height: 200,
-                      child: Image.asset(CoreStrings.iconApp),
-                    ),
-                    SizedBox(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20),
-                        /// LOGIN FIELDS  
-                        child: LoginFields(
-                            controller: loginController,
-                            emailController: emailController,
-                            passwordController: passwordController),
-                      ),
-                    ),
+        child: BlocBuilder<LoginController, LoginState>(
+          bloc: loginController,
+          builder: (context, state) {
+            return Scaffold(
+              backgroundColor: CoreColors.primaryColor,
+              body: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Flex(
+                      direction: Axis.vertical,
+                      children: [
+                        SizedBox(
+                          key: CoreKeys.appIconLoginPage,
+                          height: 200,
+                          child: Image.asset(CoreStrings.iconApp),
+                        ),
+                        SizedBox(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20, right: 20),
 
-                    /// REGISTER
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButtonCustom(
-                        key: CoreKeys.registerHereLoginPage,
-                        onPressed: () async {
-                          final result = await showCustomBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            child: BlocProvider.value(
-                              value: loginController,
-                              child: CreateAccountBottomSheet(
+                            /// LOGIN FIELDS
+                            child: LoginFields(
                                 controller: loginController,
-                              ),
-                            ),
-                          );
-                          if (result != null) {
-                            emailController.text = result.email;
-                            passwordController.text = result.password;
-                          }
-                        },
-                        text: CoreStrings.registerHere,
-                        colorText: CoreColors.textSecundary,
-                      ),
-                    ),
+                                emailController: emailController,
+                                passwordController: passwordController),
+                          ),
+                        ),
 
-                    /// RESET PASSWORD
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButtonCustom(
-                        key: CoreKeys.forgotPasswordLoginPage,
-                        onPressed: () {
-                          showCustomBottomSheet(
-                            context: context,
-                            child: BlocProvider.value(
-                              value: loginController,
-                              child: ResetPasswordBottomSheet(
-                                controller: loginController,
-                                resetPasswordController: resetPasswordController,
-                              ),
-                            ),
-                          );
-                        },
-                        text: CoreStrings.forgotPassword,
-                        colorText: CoreColors.textSecundary,
-                      ),
-                    ),
-                    BlocBuilder<LoginController, LoginState>(
-                      bloc: loginController,
-                      builder: (context, state) {
-                        return ButtonCustom(
+                        /// REGISTER
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButtonCustom(
+                            key: CoreKeys.registerHereLoginPage,
+                            onPressed: () async {
+                              final result = await showCustomBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                child: BlocProvider.value(
+                                  value: loginController,
+                                  child: CreateAccountBottomSheet(
+                                    controller: loginController,
+                                  ),
+                                ),
+                              );
+                              if (result != null) {
+                                emailController.text = result.email;
+                                passwordController.text = result.password;
+                              }
+                            },
+                            text: CoreStrings.registerHere,
+                            colorText: CoreColors.textSecundary,
+                          ),
+                        ),
+
+                        /// RESET PASSWORD
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButtonCustom(
+                            key: CoreKeys.forgotPasswordLoginPage,
+                            onPressed: () {
+                              showCustomBottomSheet(
+                                context: context,
+                                child: BlocProvider.value(
+                                  value: loginController,
+                                  child: ResetPasswordBottomSheet(
+                                    controller: loginController,
+                                    resetPasswordController:
+                                        resetPasswordController,
+                                  ),
+                                ),
+                              );
+                            },
+                            text: CoreStrings.forgotPassword,
+                            colorText: CoreColors.textSecundary,
+                          ),
+                        ),
+                        ButtonCustom(
                           key: CoreKeys.buttonEnterLoginPage,
                           height: 50,
                           width: MediaQuery.of(context).size.width * 0.75,
                           backgroundButton: CoreColors.buttonColorSecond,
-                          text: state.isLoading? "Entrando..." : CoreStrings.enter,
+                          text: state.isLoading
+                              ? "Entrando..."
+                              : CoreStrings.enter,
                           colorText: CoreColors.textPrimary,
                           fontSize: 18,
                           isLoading: state.isLoading,
@@ -159,31 +164,34 @@ class _LoginPageState extends State<LoginPage1> {
                               passwordController.text,
                             );
                           },
-                        );
-                      }
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: TextButtonCustom(
-                        key: CoreKeys.enterWithPin,
-                        onPressed: () {
-                          showCustomBottomSheet(
-                            context: context,
-                            child: PinLoginBottomSheet(
-                              controller: loginController,
-                              pinController: pinController,
+                        ),
+                        Visibility(
+                          visible: state.canLoginWithPin,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: TextButtonCustom(
+                              key: CoreKeys.enterWithPin,
+                              onPressed: () {
+                                showCustomBottomSheet(
+                                  context: context,
+                                  child: BlocProvider.value(
+                                    value: loginController,
+                                    child: PinLoginBottomSheet(),
+                                  ),
+                                );
+                              },
+                              text: CoreStrings.enterPin,
+                              colorText: CoreColors.textSecundary,
                             ),
-                          );
-                        },
-                        text: CoreStrings.enterPin,
-                        colorText: CoreColors.textSecundary,
-                      ),
-                    )
-                  ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );

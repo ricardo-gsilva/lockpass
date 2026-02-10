@@ -11,6 +11,10 @@ class LoginState {
   final bool shouldPrefill;
   final String? prefillEmail;
   final String? prefillPassword;
+  final bool canLoginWithPin;
+  final String errorMessage;
+  final bool isAuthenticated;
+  final bool canSubmitPin;
 
   const LoginState({
     this.userCreate = false,
@@ -25,6 +29,10 @@ class LoginState {
     this.shouldPrefill = false,
     this.prefillEmail,
     this.prefillPassword,
+    this.canLoginWithPin = false,
+    this.errorMessage = '',
+    this.isAuthenticated = false,
+    this.canSubmitPin = false,
   });
 
   LoginState copyWith({
@@ -40,6 +48,10 @@ class LoginState {
     bool? shouldPrefill,
     String? prefillEmail,
     String? prefillPassword,
+    bool? canLoginWithPin,
+    String? errorMessage,
+    bool? isAuthenticated,
+    bool? canSubmitPin,
   }) {
     return LoginState(
       userCreate: userCreate ?? this.userCreate,
@@ -54,6 +66,10 @@ class LoginState {
       shouldPrefill: shouldPrefill ?? this.shouldPrefill,
       prefillEmail: prefillEmail ?? this.prefillEmail,
       prefillPassword: prefillPassword ?? this.prefillPassword,
+      canLoginWithPin: canLoginWithPin ?? this.canLoginWithPin,
+      errorMessage: errorMessage ?? this.errorMessage,
+      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      canSubmitPin: canSubmitPin ?? this.canSubmitPin
     );
   }
 }

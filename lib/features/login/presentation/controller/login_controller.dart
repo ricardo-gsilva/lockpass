@@ -1,30 +1,43 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/utils/validators/validators.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/services/auth_service.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
+import 'package:lockpass/services/pin_service.dart';
 
 class LoginController extends Cubit<LoginState> {
   final AuthService _authService;
   final VaultService _vaultService;
+  final PinService _pinService;
 
   LoginController({
     required AuthService authService,
     required VaultService vaultService,
+    required PinService pinService,
   })  : _authService = authService,
         _vaultService = vaultService,
+        _pinService = pinService,
         super(const LoginState());
 
   /// equivalente ao: sharedPrefs() + getPlatform() + getPermissionStorage()
   /// (só que agora isso é responsabilidade do Vault)
   Future<void> init() async {
     await _vaultService.initializeVaultEnvironment();
-    // Se você quiser já checar se existe PIN e auto-ajustar o modo:
-    // final hasPin = await _vaultService.hasPin();
-    // if (hasPin) {
-    //   // Você pode decidir começar no modo PIN ou manter email por padrão.
-    //   // emit(state.copyWith(mode: LoginMode.pin));
-    // }
+    await checkPinAvailability();
+  }
+
+  Future<void> checkPinAvailability() async {
+    emit(state.copyWith(isLoading: true));
+
+    final isAuthenticated = _authService.currentUserId.isNotNullOrBlank;
+    final hasPin = await _pinService.hasPin();
+
+    emit(state.copyWith(
+      isLoading: false,
+      canLoginWithPin: isAuthenticated && hasPin,
+    ));
   }
 
   /// equivalente ao: visibilityPass()
@@ -52,17 +65,16 @@ class LoginController extends Cubit<LoginState> {
     String email,
     String password,
   ) async {
-    final emailValidation = validateEmail(email);
-    if (emailValidation != null) {
+    if (!email.isValidEmail) {
       emit(
         state.copyWith(
           confirmLogin: false,
-          exception: emailValidation,
+          exception: email.emailError,
         ));
         return;
     }
     
-    if (password.isEmpty) {
+    if (password.isBlank) {
       emit(
         state.copyWith(
           confirmLogin: false,
@@ -84,9 +96,17 @@ class LoginController extends Cubit<LoginState> {
 
     try {
       await _authService.login(email, password);
+      if (_authService.currentUserId.isEmpty) {
+        await _waitMinLoadingTime(stopWatch);
+        emit(state.copyWith(
+          isLoading: false,
+          confirmLogin: false,
+          exception: 'Usuário não encontrado. Faça login novamente.',
+        ));
+        return;
+      }
 
       await _waitMinLoadingTime(stopWatch);
-
       await _vaultService.initializeVaultEnvironment();
 
       emit(
@@ -124,25 +144,12 @@ class LoginController extends Cubit<LoginState> {
   /// equivalente ao: checkPinLength()
   bool isPinLengthValid(String pin) => pin.isNotEmpty && pin.length >= 5;
 
-  /// equivalente ao: validarEmail()
-  // String? validateEmail(String value) {
-  //   if (value.isEmpty) return null;
-
-  //   final emailRegExp = RegExp(CoreStrings.regExpValidateEmail);
-
-  //   if (!emailRegExp.hasMatch(value)) {
-  //     return CoreStrings.emailInvalid;
-  //   }
-
-  //   return null;
-  // }
-
-  String? validateEmail(String value) {
-  if (value.isEmpty) return "O e-mail é obrigatório";
-  final regex = RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$");
-  if (!regex.hasMatch(value)) return "E-mail inválido";
-  return null;
-}
+//   String? validateEmail(String value) {
+//   if (value.isEmpty) return "O e-mail é obrigatório";
+//   final regex = RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$");
+//   if (!regex.hasMatch(value)) return "E-mail inválido";
+//   return null;
+// }
 
   /// equivalente ao: checkField()
   bool validateEmailAndPassword({
@@ -154,44 +161,59 @@ class LoginController extends Cubit<LoginState> {
       return false;
     }
     return true;
+  }
+
+  void onPinChanged(String value) {
+    final isValid = value.trim().length >= 5;
+
+    // evita emitir estado igual desnecessariamente
+    if (isValid == state.canSubmitPin) return;
+
+    emit(state.copyWith(canSubmitPin: isValid));
   }  
 
   /// equivalente ao fluxo do PIN na page:
   /// checkPin(pin) -> pinDecrypt() -> isolateCreateZip(path, pin)
   //Future<bool> loginWithPin({required String pin}) async {
-  Future<bool> loginWithPin({required String pin}) async {
+  Future<void> loginWithPin(String typedPin) async {
+    emit(state.copyWith(
+      isLoading: true,
+      errorMessage: '',
+    ));
+
+    final uid = _authService.currentUserId;
+
+    // 🔴 Sessão não existe → força login normal
+    if (uid.isEmpty) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'Sessão expirada. Faça login com e-mail.',
+      ));
+      return;
+    }
+
     try {
-      // pin vazio
-      if (pin.isEmpty) {
-        emit(state.copyWith(exception: CoreStrings.enterYourPin));
-        return false;
+      final isValid = await _pinService.validatePin(uid, typedPin.trim());
+
+      if (!isValid) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'PIN incorreto.',
+        ));
+        return;
       }
 
-      // verifica se existe pin salvo
-      final hasPin = await _vaultService.hasPin();
-      if (!hasPin) {
-        emit(state.copyWith(exception: CoreStrings.pinNotCreated));
-        return false;
-      }
-
-      // valida pin
-      final ok = await _vaultService.verifyPin(pin);
-      if (!ok) {
-        emit(state.copyWith(exception: CoreStrings.pinIncorrect));
-        return false;
-      }
-
-      // cria vault com pin descriptografado
-      final decryptedPin = await _vaultService.getDecryptedPin();
-      await _vaultService.createVault(decryptedPin);
-
-      // limpa erro anterior, se houver
-      emit(state.copyWith(exception: ''));
-
-      return true;
-    } catch (e) {
-      emit(state.copyWith(exception: e.toString()));
-      return false;
+      // ✅ PIN correto → usuário já está autenticado
+      emit(state.copyWith(
+        isLoading: false,
+        isAuthenticated: true,
+      ));
+    } catch (_) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'Erro ao validar o PIN.',
+        isAuthenticated: false,
+      ));
     }
   }
 
@@ -246,11 +268,10 @@ class LoginController extends Cubit<LoginState> {
 
   /// equivalente ao: resetPassword()
   Future<void> resetPassword({required String email}) async {
-    final validation = validateEmail(email);
-    if (validation != null) {
+    if (!email.isValidEmail) {
       emit(state.copyWith(
         resetPass: true,
-        exception: validation,
+        exception: email.emailError,
         message: '',
         isLoading: false,
       ));

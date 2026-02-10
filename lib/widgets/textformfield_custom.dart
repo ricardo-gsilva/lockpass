@@ -14,6 +14,7 @@ class TextFormFieldCustom extends StatelessWidget {
   final Color? colorBorder;
   final Color? colorErrorBorder;
   final Color? colorErrorText;
+  final Color? colorFocusedBorder;
   final double? fonteSize;
   final IconData? icons;
   final TextEditingController? controller;
@@ -36,6 +37,7 @@ class TextFormFieldCustom extends StatelessWidget {
     this.colorErrorBorder = CoreColors.textPrimary,
     this.colorBorder = CoreColors.textPrimary,
     this.fillColor = CoreColors.transparent,
+    this.colorFocusedBorder = CoreColors.focusedBorder,
     this.fonteSize,
     this.colorIcon,
     this.icons,    
@@ -78,7 +80,7 @@ class TextFormFieldCustom extends StatelessWidget {
           style: TextStyle(color: colorTextInput),
           decoration: InputDecoration(    
               border: _border(colorBorder!),
-              focusedBorder: _border(CoreColors.focusedBorder),
+              focusedBorder: _border(colorFocusedBorder!),
               errorBorder: _border(colorErrorBorder!),
               enabledBorder: _border(colorBorder!),              
               focusedErrorBorder: _border(colorErrorBorder!),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_strings.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
+import 'package:lockpass/core/utils/validators/validators.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/widgets/button_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
@@ -101,8 +102,7 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                             colorErrorText: CoreColors.textSecundary,
                             colorErrorBorder: CoreColors.alertError,
                             validator: (value) {
-                              return widget.controller
-                                  .validateEmail(value ?? '');
+                              return value.isValidEmail ? null : value.emailError;
                             },
                           ),
                           const SizedBox(height: 16),
@@ -115,6 +115,7 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                             colorTextLabel: CoreColors.textSecundary,
                             colorBorder: CoreColors.textSecundary,
                             obscureText: state.obscureText,
+                            validator: (value) => value.passwordError,
                             icon: IconButton(
                               icon: Icon(
                                 state.obscureText
