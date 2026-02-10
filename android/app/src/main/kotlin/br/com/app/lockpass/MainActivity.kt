@@ -1,4 +1,4 @@
-package br.com.lockpass.lockpass
+package br.com.app.lockpass
 
 import io.flutter.embedding.android.FlutterActivity
 
