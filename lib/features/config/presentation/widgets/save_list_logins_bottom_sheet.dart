@@ -12,10 +12,7 @@ import 'package:lockpass/widgets/button_custom.dart';
 import 'package:lockpass/widgets/iconbutton_custom.dart';
 import 'package:lockpass/widgets/info_dialog.dart';
 import 'package:lockpass/widgets/text_custom.dart';
-import 'package:lockpass/widgets/textbutton_custom.dart';
-import 'package:lockpass/widgets/textformfield_custom.dart';
 
-// ignore: must_be_immutable
 class SaveListLoginsBottomSheet extends StatefulWidget {
   const SaveListLoginsBottomSheet({super.key});
 
@@ -28,12 +25,6 @@ class _SaveListLoginsBottomSheetState extends State<SaveListLoginsBottomSheet> {
   CoreStrings strings = CoreStrings();
   TextEditingController selectFolderController = TextEditingController();
 
-  @override
-  void didChangeDependencies() async {
-    // await .verifyPlatform();
-    super.didChangeDependencies();
-  }
-
   void showInfo(bool isAndroid) {
     showDialog(
         context: context,
@@ -45,11 +36,10 @@ class _SaveListLoginsBottomSheetState extends State<SaveListLoginsBottomSheet> {
                 ? CoreStrings.infoSaveListAndroid
                 : CoreStrings.infoSaveListIos,
             widgets: [
-              TextButtonCustom(
-                key: CoreKeys.cancelCreatePin,
-                text: "Fechar",
+              ButtonCustom(
+                backgroundButton: CoreColors.buttonColorSecond,
                 colorText: CoreColors.textPrimary,
-                fontSize: 16,
+                text: "Fechar",
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -67,12 +57,19 @@ class _SaveListLoginsBottomSheetState extends State<SaveListLoginsBottomSheet> {
           key: CoreKeys.alertDialogSaveList,
           title: CoreStrings.savedBackup,
           content: msg,
-          onPressed: () {
-            Navigator.of(dialogContext).pop();
-            if (mounted) {
-              Navigator.of(context).pop();
-            }
-          },
+          widgets: [
+            ButtonCustom(
+              backgroundButton: CoreColors.buttonColorSecond,
+              colorText: CoreColors.textPrimary,
+              text: "Fechar",
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
         );
       },
     );
@@ -84,15 +81,17 @@ class _SaveListLoginsBottomSheetState extends State<SaveListLoginsBottomSheet> {
     return BlocListener<ConfigController, ConfigState>(
       listenWhen: (previous, current) =>
           previous.errorMessage != current.errorMessage ||
-          previous.successMessage != current.successMessage ||
+          previous.saveZip != current.saveZip ||
           previous.selectedFolder != current.selectedFolder,
       listener: (context, state) {
         if (state.selectedFolder) {
           selectFolderController.text = state.folderName;
         }
 
-        if (state.successMessage.isNotNullOrBlank) {
-          showSaveList(state.successMessage);
+        if (state.saveZip) {
+          showSaveList(state.isAndroid
+              ? CoreStrings.infoSaveBackUpAndroid
+              : CoreStrings.infoSaveBackUpIos);
           controller.clearMessages();
         }
 
@@ -153,34 +152,6 @@ class _SaveListLoginsBottomSheetState extends State<SaveListLoginsBottomSheet> {
                               fontSize: 15,
                             ),
                             const SizedBox(height: 24),
-                            const TextCustom(
-                              text: "Selecione a pasta para salvar o arquivo:",
-                              color: CoreColors.textSecundary,
-                              fontSize: 15,
-                            ),
-                            const SizedBox(height: 10),
-                            TextFormFieldCustom(
-                              keyboardType: TextInputType.number,
-                              label: selectFolderController.text.isEmpty
-                                  ? "Nenhuma pasta foi selecionada"
-                                  : "Pasta Selecionada",
-                              colorTextInput: CoreColors.textSecundary,
-                              colorTextLabel: CoreColors.textSecundary,
-                              cursorColor: CoreColors.textSecundary,
-                              colorErrorText: CoreColors.textSecundary,
-                              colorBorder: CoreColors.textSecundary,
-                              controller: selectFolderController,
-                              readOnly: true,
-                              icon: IconButton(
-                                  onPressed: () async {
-                                    await controller.selectedFolder();
-                                  },
-                                  icon: Icon(
-                                    Icons.folder,
-                                    color: Colors.white,
-                                  )),
-                            ),
-                            const SizedBox(height: 10),
 
                             /// BOTÃO CRIAR
                             Row(
@@ -203,11 +174,9 @@ class _SaveListLoginsBottomSheetState extends State<SaveListLoginsBottomSheet> {
                                   text: state.isLoading
                                       ? 'Salvando... '
                                       : "Salvar",
-                                  onPressed: !state.selectedFolder
-                                      ? null
-                                      : () async {
-                                          controller.exportBackup();
-                                        },
+                                  onPressed: () async {
+                                    controller.exportBackup();
+                                  },
                                 ),
                               ],
                             ),

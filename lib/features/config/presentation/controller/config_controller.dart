@@ -9,7 +9,6 @@ import 'package:lockpass/core/utils/extensions/string_extensions.dart';
 import 'package:lockpass/core/utils/validators/validators.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
 import 'package:lockpass/database/database_helper.dart';
-import 'package:lockpass/helpers/encrypt_decrypt.dart';
 import 'package:lockpass/services/auth_service.dart';
 import 'package:lockpass/services/pin_service.dart';
 import 'package:path/path.dart' as p;
@@ -293,12 +292,12 @@ class ConfigController extends Cubit<ConfigState> {
       }
       // Future.delayed(const Duration(seconds: 1), () {
       //   emit(state.copyWith(
-      //     isLoading: false,          
+      //     isLoading: false,
       //   ));
       // });
       emit(state.copyWith(
-          isLoading: false,          
-        ));
+        isLoading: false,
+      ));
     } catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
     }
@@ -318,7 +317,7 @@ class ConfigController extends Cubit<ConfigState> {
       await _pinService.removePin(_uid);
 
       await _vaultService.initializePreferences();
-      final prefs = await _vaultService.prefs();      
+      final prefs = await _vaultService.prefs();
       await prefs.setVisibleCreatePinInfo(false);
 
       await getPinVerification();
@@ -377,58 +376,57 @@ class ConfigController extends Cubit<ConfigState> {
 
   Future<String> pinDecrypt() async {
     final pin = await _pinService.getPin(_uid);
-    return pin?? '';
+    return pin ?? '';
   }
 
   Future<void> confirmAndRemovePin(String typedPin) async {
-  emit(state.copyWith(
-    isLoading: true,
-    errorMessage: '',
-    successMessage: '',
-  ));
-
-  final uid = _authService.currentUserId;
-  if (uid.isEmpty) {
     emit(state.copyWith(
-      isLoading: false,
-      errorMessage: 'Usuário não autenticado.',
+      isLoading: true,
+      errorMessage: '',
+      successMessage: '',
     ));
-    return;
-  }
 
-  try {
-    // 🔐 Valida PIN digitado
-    final isValid = await _pinService.validatePin(uid, typedPin.trim());
-
-    if (!isValid) {
+    final uid = _authService.currentUserId;
+    if (uid.isEmpty) {
       emit(state.copyWith(
         isLoading: false,
-        errorMessage: 'O PIN informado não corresponde ao PIN cadastrado.',
+        errorMessage: 'Usuário não autenticado.',
       ));
       return;
     }
 
-    // 🗑️ Remove PIN
-    await _pinService.removePin(uid);
+    try {
+      // 🔐 Valida PIN digitado
+      final isValid = await _pinService.validatePin(uid, typedPin.trim());
 
-    // 🧠 Ajustes de UI / UX
-    await _vaultService.initializePreferences();
-    final prefs = await _vaultService.prefs();
-    await prefs.setVisibleCreatePinInfo(false);
+      if (!isValid) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'O PIN informado não corresponde ao PIN cadastrado.',
+        ));
+        return;
+      }
 
-    emit(state.copyWith(
-      isLoading: false,
-      hasPin: false,
-      successMessage: 'PIN removido com sucesso.',
-    ));
-  } catch (e) {
-    emit(state.copyWith(
-      isLoading: false,
-      errorMessage: 'Não foi possível remover o PIN. Tente novamente.',
-    ));
+      // 🗑️ Remove PIN
+      await _pinService.removePin(uid);
+
+      // 🧠 Ajustes de UI / UX
+      await _vaultService.initializePreferences();
+      final prefs = await _vaultService.prefs();
+      await prefs.setVisibleCreatePinInfo(false);
+
+      emit(state.copyWith(
+        isLoading: false,
+        hasPin: false,
+        successMessage: 'PIN removido com sucesso.',
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'Não foi possível remover o PIN. Tente novamente.',
+      ));
+    }
   }
-}
-
 
   // -------------------------
   // Platform
@@ -619,6 +617,8 @@ class ConfigController extends Cubit<ConfigState> {
   }
 
   Future<void> exportBackup() async {
+    clearMessages();
+    emit(state.copyWith(isLoading: true, saveZip: false));
     try {
       final Directory dbDir = await LockPassPaths.dbDir;
       final File dbFile = File(p.join(dbDir.path, 'lockpass_itens.db'));
@@ -628,9 +628,9 @@ class ConfigController extends Cubit<ConfigState> {
       }
 
       final fileName = _generateListItensFileName();
-
-      final finalPath = p.join(state.selectedFolderPath, fileName);
-      final zipFile = File(finalPath);
+      final Directory tempDir = await getTemporaryDirectory();
+      final String tempPath = p.join(tempDir.path, fileName);
+      final zipFile = File(tempPath);
 
       await ZipFile.createFromFiles(
           sourceDir: dbDir, // Diretório base
@@ -638,18 +638,32 @@ class ConfigController extends Cubit<ConfigState> {
           zipFile: zipFile, // Onde salvar o ZIP
           includeBaseDirectory: false);
 
+      String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Onde deseja salvar o backup?',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+        bytes: await zipFile.readAsBytes(), // Passamos os dados do arquivo
+      );
+
+      if (outputFile.isNullOrBlank) {
+        emit(state.copyWith(isLoading: false));
+        return;
+      }
+
+      if (await zipFile.exists()) {
+        await zipFile.delete();
+      }
+
       emit(state.copyWith(
         isLoading: false,
-        successMessage: state.isAndroid
-            ? CoreStrings.infoSaveBackUpAndroid
-            : CoreStrings.infoSaveBackUpIos,
+        saveZip: true,
       ));
     } catch (e) {
       emit(state.copyWith(
         isLoading: false,
         errorMessage: 'Não foi possível salvar a lista.',
       ));
-      rethrow;
     }
   }
 

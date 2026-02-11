@@ -80,6 +80,7 @@ class _RemovePinBottomSheetState extends State<RemovePinBottomSheet> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
+                          const SizedBox(height: 20),
                           const TextCustom(
                             text:
                                 "Digite o PIN atual para confirmar sua identidade.\n\nAo remover o PIN, o acesso ao aplicativo passará a ser realizado utilizando o e-mail e a senha cadastrados.\n\nCaso deseje, será possível criar um novo PIN posteriormente.",

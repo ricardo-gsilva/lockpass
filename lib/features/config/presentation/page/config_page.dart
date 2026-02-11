@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/di/get_it.dart';
-import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/core/utils/extensions/string_extensions.dart';
 import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
@@ -20,7 +19,6 @@ import 'package:lockpass/features/config/presentation/widgets/remove_pin_bottom_
 import 'package:lockpass/features/config/presentation/widgets/save_list_logins_bottom_sheet.dart';
 import 'package:lockpass/features/config/presentation/widgets/backup_choice_bottom_sheet.dart';
 import 'package:lockpass/widgets/config_options_custom.dart';
-import 'package:lockpass/widgets/info_dialog.dart';
 
 class ConfigPage1 extends StatefulWidget {
   const ConfigPage1({super.key});

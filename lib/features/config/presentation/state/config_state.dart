@@ -28,6 +28,7 @@ class ConfigState extends Equatable {
   final String currentPassword;
   final String newPassword;
   final bool updatedPassword;
+  final bool saveZip;
 
   const ConfigState({
     this.isLoading = false,
@@ -57,6 +58,7 @@ class ConfigState extends Equatable {
     this.currentPassword = '',
     this.newPassword = '',
     this.updatedPassword = false,
+    this.saveZip = false,
   });
 
   ConfigState copyWith({
@@ -87,6 +89,7 @@ class ConfigState extends Equatable {
     String? currentPassword,
     String? newPassword,
     bool? updatedPassword,
+    bool? saveZip,
   }) {
     return ConfigState(
       isLoading: isLoading ?? this.isLoading,
@@ -116,6 +119,7 @@ class ConfigState extends Equatable {
       currentPassword: currentPassword ?? this.currentPassword,
       newPassword: newPassword ?? this.newPassword,
       updatedPassword: updatedPassword ?? this.updatedPassword,
+      saveZip: saveZip ?? this.saveZip,
     );
   }
 
@@ -146,5 +150,6 @@ class ConfigState extends Equatable {
         currentPassword,
         newPassword,
         updatedPassword,
+        saveZip,
       ];
 }

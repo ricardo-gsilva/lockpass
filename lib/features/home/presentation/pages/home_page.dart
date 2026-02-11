@@ -152,11 +152,11 @@ class _HomePage1State extends State<HomePage1> {
               ),
               const ConfigPage1(),
             ];
-            if (state.isLoading) {
-              return CircularProgressIndicator(                
-                color: CoreColors.primaryColor,
-              );
-            }
+            // if (state.isLoading) {
+            //   return CircularProgressIndicator(
+            //     color: CoreColors.alertError,
+            //   );
+            // }
             return Scaffold(
               backgroundColor: CoreColors.secondColor,
               appBar: AppBar(
@@ -228,15 +228,37 @@ class _HomePage1State extends State<HomePage1> {
                   ],
                 ),
               ),
-              body: state.filteredItems.isEmpty &&
-                      state.currentTab == HomeTab.list
-                  ? Center(
-                      child: TextCustom(
-                        key: CoreKeys.notFoundItem,
-                        text: CoreStrings.notFoundItem,
+              body: Stack(
+                children: [
+                  Positioned.fill(
+                    child: state.filteredItems.isEmpty &&
+                            state.currentTab == HomeTab.list
+                        ? Center(
+                            child: TextCustom(
+                              key: CoreKeys.notFoundItem,
+                              text: CoreStrings.notFoundItem,
+                            ),
+                          )
+                        : screens[state.selectedIndex],
+                  ),
+                  if (state.isLoading)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withAlpha(89),
+                        child: Center(
+                          child: SizedBox(
+                            height: 48,
+                            width: 48,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: CoreColors.textPrimary,
+                            ),
+                          ),
+                        ),
                       ),
                     )
-                  : screens[state.selectedIndex],
+                ],
+              ),
               bottomNavigationBar: BottomNavigationBar(
                 key: CoreKeys.bottomNavigationBar,
                 onTap: (index) => homeController.onItemTapped(index),

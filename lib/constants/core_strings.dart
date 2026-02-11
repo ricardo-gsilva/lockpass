@@ -1,5 +1,4 @@
 class CoreStrings {
-
   //A
   static const String appName = 'LockPass';
   static const String add = 'Add';
@@ -9,7 +8,8 @@ class CoreStrings {
   //C
   static const String cancel = 'Cancelar';
   static const String chooseFileUpload = 'Escolha o arquivo para carregar.';
-  static const String chooseGroupOrRegisterNew = 'Escolha um Grupo ou Cadastre um Novo';
+  static const String chooseGroupOrRegisterNew =
+      'Escolha um Grupo ou Cadastre um Novo';
   static const String config = 'Configurações';
   static const String createYourPin = 'Crie seu PIN';
 
@@ -30,12 +30,13 @@ class CoreStrings {
   static const String enter = 'Entrar';
   static const String enterLogin = 'Entrar com Login';
   static const String enterPin = 'Entrar com PIN';
-  static const String enterYourPinForDecryption = 'Digite seu PIN para descriptografar sua lista de logins.';  
-  
+  static const String enterYourPinForDecryption =
+      'Digite seu PIN para descriptografar sua lista de logins.';
+
   //F
   static const String fillField = 'Por favor preencha o campo!';
   static const String forgotPassword = 'Esqueceu a senha?';
-  static const String forgotPin = 'Esqueceu seu PIN?';  
+  static const String forgotPin = 'Esqueceu seu PIN?';
 
   //G
   static const String group = 'Grupo';
@@ -57,7 +58,7 @@ class CoreStrings {
   static const String labelGroup = 'Ex: Email';
   static const String labelEmailRegister = 'Ex: teste@gmail.com';
   static const String labelPin = 'Ex: 32893';
-  
+
   //M
   static const String manual = 'manual';
 
@@ -65,7 +66,7 @@ class CoreStrings {
   static const String nameService = 'Nome do Serviço';
   static const String newPin = 'Novo PIN';
   static const String noDefinedGroup = "Sem Grupo Definido";
-  static const String notFoundItem = 'Nenhum item encontrado!';  
+  static const String notFoundItem = 'Nenhum item encontrado!';
 
   //O
   static const String obscurePassword = '****';
@@ -73,11 +74,12 @@ class CoreStrings {
   //P
   static const String password = 'Password';
   static const String pin = 'PIN';
-  static const String pinDoesNotMatch = 'O PIN não corresponde a senha do arquivo.';
+  static const String pinDoesNotMatch =
+      'O PIN não corresponde a senha do arquivo.';
   static const String pinMustContain = 'O PIN deve conter 5 números.';
   static const String pinRemoved = 'Seu PIN foi removido!';
-  static const String provideEmail = 'Informe o Email';  
-  
+  static const String provideEmail = 'Informe o Email';
+
   //R
   static const String regExpValidatePin = r'^(?:([0-9])(?!\1)){5}$';
   static const String regExpValidateEmail = r'^[^@]+@[^@]+\.[^@]+$';
@@ -86,7 +88,7 @@ class CoreStrings {
   static const String registerHere = 'Não tem login? Crie aqui!';
   static const String registerPin = 'Cadastrar PIN';
   static const String resetPassword = 'Redefinir Senha';
-  static const String resetPin = 'Redefinir PIN';  
+  static const String resetPin = 'Redefinir PIN';
 
   //S
   static const String save = 'Salvar';
@@ -94,7 +96,8 @@ class CoreStrings {
   static const String savedBackup = 'Backup Salvo';
   static const String saveListLogins = 'Salvar Lista de Logins';
   static const String searchLogin = 'Busca por Login';
-  static const String selectGroup = 'Selecione um grupo já criado ou cadastre um novo grupo abaixo';
+  static const String selectGroup =
+      'Selecione um grupo já criado ou cadastre um novo grupo abaixo';
   static const String send = 'Enviar';
   static const String service = 'Serviço';
   static const String showAnymore = 'Não mostrar mais!';
@@ -104,23 +107,27 @@ class CoreStrings {
 
   //U
   static const String updatePin = 'Atualizar PIN';
-  static const String userCreateSucess = 'Usuário criado com Sucesso!';  
+  static const String userCreateSucess = 'Usuário criado com Sucesso!';
 
   //W
-  static const String wantDeleteRegisteredPin = 'Deseja excluir o PIN cadastrado?';
+  static const String wantDeleteRegisteredPin =
+      'Deseja excluir o PIN cadastrado?';
   static const String wantLogout = 'Você realmente quer deslogar?';
   static const String webSite = 'Site';
-  static const String wantDeleteAccount = 'Você está prestes a excluir o seu login.\n\nSe tiver certeza sobre isso, apenas aperta o botão excluir.';
+  static const String wantDeleteAccount =
+      'Você está prestes a excluir o seu login.\n\nSe tiver certeza sobre isso, apenas aperta o botão excluir.';
 
   //Y
-  static const String yourUploadedLoginList = 'Sua lista de logins salva foi carregada.';
+  static const String yourUploadedLoginList =
+      'Sua lista de logins salva foi carregada.';
 
   //Errors Firebase Authentication
   static const String fWeakPassword = 'A senha é muito fraca!';
   static const String fEmailAlreadyInUse = 'Este email já está cadastrado!';
   static const String fEmailInvalid = 'Este email não é válido!';
   static const String fUserNotFound = 'Email não encontrado!';
-  static const String fInvalidLoginCredentials = 'Email ou senha incorretos. Tente novamente!';
+  static const String fInvalidLoginCredentials =
+      'Email ou senha incorretos. Tente novamente!';
   static const String fWrongPassword = 'Um ou mais campos estão vazios!';
   static const String missingEmail = 'Campo de email vazio!';
   static const String fUserDisabled = 'Este usuário foi desabilitado.';
@@ -131,7 +138,7 @@ class CoreStrings {
 
   //Info
   static const String invalidSignatureZip = 'Assinatura do PIN inválida.';
-  static const String infoChooseFileUpload = ''' 
+  static const String infoChooseFileUpload = '''
     Escolha o arquivo contendo o backup de logins que você salvou!
 
     Você poderá encontrar os seus arquivos manuais com o nome 'LPB' + (data) + (hora) na pasta que você criou para salvar sua lista de logins.
@@ -140,57 +147,65 @@ class CoreStrings {
 
     O backup automático salva a sua última lista de logins no momento exato em que você acessa o app."
   ''';
-  static const String manyEmptyFields = 'Um ou mais campos necessários não foram preenchidos.';
-  static const String updateSucess = 'Você atualizou as informações com sucesso!';
+  static const String manyEmptyFields =
+      'Um ou mais campos necessários não foram preenchidos.';
+  static const String updateSucess =
+      'Você atualizou as informações com sucesso!';
   static const String updateError = 'Houve um erro na atualização.';
-  static const String updateCardItem = 'Você atualizou as informações com sucesso!';
-  static const String infoEmailInvalid = 'Utilize um email válido para criar seu cadastro. Após a criação do cxadastro, poderá acessar o app.';
-  static const String noticeCreatePin = 'Vá até configurações e crie seu PIN para dar mais segurança no acesso as suas senhas.\n'
-                  'Você poderá continuar utilizando o APP sem que crie um PIN! Mas lembre-se que qualquer '
-                  'pessoa que tiver acesso ao seu celular, poderá ter acesso as senhas, caso você não crie um PIN.';
+  static const String updateCardItem =
+      'Você atualizou as informações com sucesso!';
+  static const String infoEmailInvalid =
+      'Utilize um email válido para criar seu cadastro. Após a criação do cxadastro, poderá acessar o app.';
+  static const String noticeCreatePin =
+      'Vá até configurações e crie seu PIN para dar mais segurança no acesso as suas senhas.\n'
+      'Você poderá continuar utilizando o APP sem que crie um PIN! Mas lembre-se que qualquer '
+      'pessoa que tiver acesso ao seu celular, poderá ter acesso as senhas, caso você não crie um PIN.';
   static const String pinNotCreated = 'Você ainda não criou um PIN!';
   static const String enterYourPin = 'Você não digitou o seu PIN!';
   static const String pinIncorrect = 'O PIN digitado está incorreto!';
-  static const String needCreateNewPin = 'Caso você tenha esquecido seu PIN, precisará criar um novo. '
-                      'Utilize seu login para poder criar um novo PIN.';
-  static const String receivePasswordResetLink = 'Utilize seu email cadastrado para receber um link de redefinição de senha.';
+  static const String needCreateNewPin =
+      'Caso você tenha esquecido seu PIN, precisará criar um novo. '
+      'Utilize seu login para poder criar um novo PIN.';
+  static const String receivePasswordResetLink =
+      'Utilize seu email cadastrado para receber um link de redefinição de senha.';
   static const String wantSaveListLogin = 'Deseja salvar sua lista de logins?';
-  static const String infoSaveList = 'Você irá salvar um arquivo zip contendo sua lista de logins salvos no App.';
-  static const String infoSaveListIos = 'Você irá salvar um arquivo ZIP contendo sua lista de logins.\n\n'
-           'Dica: No iPhone, caso o local selecionado esteja vazio, '
-           'crie uma pasta manualmente clicando nos "..." para autorizar o salvamento.';
-  static const String infoSaveListAndroid = 'No seu Android, você irá salvar um arquivo ZIP contendo sua lista de logins no local escolhido do seu dispositivo.\n\n'
-         'Você pode criar uma pasta com nome próprio se preferir.';
-  static const String choiceFile = 'Você precisa escolher um arquivo para ser carregado.';
+  static const String infoSaveList =
+      'Você irá salvar um arquivo zip contendo sua lista de logins salvos no App.';
+  static const String infoSaveListIos =
+      "Você irá salvar um arquivo ZIP com sua lista de logins. \n\nDica: Se não conseguir selecionar uma pasta, toque no ícone de 'três pontos' (...) e crie uma nova pasta para autorizar o salvamento no seu iPhone.";
+  static const String infoSaveListAndroid =
+      "Você irá salvar um arquivo ZIP com sua lista de logins. Escolha uma pasta de sua preferência no dispositivo ou crie uma nova para organizar seus backups.";
+  static const String choiceFile =
+      'Você precisa escolher um arquivo para ser carregado.';
   static const String loadedList = 'Sua lista de logins salva, foi carregada.';
-  static const String pinInfo = 'Para validar seu PIN, nāo repita o mesmo número em sequência.\n'
-                    '\n'
-                    'Ex: 11111, 25400, 78883.'
-                    '\n\n';                 
-                    
-  static const String pinVazio = 'O PIN está vazio ou contém menos do que 5 números.\n'
-                    '\n'
-                    'Digite um valor contendo 5 números.'
-                    '\n'
-                    'Ex: 14279 ou 43835.\n'
-                    '\n';
-  static const String pinCreated = 'PIN criado com Sucesso';
-  static const String pinUseInfo = 'Guarde o número do seu PIN, para poder acessar o App e ter acesso as suas senhas.';
-  static const String invalidePin = 'PIN Inválido';
-  static const String infoSaveBackUpIos = 'Para acessar seu arquivo de backup, acesse "No Meu Iphone"'
-            'e procure pela pasta "LockPass", nessa pasta estará o arquivo "lockpass_db_manual".\n'
-            '\n'            
-            'Você poderá utilizar esse backup para recuperar suas senhas,'
-            'caso você troque de aparelho celular.\n'
-            '\n'
-            'Caso você tenha cadastrado um PIN, ele será a senha do arquivo.';
-  static const String infoSaveBackUpAndroid = 'Para acessar seu arquivo de backup, acesse o "Gerenciador de Arquivos"'
-            ' e procure pela pasta "Downloads", você irá encontrar a pasta LockPass e nela o arquivo "lockpass_db_manual".\n'
-            '\n'            
-            'Você poderá utilizar esse backup para recuperar suas senhas,'
-            'caso você troque de aparelho celular.\n'
-            '\n'
-            'Caso você tenha cadastrado um PIN, ele será a senha do arquivo.';
-  
+  static const String pinInfo =
+      'Para validar seu PIN, nāo repita o mesmo número em sequência.\n'
+      '\n'
+      'Ex: 11111, 25400, 78883.'
+      '\n\n';
 
+  static const String pinVazio =
+      'O PIN está vazio ou contém menos do que 5 números.\n'
+      '\n'
+      'Digite um valor contendo 5 números.'
+      '\n'
+      'Ex: 14279 ou 43835.\n'
+      '\n';
+  static const String pinCreated = 'PIN criado com Sucesso';
+  static const String pinUseInfo =
+      'Guarde o número do seu PIN, para poder acessar o App e ter acesso as suas senhas.';
+  static const String invalidePin = 'PIN Inválido';
+  static const String infoSaveBackUpIos =
+      'Para acessar seu arquivo de backup, acesse "No Meu iPhone" '
+      'e procure pela pasta que você criou para salvar o backup. Nela estará o arquivo '
+      'que se inicia com "LPB", contendo a data e hora em que foi salvo.\n\n'
+      'Você poderá utilizar esse backup para recuperar suas senhas, '
+      'caso você troque de aparelho celular.\n';
+
+  static const String infoSaveBackUpAndroid =
+      'Para acessar seu arquivo de backup, acesse o "Gerenciador de Arquivos" '
+      'e procure pela pasta onde você salvou o backup. Nela você encontrará o arquivo '
+      'que inicia com "LPB", seguido pela data e hora de criação.\n\n'
+      'Você poderá utilizar esse backup para recuperar suas senhas, '
+      'caso você troque de aparelho celular.\n';
 }
