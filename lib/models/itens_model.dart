@@ -1,36 +1,38 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class ItensModel {
-  String? userId;
-  int? id;
-  String? type;
-  String? service;
-  String? site;
-  String? email;
-  String? login;
-  String? password;
-  
-  ItensModel({
+import 'package:equatable/equatable.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
+
+class ItensModel extends Equatable{
+  final String? userId;
+  final int? id;
+  final String type;
+  final String service;
+  final String? site;
+  final String email;
+  final String login;
+  final String password;
+
+  const ItensModel({
     this.userId,
     this.id,
-    this.type,
-    this.service,
+    required this.type,
+    required this.service,
     this.site,
-    this.email,
-    this.login,
-    this.password,
+    required this.email,
+    required this.login,
+    required this.password,
   });
 
-  ItensModel.empty():
-    userId = '',
-    id = 0,
-    type = '',
-    service = '',
-    site = '',
-    email = '',
-    login = '',
-    password = '';  
+  const ItensModel.empty()
+      : userId = '',
+        id = 0,
+        type = '',
+        service = '',
+        site = '',
+        email = '',
+        login = '',
+        password = '';
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -49,12 +51,12 @@ class ItensModel {
     return ItensModel(
       userId: map['userId'] != null ? map['userId'] as String : null,
       id: map['id'] != null ? map['id'] as int : null,
-      type: map['type'] != null ? map['type'] as String : null,
-      service: map['service'] != null ? map['service'] as String : null,
+      type: map['type'] as String? ?? '',
+      service: map['service'] as String? ?? '',
       site: map['site'] != null ? map['site'] as String : null,
-      email: map['email'] != null ? map['email'] as String : null,
-      login: map['login'] != null ? map['login'] as String : null,
-      password: map['password'] != null ? map['password'] as String : null,
+      email: map['email'] as String? ?? '',
+      login: map['login'] as String? ?? '',
+      password: map['password'] as String? ?? '',
     );
   }
 
@@ -80,12 +82,40 @@ class ItensModel {
     );
   }
 
+  bool isValid() {
+    return service.isNotNullOrBlank &&
+        login.isNotNullOrBlank &&
+        password.isNotNullOrBlank;
+  }
+
+  bool isDifferentFrom(ItensModel other) {
+    return type != other.type ||
+        service != other.service ||
+        site != other.site ||
+        email != other.email ||
+        login != other.login ||
+        password != other.password;
+  }
+
   String toJson() => json.encode(toMap());
 
-  factory ItensModel.fromJson(String source) => ItensModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ItensModel.fromJson(String source) =>
+      ItensModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
     return 'ItensModel(userId: $userId, id: $id, type: $type, service: $service, site: $site, email: $email, login: $login, password: $password)';
   }
+
+  @override
+  List<Object?> get props => [
+    userId,
+    id,
+    type,
+    service,
+    site,
+    email,
+    login,
+    password,
+  ];
 }

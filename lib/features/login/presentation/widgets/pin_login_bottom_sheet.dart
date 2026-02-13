@@ -5,7 +5,7 @@ import 'package:lockpass/constants/core_icons.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/core/di/get_it.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
 import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';

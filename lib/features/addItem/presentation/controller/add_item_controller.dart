@@ -1,19 +1,21 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
-import 'package:lockpass/core/utils/validators/validators.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/database/database_helper.dart';
 import 'package:lockpass/features/addItem/presentation/state/add_item_state.dart';
 import 'package:lockpass/helpers/encrypt_decrypt.dart';
 import 'package:lockpass/models/itens_model.dart';
+import 'package:lockpass/services/auth_service.dart';
 
 class AddItemController extends Cubit<AddItemState> {
   final DataBaseHelper _db;
+  final AuthService _authService;
 
   AddItemController({
-    required DataBaseHelper db, 
-  }) : _db = db,
+    required DataBaseHelper db,
+    required AuthService authService
+  }) :  _db = db,
+        _authService = authService,
   super(const AddItemState());
   
   void listItemDropDown(List<ItensModel>? itens){
@@ -55,7 +57,7 @@ class AddItemController extends Cubit<AddItemState> {
       return;
     }
 
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final uid = _authService.currentUserId;
     if(uid.isNullOrBlank){
       emit(state.copyWith(
         exception: "Usuário não autenticado.",
@@ -69,7 +71,7 @@ class AddItemController extends Cubit<AddItemState> {
         ? state.listItensDrop.first : CoreStrings.noDefinedGroup) 
         : item.type!.trim();    
 
-    final encryptedPass = await EncryptDecrypt.encrypted(item.password!.trim());
+    final encryptedPass = EncryptDecrypt.encrypt(item.password!.trim(), uid);
 
     final itemFinal = item.copyWith(
       userId: uid,

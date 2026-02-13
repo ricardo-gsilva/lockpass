@@ -28,7 +28,7 @@ class _DeleteItemBottomSheetState extends State<DeleteItemBottomSheet> {
           Navigator.of(context).pop(true);
           SnackUtils.showSuccess(
             context,
-            content: state.succesMessage
+            content: state.successMessage
           );
         }
         if (!state.itemRemoved) {

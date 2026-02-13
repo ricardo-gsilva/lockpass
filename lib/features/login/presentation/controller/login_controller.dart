@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
-import 'package:lockpass/core/utils/validators/validators.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/features/login/presentation/state/login_state.dart';
 import 'package:lockpass/services/auth_service.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
@@ -74,7 +73,7 @@ class LoginController extends Cubit<LoginState> {
         return;
     }
     
-    if (password.isBlank) {
+    if (password.isNullOrBlank) {
       emit(
         state.copyWith(
           confirmLogin: false,

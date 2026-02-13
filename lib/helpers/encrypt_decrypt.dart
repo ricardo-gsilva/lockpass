@@ -1,51 +1,132 @@
 import 'dart:io';
 import 'dart:isolate';
-
-import 'package:aespack/aespack.dart';
+import 'dart:typed_data';
+import 'package:encrypt/encrypt.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:crypto/crypto.dart'; // Pacote padrão do Flutter para Hashing
+import 'dart:convert';
 
 class EncryptDecrypt {
-  
-static decrypt(String pass) async{
-    if (pass.isEmpty) {
-      return "0";
-    } else {
-      String key = '0102030405060708';
-      String iv = '1112131415161718';
-      return await Aespack.decrypt(pass, key, iv) ?? 'Falha ao descriptografar a senha.';  
-    }    
+  // Transforma o UID em uma chave de 32 bytes constante para aquele usuário
+  static Key _generateKeyFromUid(String uid) {
+    // Usamos SHA-256 para garantir que qualquer UID vire uma chave de 32 bytes
+    final bytes = utf8.encode(uid);
+    final digest = sha256.convert(bytes);
+    return Key(Uint8List.fromList(digest.bytes));
   }
 
-static encrypted(String pass) async {
-    String key = '0102030405060708';
-    String iv = '1112131415161718';
-    return await Aespack.encrypt(pass, key, iv) ?? '';
+  static String encrypt(String text, String uid) {
+    if (text.isEmpty) return "";
+
+    try {
+      final key = _generateKeyFromUid(uid);
+      final ivString =
+          uid.length >= 16 ? uid.substring(0, 16) : uid.padRight(16, '0');
+      final iv = IV.fromUtf8(ivString);
+
+      final encrypter = Encrypter(AES(key));
+      return encrypter.encrypt(text, iv: iv).base64;
+    } catch (e) {
+      return text;
+    }
   }
 
-Future<bool> isolateUnzip(String pinDescrypt, File zipFile) async {
-  Directory directory = await getApplicationDocumentsDirectory();
+  static String decrypt(String encryptedBase64, String uid) {
+    if (encryptedBase64.isEmpty) return "";
+
+    try {
+      final key = _generateKeyFromUid(uid);
+      final iv = IV.fromUtf8(uid.substring(0, 16));
+      final encrypter = Encrypter(AES(key));
+
+      return encrypter.decrypt(Encrypted.fromBase64(encryptedBase64), iv: iv);
+    } catch (e) {
+      return encryptedBase64;
+    }
+  }
+
+  Future<bool> isolateUnzip(String pinDecrypt, String zipPath) async {
+    final dir = await getApplicationSupportDirectory();
+
+    final responsePort = ReceivePort();
+    final initPort = ReceivePort();
+
+    await Isolate.spawn(isolateUnzipRestore, initPort.sendPort);
+
+    final SendPort isolatePort = await initPort.first;
+
+    isolatePort.send({
+      'replyPort': responsePort.sendPort,
+      'pinDecrypt': pinDecrypt,
+      'zipPath': zipPath,
+      'outputDir': dir.path,
+    });
+
+    return await responsePort.first as bool;
+  }
+
+  Future<bool> isolateUnzip1(String pinDescrypt, File zipFile) async {
+    Directory directory = await getApplicationDocumentsDirectory();
     var isolateListenner = ReceivePort();
     var port = ReceivePort();
 
-    await Isolate.spawn(isolateLogic, port.sendPort);
+    await Isolate.spawn(isolateLogic1, port.sendPort);
     SendPort portNewIsolate = await port.first;
 
-    portNewIsolate.send(
-      {'isolate': isolateListenner.sendPort,
+    portNewIsolate.send({
+      'isolate': isolateListenner.sendPort,
       'pinDescrypt': pinDescrypt,
       'zipFile': zipFile,
-      'directory': directory}
-    );
-    
+      'directory': directory
+    });
+
     return await isolateListenner.first;
   }
 
-  static isolateLogic(SendPort message){
+  static void isolateUnzipRestore(SendPort mainPort) {
+    final isolatePort = ReceivePort();
+    mainPort.send(isolatePort.sendPort);
+
+    isolatePort.listen((message) async {
+      final SendPort replyPort = message['replyPort'];
+      final String zipPath = message['zipPath'];
+      final String outputDir = message['outputDir'];
+      final String pinDecrypt = message['pinDecrypt'];
+
+      try {
+        final zipFile = File(zipPath);
+        final bytes = await zipFile.readAsBytes();
+
+        final archive = ZipDecoder().decodeBytes(
+          bytes,
+          password: pinDecrypt.isEmpty ? null : pinDecrypt,
+        );
+
+        for (final file in archive) {
+          final filePath = '$outputDir/${file.name}';
+
+          if (file.isFile) {
+            final outFile = File(filePath);
+            await outFile.create(recursive: true);
+            await outFile.writeAsBytes(file.content as List<int>);
+          } else {
+            await Directory(filePath).create(recursive: true);
+          }
+        }
+
+        replyPort.send(true);
+      } catch (e) {
+        replyPort.send(false);
+      }
+    });
+  }
+
+  static isolateLogic1(SendPort message) {
     var isolatePrivatePort = ReceivePort();
     message.send(isolatePrivatePort.sendPort);
 
-    isolatePrivatePort.listen((message) { 
+    isolatePrivatePort.listen((message) {
       var externalIsolate = message['isolate'];
       String pinDescrypt = message['pinDescrypt'];
       File zipFile = message['zipFile'];
@@ -55,26 +136,102 @@ Future<bool> isolateUnzip(String pinDescrypt, File zipFile) async {
   }
 
   static bool unZiped(String pinDescrypt, File zipFile, Directory directory) {
-    try {      
-      final archive = ZipDecoder().decodeBytes(zipFile.readAsBytesSync(), password: pinDescrypt.isEmpty? null : pinDescrypt);
+    try {
+      final archive = ZipDecoder().decodeBytes(zipFile.readAsBytesSync(),
+          password: pinDescrypt.isEmpty ? null : pinDescrypt);
       for (final file in archive) {
         if (file.isFile) {
-        final data = file.content as List<int>?;
-        File('${directory.path}_itens.db')
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(data!);
+          final data = file.content as List<int>?;
+          File('${directory.path}_itens.db')
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(data!);
         } else {
           Directory('${directory.path}_itens.db').create(recursive: true);
         }
       }
       return true;
-    } catch (e) {      
+    } catch (e) {
       e.toString();
       return false;
     }
   }
 
-  Future<bool> isolateCreateZip(String path, String pinDecrypt, String type) async {
+  Future<bool> isolateCreateZip1(
+    String zipPath,
+    String dbPath,
+    String pinDecrypt,
+  ) async {
+    final receivePort = ReceivePort();
+
+    await Isolate.spawn(
+      isolateLogicCreateZip1,
+      receivePort.sendPort,
+    );
+
+    final sendPort = await receivePort.first as SendPort;
+
+    final responsePort = ReceivePort();
+
+    sendPort.send({
+      'replyTo': responsePort.sendPort,
+      'zipPath': zipPath,
+      'dbPath': dbPath,
+      'pin': pinDecrypt,
+    });
+
+    return await responsePort.first as bool;
+  }
+
+  static void isolateLogicCreateZip1(SendPort initialPort) {
+    final isolatePort = ReceivePort();
+    initialPort.send(isolatePort.sendPort);
+
+    isolatePort.listen((message) {
+      final SendPort replyTo = message['replyTo'];
+      final String zipPath = message['zipPath'];
+      final String dbPath = message['dbPath'];
+      final String pinDecrypt = message['pin'];
+
+      final result = createZipFile1(
+        zipPath,
+        dbPath,
+        pinDecrypt,
+      );
+
+      replyTo.send(result);
+    });
+  }
+
+  static bool createZipFile1(
+    String zipPath,
+    String dbPath,
+    String pinDecrypt,
+  ) {
+    try {
+      final pin = int.tryParse(pinDecrypt) ?? 0;
+
+      final encoder = ZipFileEncoder(
+        password: pin > 0 ? pin.toString() : null,
+      );
+
+      encoder.create(zipPath);
+      encoder.addFile(File(dbPath)); // ✅ ARQUIVO REAL
+      encoder.close();
+
+      final exists = File(zipPath).existsSync();
+
+      print('📦 ZIP criado em: $zipPath');
+      print('📦 ZIP existe? $exists');
+
+      return exists;
+    } catch (e) {
+      print('❌ Erro ao criar ZIP: $e');
+      return false;
+    }
+  }
+
+  Future<bool> isolateCreateZip(
+      String path, String pinDecrypt, String type) async {
     Directory directory = await getApplicationDocumentsDirectory();
     var isolateListenner = ReceivePort();
     var port = ReceivePort();
@@ -82,18 +239,18 @@ Future<bool> isolateUnzip(String pinDescrypt, File zipFile) async {
     await Isolate.spawn(isolateLogicCreateZip, port.sendPort);
     SendPort portNewIsolate = await port.first;
 
-    portNewIsolate.send(
-      {'isolate': isolateListenner.sendPort,
+    portNewIsolate.send({
+      'isolate': isolateListenner.sendPort,
       'path': path,
       'type': type,
       'pinDecrypt': pinDecrypt,
-      'directory': directory}
-    );
-    
+      'directory': directory
+    });
+
     return await isolateListenner.first;
   }
 
-  static isolateLogicCreateZip(SendPort message){
+  static void isolateLogicCreateZip(SendPort message) {
     var isolatePrivatePort = ReceivePort();
     message.send(isolatePrivatePort.sendPort);
 
@@ -107,22 +264,27 @@ Future<bool> isolateUnzip(String pinDescrypt, File zipFile) async {
     });
   }
 
-  static bool createZipFile(String path, String pinDecrypt, Directory directory, String type) {
+  static bool createZipFile(
+      String path, String pinDecrypt, Directory directory, String type) {
     try {
-      int pin = 0;
-      String pathSave = '';
-      pin = int.parse(pinDecrypt);
-      String pathDb = '${directory.path}_itens.db';
-      var encoder = ZipFileEncoder(password: pin == 0 ? null : pin.toString());
-      if(Platform.isAndroid){
-        pathSave = '$path/LockPass/lockpass_db_$type.zip';
-      } else {
-        pathSave = '$path/lockpass_db_$type.zip';
-      }
+      final pin = int.tryParse(pinDecrypt) ?? 0;
+      final encoder = ZipFileEncoder(password: pin > 0 ? pin.toString() : null);
+
+      final pathSave = Platform.isAndroid
+          ? '$path/LockPass/lockpass_db_$type.zip'
+          : '$path/lockpass_db_$type.zip';
+
       encoder.create(pathSave);
-      encoder.addFile(File(pathDb));
+      encoder.addFile(File(path));
       encoder.close();
-      return true;
+
+      final zipFile = File(pathSave);
+      final exists = zipFile.existsSync();
+
+      print('📦 ZIP criado em: $pathSave');
+      print('📦 ZIP existe? $exists');
+
+      return exists;
     } catch (e) {
       e.toString();
       return false;

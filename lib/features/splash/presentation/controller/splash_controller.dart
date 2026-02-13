@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/features/splash/presentation/enums/entry_status_enum.dart';
 import 'package:lockpass/features/splash/presentation/state/splash_state.dart';
 import 'package:lockpass/services/auth_service.dart';

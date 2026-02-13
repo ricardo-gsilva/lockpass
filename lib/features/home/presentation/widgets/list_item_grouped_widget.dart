@@ -6,6 +6,7 @@ import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
 import 'package:lockpass/features/home/presentation/controller/home_controller.dart';
 import 'package:lockpass/features/home/presentation/state/home_state.dart';
 import 'package:lockpass/features/home/presentation/widgets/delete_item_bottom_sheet.dart';
+import 'package:lockpass/features/home/presentation/widgets/item_detail_bottom_sheet.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 
 class ListItemGroupedWidget extends StatelessWidget {
@@ -90,7 +91,8 @@ class ListItemGroupedWidget extends StatelessWidget {
                               return confirm ?? false;
                             },
                             child: Padding(
-                              padding: const EdgeInsets.only(bottom: 4, left: 5, right: 5),
+                              padding: const EdgeInsets.only(
+                                  bottom: 4, left: 5, right: 5),
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
@@ -106,24 +108,43 @@ class ListItemGroupedWidget extends StatelessWidget {
                                   children: [
                                     // DESIGN: Removemos o container interno pesado e usamos o ListTile direto
                                     ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(
-                                          horizontal: 20),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 20),
                                       title: TextCustom(text: item.service),
                                       subtitle: Text(item.login ?? '',
                                           style: TextStyle(
-                                              color: Colors.black54, fontSize: 13)),
+                                              color: Colors.black54,
+                                              fontSize: 13)),
                                       trailing: const Icon(CoreIcons.visibility,
                                           size: 20),
-                                      onTap: () {/* Seu código de info */},
+                                      onTap: () {
+                                        final decryptedItem =
+                                            controller.decryptedPass(item);
+                                        showCustomBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          child: BlocProvider.value(
+                                            value: controller,
+                                            child: ItemDetailsBottomSheet(
+                                              item: decryptedItem,
+                                              listGroups: state.allTypes,
+                                            ),
+                                          ),
+                                        ).whenComplete(() {
+                                          controller
+                                              .toggleItemPasswordVisibility(
+                                                  false);
+                                        });
+                                      },
                                     ),
-                                    // DESIGN: Divisor sutil para separar os itens sem poluir
                                     if (index < groupItems.length - 1)
                                       Divider(
                                           height: 1,
                                           indent: 20,
                                           endIndent: 20,
-                                          color: Colors.black.withOpacity(0.05)),
-                                    // Espaço final para não colar na borda do card
+                                          color:
+                                              Colors.black.withOpacity(0.05)),
                                     if (index == groupItems.length - 1)
                                       const SizedBox(height: 10),
                                   ],

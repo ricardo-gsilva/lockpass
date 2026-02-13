@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
-import 'package:lockpass/core/utils/validators/validators.dart';
 import 'package:lockpass/features/config/presentation/controller/config_controller.dart';
 import 'package:lockpass/features/config/presentation/state/config_state.dart';
 import 'package:lockpass/widgets/button_custom.dart';
@@ -102,7 +101,7 @@ class _ResetPinBottomSheetState extends State<ResetPinBottomSheet> {
                             colorErrorText: CoreColors.textSecundary,
                             colorErrorBorder: CoreColors.alertError,
                             validator: (value) {
-                              if (value.isBlank) return CoreStrings.fillField;
+                              if (value.isNullOrBlank) return CoreStrings.fillField;
                               if (!value.isValidEmail)
                                 return CoreStrings.emailInvalid;
                               return null;

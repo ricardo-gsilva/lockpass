@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
 import 'package:lockpass/features/config/presentation/controller/config_controller.dart';
 import 'package:lockpass/features/config/presentation/state/config_state.dart';

@@ -39,6 +39,7 @@ void setupGetIt() {
       ));
   getIt.registerFactory<AddItemController>(() => AddItemController(
         db: getIt<DataBaseHelper>(),
+        authService: getIt<AuthService>(),
       ));
   getIt.registerFactory<ConfigController>(() => ConfigController(
         vaultService: getIt<VaultService>(),

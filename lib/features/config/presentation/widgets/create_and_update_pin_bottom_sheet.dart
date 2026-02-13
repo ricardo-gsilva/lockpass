@@ -4,7 +4,7 @@ import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_icons.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
 import 'package:lockpass/features/config/presentation/controller/config_controller.dart';

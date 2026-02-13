@@ -23,4 +23,5 @@ class CoreIcons {
   static const IconData password = Icons.password;
   static const IconData edit = Icons.edit;
   static const IconData deleteAccount = Icons.delete_forever_rounded;
+  static const IconData close = Icons.close;
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/di/get_it.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
-import 'package:lockpass/core/utils/validators/validators.dart';
 import 'package:lockpass/features/addItem/presentation/controller/add_item_controller.dart';
 import 'package:lockpass/features/addItem/presentation/state/add_item_state.dart';
 import 'package:lockpass/models/itens_model.dart';
@@ -16,15 +16,15 @@ import 'package:lockpass/widgets/field_custom.dart';
 import 'package:lockpass/widgets/iconbutton_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 
-class AddItemPage1 extends StatefulWidget {
+class AddItemPage extends StatefulWidget {
   final List<ItensModel>? itens;
-  const AddItemPage1({this.itens, super.key});
+  const AddItemPage({this.itens, super.key});
 
   @override
-  State<AddItemPage1> createState() => _AddItemPage1State();
+  State<AddItemPage> createState() => _AddItemPageState();
 }
 
-class _AddItemPage1State extends State<AddItemPage1> {
+class _AddItemPageState extends State<AddItemPage> {
   TextEditingController typeController = TextEditingController();
   TextEditingController serviceController = TextEditingController();
   TextEditingController siteController = TextEditingController();
@@ -140,9 +140,7 @@ class _AddItemPage1State extends State<AddItemPage1> {
                                       ? ''
                                       : state.listItensDrop.first,
                                   onChanged: (newValue) {
-                                    setState(() {
                                       typeController.text = newValue.toString();
-                                    });
                                   },
                                   items: state.listItensDrop.map((value) {
                                     return DropdownMenuItem(
@@ -169,7 +167,7 @@ class _AddItemPage1State extends State<AddItemPage1> {
                             keyboardType: TextInputType.name,
                             controller: serviceController,
                             validator: (value) {
-                              if (value.isBlank) return CoreStrings.fillField;
+                              if (value.isNullOrBlank) return CoreStrings.fillField;
                               return null;
                             },
                           ),
@@ -187,7 +185,7 @@ class _AddItemPage1State extends State<AddItemPage1> {
                             keyboardType: TextInputType.emailAddress,
                             controller: emailController,
                             validator: (value) {
-                              if (value.isBlank) return CoreStrings.fillField;
+                              if (value.isNullOrBlank) return CoreStrings.fillField;
                               if (!value.isValidEmail) return CoreStrings.emailInvalid;
                               return null;
                             },
@@ -198,7 +196,7 @@ class _AddItemPage1State extends State<AddItemPage1> {
                             keyboardType: TextInputType.text,
                             controller: loginController,
                             validator: (value) {
-                              if (value.isBlank) return CoreStrings.fillField;
+                              if (value.isNullOrBlank) return CoreStrings.fillField;
                               return null;
                             },
                           ),

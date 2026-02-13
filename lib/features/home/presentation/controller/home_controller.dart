@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/paths/lockpass_paths.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
 import 'package:lockpass/database/database_helper.dart';
 import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
 import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
+import 'package:lockpass/helpers/encrypt_decrypt.dart';
 import 'package:lockpass/models/itens_model.dart';
 import 'package:lockpass/models/type_model.dart';
 import 'package:lockpass/services/auth_service.dart';
@@ -43,6 +45,10 @@ class HomeController extends Cubit<HomeState> {
     await createAutomaticBackup();
     emit(state.copyWith(isLoading: false));
     print("✅ HOME CONTROLLER INIT()");
+  }
+
+  void clearMessages() {
+    emit(state.copyWith(errorMessage: '', successMessage: ''));
   }
 
   // 🔹 UID seguro (sem exception)
@@ -117,7 +123,7 @@ class HomeController extends Cubit<HomeState> {
       final items = await _db.getItensByUser(_uid);
 
       final sortedItems = [...items]
-        ..sort((a, b) => (a.service ?? '').compareTo(b.service ?? ''));
+        ..sort((a, b) => (a.service).compareTo(b.service));
 
       final types = sortedItems
           .map((e) => e.type)
@@ -152,7 +158,7 @@ class HomeController extends Cubit<HomeState> {
     }).toList();
 
     filtered.sort(
-      (a, b) => (a.service ?? '').compareTo(b.service ?? ''),
+      (a, b) => (a.service).compareTo(b.service),
     );
 
     final updatedTypes = buildTypesFromFiltered(filtered);
@@ -163,17 +169,15 @@ class HomeController extends Cubit<HomeState> {
     ));
   }
 
-
-
   // ============================
   // loadingWidget(List<ItensModel> list) (igual)
   // ============================
   bool loadingWidget(List<ItensModel> list) {
     // if (list.isEmpty && state.selectedIndex == 0) {
-      if (list.isEmpty && state.currentTab == HomeTab.list) {
+    if (list.isEmpty && state.currentTab == HomeTab.list) {
       return true;
-      } else if (list.isNotEmpty && state.currentTab == HomeTab.list) {
-    // } else if (list.isNotEmpty && state.selectedIndex == 0) {
+    } else if (list.isNotEmpty && state.currentTab == HomeTab.list) {
+      // } else if (list.isNotEmpty && state.selectedIndex == 0) {
       return false;
     } else {
       return false;
@@ -188,8 +192,8 @@ class HomeController extends Cubit<HomeState> {
 
     // 🔹 filtra a partir da fonte única
     final filteredItems = state.allItems.where((item) {
-      return (item.login ?? '').toLowerCase().contains(searchLower) ||
-          (item.service ?? '').toLowerCase().contains(searchLower);
+      return (item.login).toLowerCase().contains(searchLower) ||
+          (item.service).toLowerCase().contains(searchLower);
     }).toList();
 
     // 🔹 extrai os tipos únicos a partir do resultado
@@ -260,11 +264,10 @@ class HomeController extends Cubit<HomeState> {
           : ListViewEnum.list;
       getData();
       emit(state.copyWith(
-        currentTab: tab,
-        selectedIndex: index,
-        viewMode: nextView,
-        searchTextField: false
-      ));
+          currentTab: tab,
+          selectedIndex: index,
+          viewMode: nextView,
+          searchTextField: false));
     } else {
       emit(state.copyWith(
         currentTab: tab,
@@ -321,7 +324,7 @@ class HomeController extends Cubit<HomeState> {
         allItems: updatedAllItems,
         filteredItems: updatedFilteredItems,
         isLoading: false,
-        succesMessage: 'Item removido com sucesso',
+        successMessage: 'Item removido com sucesso',
         itemRemoved: true,
       ));
     } catch (e) {
@@ -337,26 +340,142 @@ class HomeController extends Cubit<HomeState> {
     final groupedItems = <String, List<ItensModel>>{};
 
     for (final item in state.filteredItems) {
-      final key = item.type ?? '';
+      final key = item.type;
       groupedItems.putIfAbsent(key, () => []).add(item);
     }
 
     final groupKeys = groupedItems.keys.toList();
-    
+
     return groupKeys.map((t) => TypeModel(type: t)).toList();
   }
 
   List<TypeModel> buildTypesFromFiltered(List<ItensModel> items) {
-  final groupedItems = <String, List<ItensModel>>{};
+    final groupedItems = <String, List<ItensModel>>{};
 
-  for (final item in items) {
-    final key = item.type ?? '';
-    groupedItems.putIfAbsent(key, () => []).add(item);
+    for (final item in items) {
+      final key = item.type;
+      groupedItems.putIfAbsent(key, () => []).add(item);
+    }
+
+    return groupedItems.keys.map((t) => TypeModel(type: t)).toList();
   }
 
-  return groupedItems.keys
-      .map((t) => TypeModel(type: t))
-      .toList();
-}
+  void toggleItemEditing() {
+    emit(state.copyWith(isEditingItem: !state.isEditingItem));
+  }
 
+  void toggleItemPasswordVisibility([bool? value]) {
+    emit(
+      state.copyWith(
+        showItemPassword: value ?? !state.showItemPassword,
+      ),
+    );
+  }
+
+  Future<void> editItem(ItensModel item) async {
+    emit(state.copyWith(
+      isLoading: true,
+      successMessage: '',
+      errorMessage: '',
+    ));
+
+    try {
+      final uid = _authService.currentUserId;
+
+      if (uid.isNullOrBlank) {
+        emit(state.copyWith(
+          isLoading: false,
+          errorMessage: 'Usuário não autenticado.',
+        ));
+        return;
+      }
+
+      final encrypted = EncryptDecrypt.encrypt(item.password, uid);
+
+      final itemToSave = item.copyWith(userId: uid, password: encrypted);
+
+      await _db.updateItem(itemToSave);
+
+      final updatedList = _updateItemInList(state.allItems, itemToSave);
+
+      final updatedFiltered = _applySearch(updatedList, state.searchText);
+
+      emit(state.copyWith(
+        selectedItem: item,
+        isLoading: false,
+        successMessage: 'Item atualizado com sucesso!',
+        isEditingItem: false,
+        hasChanges: false,
+        allItems: updatedList,
+        filteredItems: updatedFiltered,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: 'Não foi possível atualizar o item.',
+      ));
+    }
+  }
+
+  List<ItensModel> _updateItemInList(
+    List<ItensModel> list,
+    ItensModel updatedItem,
+  ) {
+    return list.map((e) {
+      if (e.id == updatedItem.id) return updatedItem;
+      return e;
+    }).toList();
+  }
+
+  List<ItensModel> _applySearch(
+    List<ItensModel> list,
+    String search,
+  ) {
+    if (search.isEmpty) return list;
+
+    final query = search.toLowerCase();
+
+    return list.where((e) {
+      return e.service.toLowerCase().contains(query) ||
+          e.login.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  ItensModel decryptedPass(ItensModel item) {
+    final uid = _authService.currentUserId;
+
+    if (uid.isNullOrBlank) {
+      return item;
+    }
+
+    final passVisible = EncryptDecrypt.decrypt(item.password, uid);
+
+    return item.copyWith(password: passVisible);
+  }
+
+  void onFormChanged({
+    required ItensModel originalItem,
+    required ItensModel currentItem,
+    required bool isFormValid,
+  }) {
+    final hasChanges = originalItem.type != currentItem.type ||
+        originalItem.service != currentItem.service ||
+        originalItem.site != currentItem.site ||
+        originalItem.email != currentItem.email ||
+        originalItem.login != currentItem.login ||
+        originalItem.password != currentItem.password;
+
+    emit(state.copyWith(
+      isFormValid: isFormValid,
+      hasChanges: hasChanges,
+    ));
+  }
+
+  void updateGroup(String group) {
+    final updatedItem = state.selectedItem?.copyWith(type: group);
+
+    emit(state.copyWith(
+      selectedItem: updatedItem,
+    ));
+  }
 }

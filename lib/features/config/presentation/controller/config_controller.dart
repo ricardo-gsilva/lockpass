@@ -1,12 +1,10 @@
 import 'dart:io';
-// import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/constants/core_strings.dart';
 import 'package:lockpass/core/paths/lockpass_paths.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
-import 'package:lockpass/core/utils/validators/validators.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
 import 'package:lockpass/database/database_helper.dart';
 import 'package:lockpass/services/auth_service.dart';
@@ -792,7 +790,7 @@ class ConfigController extends Cubit<ConfigState> {
   }
 
   void isFormValid(String currentPassword, String newPassword) {
-    final isFormValid = currentPassword.isNotBlank && newPassword.length >= 6;
+    final isFormValid = currentPassword.isNotNullOrBlank && newPassword.length >= 6;
     emit(state.copyWith(isFormValid: isFormValid));
   }
 }

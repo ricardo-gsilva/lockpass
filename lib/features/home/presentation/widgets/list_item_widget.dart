@@ -7,6 +7,7 @@ import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
 import 'package:lockpass/features/home/presentation/controller/home_controller.dart';
 import 'package:lockpass/features/home/presentation/state/home_state.dart';
 import 'package:lockpass/features/home/presentation/widgets/delete_item_bottom_sheet.dart';
+import 'package:lockpass/features/home/presentation/widgets/item_detail_bottom_sheet.dart';
 import 'package:lockpass/widgets/icon_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 
@@ -58,11 +59,23 @@ class ListItemWidget extends StatelessWidget {
                 ),
                 subtitle: TextCustom(
                   key: CoreKeys.subTitleLeadingListTile,
-                  text: item.login ?? '',
+                  text: item.login,
                 ),
                 onTap: () {
-                  // showInfo(widget.itens[index]);
-                  //TODO: Vai virar bottom sheet
+                  final decryptedItem = controller.decryptedPass(item);
+                  showCustomBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    child: BlocProvider.value(
+                      value: controller,
+                      child: ItemDetailsBottomSheet(
+                        item: decryptedItem,
+                        listGroups: state.allTypes,
+                      ),
+                    ),
+                  ).whenComplete(() {
+                    controller.toggleItemPasswordVisibility(false);
+                  });
                 },
                 onLongPress: () {
                   showCustomBottomSheet(
@@ -74,7 +87,6 @@ class ListItemWidget extends StatelessWidget {
                       ),
                     ),
                   );
-                  //TODO: Vai virar bottom sheet
                 },
               ),
             );

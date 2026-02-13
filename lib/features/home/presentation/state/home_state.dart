@@ -16,13 +16,18 @@ class HomeState {
   final int selectedIndex;
   final bool isLoading;
   final String errorMessage;
-  final String succesMessage;
+  final String successMessage;
   final bool showPinAlert;
   final bool hideCreatePinInfo;
   final String? path;
   final bool itemRemoved;
   final String? userEmail;
-
+  final bool isEditingItem;
+  final bool showItemPassword;
+  final bool isSavingItem;
+  final bool isFormValid;
+  final bool hasChanges;
+  final ItensModel? selectedItem;
   
   const HomeState({
     this.currentTab = HomeTab.list,
@@ -37,12 +42,18 @@ class HomeState {
     this.selectedIndex = 0,
     this.isLoading = false,
     this.errorMessage = '',
-    this.succesMessage = '',
+    this.successMessage = '',
     this.showPinAlert = false,
     this.hideCreatePinInfo = false,
     this.path,
     this.itemRemoved = false,
     this.userEmail = '',
+    this.isEditingItem = false,
+    this.isSavingItem = false,
+    this.showItemPassword = false,
+    this.isFormValid = false,
+    this.hasChanges = false,
+    this.selectedItem,
   });
 
   HomeState copyWith({
@@ -58,12 +69,18 @@ class HomeState {
     int? selectedIndex,
     bool? isLoading,
     String? errorMessage,
-    String? succesMessage,
+    String? successMessage,
     bool? showPinAlert,
     bool? hideCreatePinInfo,
     String? path,
     bool? itemRemoved,
     String? userEmail,
+    bool? isEditingItem,
+    bool? showItemPassword,
+    bool? isSavingItem,
+    bool? isFormValid,
+    bool? hasChanges,
+    ItensModel? selectedItem,
   }) {
     return HomeState(
       currentTab: currentTab ?? this.currentTab,
@@ -78,12 +95,18 @@ class HomeState {
       selectedIndex: selectedIndex ?? this.selectedIndex,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
-      succesMessage: succesMessage ?? this.succesMessage,
+      successMessage: successMessage ?? this.successMessage,
       showPinAlert: showPinAlert ?? this.showPinAlert,
       hideCreatePinInfo: hideCreatePinInfo ?? this.hideCreatePinInfo,
       path: path ?? this.path,
       itemRemoved: itemRemoved ?? this.itemRemoved,
       userEmail: userEmail ?? this.userEmail,
+      isEditingItem: isEditingItem ?? this.isEditingItem,
+      showItemPassword: showItemPassword ?? this.showItemPassword,
+      isSavingItem: isSavingItem ?? this.isSavingItem,
+      isFormValid: isFormValid ?? this.isFormValid,
+      hasChanges: hasChanges ?? this.hasChanges,
+      selectedItem: selectedItem ?? this.selectedItem,
     );
   }
 }   

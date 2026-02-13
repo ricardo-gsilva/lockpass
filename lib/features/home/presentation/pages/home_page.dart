@@ -147,16 +147,11 @@ class _HomePage1State extends State<HomePage1> {
                   value: homeController,
                   child: ListItemGroupedWidget(),
                 ),
-              AddItemPage1(
+              AddItemPage(
                 itens: context.select((HomeController c) => c.state.allItems),
               ),
-              const ConfigPage1(),
+              const ConfigPage(),
             ];
-            // if (state.isLoading) {
-            //   return CircularProgressIndicator(
-            //     color: CoreColors.alertError,
-            //   );
-            // }
             return Scaffold(
               backgroundColor: CoreColors.secondColor,
               appBar: AppBar(

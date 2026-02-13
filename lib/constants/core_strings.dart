@@ -34,6 +34,7 @@ class CoreStrings {
       'Digite seu PIN para descriptografar sua lista de logins.';
 
   //F
+  static const String fieldRequired = 'Campo obrigatório'; 
   static const String fillField = 'Por favor preencha o campo!';
   static const String forgotPassword = 'Esqueceu a senha?';
   static const String forgotPin = 'Esqueceu seu PIN?';

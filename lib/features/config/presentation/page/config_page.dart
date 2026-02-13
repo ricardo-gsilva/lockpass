@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/di/get_it.dart';
-import 'package:lockpass/core/utils/extensions/string_extensions.dart';
+import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
 import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
 import 'package:lockpass/database/database_helper.dart';
@@ -20,14 +20,14 @@ import 'package:lockpass/features/config/presentation/widgets/save_list_logins_b
 import 'package:lockpass/features/config/presentation/widgets/backup_choice_bottom_sheet.dart';
 import 'package:lockpass/widgets/config_options_custom.dart';
 
-class ConfigPage1 extends StatefulWidget {
-  const ConfigPage1({super.key});
+class ConfigPage extends StatefulWidget {
+  const ConfigPage({super.key});
 
   @override
-  State<ConfigPage1> createState() => _ConfigPageState();
+  State<ConfigPage> createState() => _ConfigPageState();
 }
 
-class _ConfigPageState extends State<ConfigPage1> {
+class _ConfigPageState extends State<ConfigPage> {
   DataBaseHelper db = DataBaseHelper();
   late final ConfigController configController;
 
