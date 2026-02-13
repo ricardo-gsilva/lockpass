@@ -6,11 +6,12 @@ import 'package:lockpass/core/paths/lockpass_paths.dart';
 import 'package:lockpass/core/utils/extensions/string_validators.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
 import 'package:lockpass/database/database_helper.dart';
+import 'package:lockpass/domain/repositories/itens_repository.dart';
 import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
 import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/helpers/encrypt_decrypt.dart';
-import 'package:lockpass/models/itens_model.dart';
-import 'package:lockpass/models/type_model.dart';
+import 'package:lockpass/domain/entities/itens_entity.dart';
+import 'package:lockpass/domain/entities/groups_entity.dart';
 import 'package:lockpass/services/auth_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -20,14 +21,17 @@ class HomeController extends Cubit<HomeState> {
   final DataBaseHelper _db;
   final VaultService _vaultService;
   final AuthService _authService;
+  final ItensRepository _itensRepository;
 
   HomeController({
     required DataBaseHelper db,
     required VaultService vaultService,
     required AuthService authService,
+    required ItensRepository itensRepository,
   })  : _db = db,
         _vaultService = vaultService,
         _authService = authService,
+        _itensRepository = itensRepository,
         super(const HomeState());
 
   // ============================
@@ -125,17 +129,26 @@ class HomeController extends Cubit<HomeState> {
       final sortedItems = [...items]
         ..sort((a, b) => (a.service).compareTo(b.service));
 
-      final types = sortedItems
-          .map((e) => e.type)
+      // final groups = sortedItems
+      //     .map((e) => e.group)
+      //     .whereType<String>()
+      //     .toSet()
+      //     .map((group) => GroupsEntity.fromMap({'groupName': group}))
+      //     .toList();
+      final groups = sortedItems
+          .map((e) => e.group)
           .whereType<String>()
           .toSet()
-          .map((t) => TypeModel.fromMap({'type': t}))
-          .toList();
+          .toList()
+        ..sort();
+
+      final groupEntities =
+          groups.map((name) => GroupsEntity(groupName: name)).toList();
 
       emit(state.copyWith(
         allItems: sortedItems,
         filteredItems: sortedItems,
-        allTypes: types,
+        allGroups: groupEntities,
         isLoading: false,
       ));
     } catch (e) {
@@ -153,8 +166,8 @@ class HomeController extends Cubit<HomeState> {
     final query = search.toLowerCase();
 
     final filtered = state.allItems.where((e) {
-      return (e.service?.toLowerCase().contains(query) ?? false) ||
-          (e.login?.toLowerCase().contains(query) ?? false);
+      return (e.service.toLowerCase().contains(query)) ||
+          (e.login.toLowerCase().contains(query));
     }).toList();
 
     filtered.sort(
@@ -165,14 +178,14 @@ class HomeController extends Cubit<HomeState> {
 
     emit(state.copyWith(
       filteredItems: filtered,
-      allTypes: updatedTypes,
+      allGroups: updatedTypes,
     ));
   }
 
   // ============================
-  // loadingWidget(List<ItensModel> list) (igual)
+  // loadingWidget(List<ItensEntity> list) (igual)
   // ============================
-  bool loadingWidget(List<ItensModel> list) {
+  bool loadingWidget(List<ItensEntity> list) {
     // if (list.isEmpty && state.selectedIndex == 0) {
     if (list.isEmpty && state.currentTab == HomeTab.list) {
       return true;
@@ -185,7 +198,7 @@ class HomeController extends Cubit<HomeState> {
   }
 
   // ============================
-  // filterList(List<ItensModel> itens, String search) (igual)
+  // filterList(List<ItensEntity> itens, String search) (igual)
   // ============================
   void filterList(String search) {
     final searchLower = search.toLowerCase();
@@ -196,17 +209,38 @@ class HomeController extends Cubit<HomeState> {
           (item.service).toLowerCase().contains(searchLower);
     }).toList();
 
-    // 🔹 extrai os tipos únicos a partir do resultado
-    final types = filteredItems
-        .map((e) => e.type)
+    // // 🔹 extrai os tipos únicos a partir do resultado
+    // final groups = filteredItems
+    //     .map((e) => e.group)
+    //     .whereType<String>()
+    //     .toSet()
+    //     .map((t) => GroupsEntity.fromMap({'type': t}))
+    //     .toList();
+
+    final previousGroups = state.allGroups;
+
+    final groupNames = filteredItems
+        .map((e) => e.group)
         .whereType<String>()
         .toSet()
-        .map((t) => TypeModel.fromMap({'type': t}))
-        .toList();
+        .toList()
+      ..sort();
+
+    final groups = groupNames.map((name) {
+      final existing = previousGroups.firstWhere(
+        (g) => g.groupName == name,
+        orElse: () => GroupsEntity(groupName: name),
+      );
+
+      return GroupsEntity(
+        groupName: name,
+        visible: existing.visible,
+      );
+    }).toList();
 
     emit(state.copyWith(
       filteredItems: filteredItems,
-      allTypes: types,
+      allGroups: groups,
     ));
   }
 
@@ -289,23 +323,23 @@ class HomeController extends Cubit<HomeState> {
     }
   }
 
-  void toggleGroup(TypeModel type) {
-    final updatedTypes = state.allTypes.map((t) {
-      if (t.type == type.type) {
+  void toggleGroup(GroupsEntity group) {
+    final updatedTypes = state.allGroups.map((group) {
+      if (group.groupName == group.groupName) {
         // se já estava aberto → fecha
-        return t.copyWith(visible: !t.visible!);
+        return group.copyWith(visible: !group.visible);
       } else {
         // fecha todos os outros
-        return t.copyWith(visible: false);
+        return group.copyWith(visible: false);
       }
     }).toList();
 
     emit(state.copyWith(
-      allTypes: updatedTypes,
+      allGroups: updatedTypes,
     ));
   }
 
-  Future<void> deleteItem(ItensModel item) async {
+  Future<void> deleteItem(ItensEntity item) async {
     try {
       emit(state.copyWith(isLoading: true, errorMessage: ''));
 
@@ -336,28 +370,28 @@ class HomeController extends Cubit<HomeState> {
     }
   }
 
-  List<TypeModel> updatedAllTypes() {
-    final groupedItems = <String, List<ItensModel>>{};
+  List<GroupsEntity> updatedallGroups() {
+    final groupedItems = <String, List<ItensEntity>>{};
 
     for (final item in state.filteredItems) {
-      final key = item.type;
+      final key = item.group;
       groupedItems.putIfAbsent(key, () => []).add(item);
     }
 
     final groupKeys = groupedItems.keys.toList();
 
-    return groupKeys.map((t) => TypeModel(type: t)).toList();
+    return groupKeys.map((t) => GroupsEntity(groupName: t)).toList();
   }
 
-  List<TypeModel> buildTypesFromFiltered(List<ItensModel> items) {
-    final groupedItems = <String, List<ItensModel>>{};
+  List<GroupsEntity> buildTypesFromFiltered(List<ItensEntity> items) {
+    final groupedItems = <String, List<ItensEntity>>{};
 
     for (final item in items) {
-      final key = item.type;
+      final key = item.group;
       groupedItems.putIfAbsent(key, () => []).add(item);
     }
 
-    return groupedItems.keys.map((t) => TypeModel(type: t)).toList();
+    return groupedItems.keys.map((group) => GroupsEntity(groupName: group)).toList();
   }
 
   void toggleItemEditing() {
@@ -372,7 +406,7 @@ class HomeController extends Cubit<HomeState> {
     );
   }
 
-  Future<void> editItem(ItensModel item) async {
+  Future<void> editItem(ItensEntity item) async {
     emit(state.copyWith(
       isLoading: true,
       successMessage: '',
@@ -394,7 +428,8 @@ class HomeController extends Cubit<HomeState> {
 
       final itemToSave = item.copyWith(userId: uid, password: encrypted);
 
-      await _db.updateItem(itemToSave);
+      // await _db.updateItem(itemToSave);
+      await _itensRepository.updateItem(itemToSave);
 
       final updatedList = _updateItemInList(state.allItems, itemToSave);
 
@@ -410,6 +445,7 @@ class HomeController extends Cubit<HomeState> {
         filteredItems: updatedFiltered,
       ));
     } catch (e) {
+      print(e);
       emit(state.copyWith(
         isLoading: false,
         errorMessage: 'Não foi possível atualizar o item.',
@@ -417,9 +453,9 @@ class HomeController extends Cubit<HomeState> {
     }
   }
 
-  List<ItensModel> _updateItemInList(
-    List<ItensModel> list,
-    ItensModel updatedItem,
+  List<ItensEntity> _updateItemInList(
+    List<ItensEntity> list,
+    ItensEntity updatedItem,
   ) {
     return list.map((e) {
       if (e.id == updatedItem.id) return updatedItem;
@@ -427,8 +463,8 @@ class HomeController extends Cubit<HomeState> {
     }).toList();
   }
 
-  List<ItensModel> _applySearch(
-    List<ItensModel> list,
+  List<ItensEntity> _applySearch(
+    List<ItensEntity> list,
     String search,
   ) {
     if (search.isEmpty) return list;
@@ -441,7 +477,7 @@ class HomeController extends Cubit<HomeState> {
     }).toList();
   }
 
-  ItensModel decryptedPass(ItensModel item) {
+  ItensEntity decryptedPass(ItensEntity item) {
     final uid = _authService.currentUserId;
 
     if (uid.isNullOrBlank) {
@@ -454,11 +490,11 @@ class HomeController extends Cubit<HomeState> {
   }
 
   void onFormChanged({
-    required ItensModel originalItem,
-    required ItensModel currentItem,
+    required ItensEntity originalItem,
+    required ItensEntity currentItem,
     required bool isFormValid,
   }) {
-    final hasChanges = originalItem.type != currentItem.type ||
+    final hasChanges = originalItem.group != currentItem.group ||
         originalItem.service != currentItem.service ||
         originalItem.site != currentItem.site ||
         originalItem.email != currentItem.email ||
@@ -472,7 +508,7 @@ class HomeController extends Cubit<HomeState> {
   }
 
   void updateGroup(String group) {
-    final updatedItem = state.selectedItem?.copyWith(type: group);
+    final updatedItem = state.selectedItem?.copyWith(group: group);
 
     emit(state.copyWith(
       selectedItem: updatedItem,

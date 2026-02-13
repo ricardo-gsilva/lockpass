@@ -2,21 +2,14 @@ import 'dart:io';
 
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:lockpass/core/vault/vault_service.dart';
-import 'package:lockpass/database/shared_preferences.dart';
-import 'package:lockpass/services/auth_service.dart';
+import 'package:lockpass/data/datasources/local/shared_preferences_datasource.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VaultServiceImpl implements VaultService {
-  SharedPrefs? sharedPrefs;
+  SharedPreferencesDatasource? sharedPrefs;
   String? _storagePath;
-  final AuthService _authService;
-
-  VaultServiceImpl(this._authService);
-
-  // @override
-  // String get userId => _authService.currentUserId;
 
   void ensureInitialized() {
     if (sharedPrefs == null) {
@@ -38,11 +31,11 @@ class VaultServiceImpl implements VaultService {
   Future<void> initializePreferences() async {
       if (sharedPrefs != null) return;
     final prefs = await SharedPreferences.getInstance();
-    sharedPrefs = SharedPrefs(sharedPreferences: prefs);
+    sharedPrefs = SharedPreferencesDatasource(sharedPreferences: prefs);
   }
 
   @override
-  Future<SharedPrefs> prefs() async {
+  Future<SharedPreferencesDatasource> prefs() async {
     return sharedPrefs!;
   }
   

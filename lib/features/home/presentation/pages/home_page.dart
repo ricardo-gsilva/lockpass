@@ -7,19 +7,18 @@ import 'package:lockpass/features/home/presentation/controller/home_controller.d
 import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
 import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/features/home/presentation/state/home_state.dart';
-import 'package:lockpass/features/home/presentation/widgets/list_item_grouped_widget.dart';
-import 'package:lockpass/features/home/presentation/widgets/list_item_widget.dart';
-import 'package:lockpass/models/itens_model.dart';
+import 'package:lockpass/domain/entities/itens_entity.dart';
 import 'package:lockpass/constants/core_colors.dart';
 import 'package:lockpass/constants/core_icons.dart';
 import 'package:lockpass/constants/core_keys.dart';
 import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/features/listItem/presentation/page/list_item_page.dart';
 import 'package:lockpass/widgets/iconbutton_custom.dart';
 import 'package:lockpass/widgets/text_custom.dart';
 import 'package:lockpass/widgets/textformfield_custom.dart';
 
 class HomePage1 extends StatefulWidget {
-  final ItensModel? listItens;
+  final ItensEntity? listItens;
   const HomePage1({this.listItens, super.key});
 
   @override
@@ -137,16 +136,7 @@ class _HomePage1State extends State<HomePage1> {
         child: BlocBuilder<HomeController, HomeState>(
           builder: (context, state) {
             final screens = <Widget>[
-              if (state.viewMode == ListViewEnum.list)
-                BlocProvider.value(
-                  value: homeController,
-                  child: ListItemWidget(),
-                )
-              else
-                BlocProvider.value(
-                  value: homeController,
-                  child: ListItemGroupedWidget(),
-                ),
+              ListItemPage(viewMode: state.viewMode,),
               AddItemPage(
                 itens: context.select((HomeController c) => c.state.allItems),
               ),
