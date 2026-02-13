@@ -39,7 +39,7 @@ class TextFormFieldCustom extends StatelessWidget {
     this.fillColor = CoreColors.transparent,
     this.colorFocusedBorder = CoreColors.focusedBorder,
     this.fonteSize,
-    this.colorIcon,
+    this.colorIcon = CoreColors.transparent,
     this.icons,    
     this.controller,
     this.keyboardType,

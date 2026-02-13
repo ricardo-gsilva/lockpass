@@ -58,6 +58,7 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.1
   permission_handler: ^12.0.1
+  share_plus: ^10.1.0
   shared_preferences: ^2.2.2
   sqflite: ^2.3.0  
   sqflite_common_ffi: ^2.3.0+4
