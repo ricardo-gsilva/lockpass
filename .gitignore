@@ -54,3 +54,25 @@ lib/firebase_options.dart
 .fvm/versions/
 .fvm/release
 .fvm/version
+
+# Native / Gradle
+.cxx/
+.gradle/
+local.properties
+
+# SQLite
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Backups
+*.zip
+
+# Android signing
+*.keystore
+*.jks
+key.properties
+
+# Test coverage
+coverage/
