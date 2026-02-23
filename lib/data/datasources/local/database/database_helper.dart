@@ -1,6 +1,5 @@
 import 'package:lockpass/core/paths/lockpass_paths.dart';
 import 'package:lockpass/data/models/itens_model.dart';
-import 'package:lockpass/domain/entities/itens_entity.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -8,7 +7,6 @@ class DataBaseHelper {
   static DataBaseHelper? _dataBaseHelper;
   static Database? _database;
 
-  //Itens
   String itensTable = 'itensTable';
   String colUserId = 'userId';
   String colId = 'id';
@@ -18,12 +16,12 @@ class DataBaseHelper {
   String colEmail = 'email';
   String colLogin = 'login';
   String colPassword = 'password';
-
-  //Legado
   String colType = 'type';
   String typeTable = 'typeTable';
   String colTypeId = 'typeId';
   String colTypeType = 'typeType';
+  String colIsDeleted = 'is_deleted';
+  String colDeletedAt = 'deleted_at';
 
   DataBaseHelper._createInstance();
 
@@ -49,95 +47,80 @@ class DataBaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute('''
-        CREATE TABLE $itensTable(
-          $colId INTEGER PRIMARY KEY AUTOINCREMENT,
-          $colUserId TEXT,
-          $colGroup TEXT,
-          $colService TEXT,
-          $colSite TEXT,
-          $colEmail TEXT,
-          $colLogin TEXT,
-          $colPassword TEXT
-        )  
-      ''');
+      CREATE TABLE $itensTable(
+        $colId INTEGER PRIMARY KEY AUTOINCREMENT,
+        $colUserId TEXT NOT NULL,
+        $colGroup TEXT NOT NULL,
+        $colService TEXT NOT NULL,
+        $colSite TEXT,
+        $colEmail TEXT NOT NULL,
+        $colLogin TEXT NOT NULL,
+        $colPassword TEXT NOT NULL,
+        $colIsDeleted INTEGER NOT NULL DEFAULT 0,
+        $colDeletedAt TEXT
+      )
+    ''');
+
+    await db.execute(
+        'CREATE INDEX idx_${itensTable}_is_deleted ON $itensTable($colIsDeleted)');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   Future<int> addItem(ItensModel item) async {
+    final model = ItensModel.fromEntity(item);
     final db = await database;
 
-    return db.insert(itensTable, item.toMap());
-  }
-
-  // Future<int> addGroup(GroupsEntity group) async {
-  //   Database db = await this.database;
-
-  //   return await db.insert(groupTable, group.toMap());
-  // }
-
-  Future<ItensEntity> getItem(int id, String userId) async {
-    Database db = await this.database;
-    final maps = await db.query(
+    return db.insert(
       itensTable,
-      where: '$colId = ? AND $colUserId = ?',
-      whereArgs: [id, userId],
+      model.toMap(),
     );
-
-    if (maps.isNotEmpty) return ItensModel.fromMap(maps.first);
-    return ItensEntity.empty();
   }
 
-  Future<List<ItensEntity>> getItensByUser(String userId) async {
-    Database db = await database;
+  Future<List<ItensModel>> getActiveItensByUser(String userId) async {
+    final db = await database;
 
-    final table = await db.query(
+    final result = await db.query(
       itensTable,
-      where: '$colUserId = ?',
+      where: '$colUserId = ? AND $colIsDeleted = 0',
       whereArgs: [userId],
     );
 
-    return table.isNotEmpty
-        ? table.map((i) => ItensModel.fromMap(i)).toList()
-        : [];
+    return result.map((map) => ItensModel.fromMap(map)).toList();
   }
 
-  Future<List<ItensEntity>> getItens() async {
-    Database db = await this.database;
-    var table = await db.query(itensTable);
+  Future<List<ItensModel>> getDeletedItensByUser(String userId) async {
+    final db = await database;
 
-    return table.isNotEmpty
-        ? table.map((i) => ItensModel.fromMap(i)).toList()
-        : [];
+    final result = await db.query(
+      itensTable,
+      where: '$colUserId = ? AND $colIsDeleted = 1',
+      whereArgs: [userId],
+    );
+
+    return result.map((map) => ItensModel.fromMap(map)).toList();
   }
 
-  // Future<List<GroupsEntity>> getGroup() async {
-  //   Database db = await this.database;
-  //   var table = await db.query(groupTable);
-
-  //   return table.isNotEmpty
-  //       ? table.map((i) => GroupsEntity.fromMap(i)).toList()
-  //       : [];
-  // }
-
-  Future<int> updateItem(ItensModel itens) async {
-    Database db = await this.database;
-    return await db.update(itensTable, itens.toMap(),
-        where: '$colId = ?', whereArgs: [itens.id]);
+  Future<int> updateItem(ItensModel item) async {
+    Database db = await database;
+    if (item.id == null) {
+      throw Exception('O ID do item não pode ser nulo na atualização');
+    }
+    return await db.update(
+      itensTable,
+      item.toMap(),
+      where: '$colId = ?',
+      whereArgs: [item.id],
+    );
   }
 
-  Future<int> deleteItem(ItensEntity itens) async {
-    Database db = await this.database;
-    return await db
-        .delete(itensTable, where: '$colId = ?', whereArgs: [itens.id]);
-  }
-
-  Future<int> countItens() async {
-    Database db = await this.database;
-    List<Map<String, dynamic>> count =
-        await db.rawQuery('SELECT COUNT (*) from $itensTable');
-
-    return Sqflite.firstIntValue(count)!;
+  Future<int> deleteItem(ItensModel item) async {
+    Database db = await database;
+    return await db.delete(
+      itensTable,
+      where: '$colId = ?',
+      whereArgs: [item.id],
+    );
   }
 
   Future<void> closeDatabase() async {
@@ -152,5 +135,47 @@ class DataBaseHelper {
     final path = '${directory.path}/lockpass_itens.db';
 
     await deleteDatabase(path);
+  }
+
+  Future<int> softDeleteItem(ItensModel item) async {
+    final db = await database;
+
+    return await db.update(
+      itensTable,
+      {
+        colIsDeleted: 1,
+        colDeletedAt: DateTime.now().toIso8601String(),
+      },
+      where: '$colId = ?',
+      whereArgs: [item.id],
+    );
+  }
+
+  Future<int> restoreItem(ItensModel item) async {
+    final db = await database;
+
+    return await db.update(
+      itensTable,
+      {
+        colIsDeleted: 0,
+        colDeletedAt: null,
+      },
+      where: '$colId = ?',
+      whereArgs: [item.id],
+    );
+  }
+
+  Future<bool> hasDeletedItensByUser(String userId) async {
+    final db = await database;
+
+    final result = await db.query(
+      itensTable,
+      columns: [colId],
+      where: '$colUserId = ? AND $colIsDeleted = 1',
+      whereArgs: [userId],
+      limit: 1,
+    );
+
+    return result.isNotEmpty;
   }
 }

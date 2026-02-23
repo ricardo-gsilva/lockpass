@@ -1,68 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/utils/extensions/string_validators.dart';
-import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
-import 'package:lockpass/features/login/presentation/state/login_state.dart';
-import 'package:lockpass/widgets/button_custom.dart';
-import 'package:lockpass/widgets/text_custom.dart';
-import 'package:lockpass/widgets/textformfield_custom.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/extensions/context_extensions.dart';
+import 'package:lockpass/core/ui/factorys/fields_factory.dart';
+import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
+import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
+import 'package:lockpass/features/login/presentation/state/auth_state.dart';
+import 'package:lockpass/core/ui/components/button_custom.dart';
+import 'package:lockpass/core/ui/components/text_custom.dart';
+import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 
-import '../controller/login_controller.dart';
+class ResetPasswordBottomSheet extends StatefulWidget {
+  const ResetPasswordBottomSheet({super.key});
 
-class ResetPasswordBottomSheet extends StatelessWidget {
-  final LoginController controller;
-  final TextEditingController resetPasswordController;
+  @override
+  State<ResetPasswordBottomSheet> createState() =>
+      _ResetPasswordBottomSheetState();
+}
 
-  const ResetPasswordBottomSheet({
-    super.key,
-    required this.controller,
-    required this.resetPasswordController,
-  });
+class _ResetPasswordBottomSheetState extends State<ResetPasswordBottomSheet> {
+  final TextEditingController emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginController, LoginState>(
-      listenWhen: (prev, curr) => prev.exception != curr.exception || prev.message != curr.message,
+    final controller = context.read<LoginController>();
+    return BlocListener<LoginController, AuthState>(
+      listenWhen: (prev, curr) => prev.status != curr.status,
       listener: (context, state) {
-        if (state.resetPass != true) return;
-        if (state.exception.isNotEmpty) {
-          SnackUtils.showError(
-            context, 
-            content: state.exception
-          );
-        } else if (state.message.isNotEmpty) {
-          SnackUtils.showSuccess(
-            context, 
-            content: state.message
-          );          
+        switch (state.status) {
+          case PasswordResetSent():
+            OverlayToast.showSuccess(
+                content:
+                    'Enviamos um e-mail para o endereço que você digitou. O e-mail contém um link para redefinir sua senha!');
+            Navigator.of(context).maybePop();
+            break;
+          case AuthError(:final message):
+            OverlayToast.showError(content: message);
+            break;
+          default:
+            break;
         }
-        controller.clearFeedback();
-        Navigator.pop(context, true);
       },
       child: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom), // evita teclado por cima
+        padding: EdgeInsets.only(bottom: context.bottomSystemSpace),
         child: GestureDetector(
-          onTap: () => Navigator.pop(context), 
+          onTap: () => Navigator.pop(context),
           behavior: HitTestBehavior.opaque,
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            resizeToAvoidBottomInset: false,
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GestureDetector(
-                  onTap: () {},
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: () {},
+                child: Align(
+                  alignment: Alignment.bottomCenter,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    padding: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
                       color: CoreColors.primaryColor,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(24)),
                     ),
-                    child: BlocBuilder<LoginController, LoginState>(
-                      builder: (context, state) {
-                        return Column(
+                    child: BlocBuilder<LoginController, AuthState>(
+                        builder: (context, state) {
+                      final isLoading = state.status is AuthLoading;
+                      return SingleChildScrollView(
+                        child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -73,52 +81,41 @@ class ResetPasswordBottomSheet extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                             const SizedBox(height: 24),
-                                          
-                            /// EMAIL FIELD
-                            TextFormFieldCustom(
-                              label: CoreStrings.emailRegistered,
-                              controller: resetPasswordController,
-                              cursorColor: CoreColors.textSecundary,
-                              colorTextInput: CoreColors.textSecundary,
-                              colorTextLabel: CoreColors.textSecundary,
-                              colorBorder: CoreColors.textSecundary,
-                              validator: (value) {
-                                return value.isValidEmail ? null : value.emailError;
-                              },
+                            FieldsFactory.email(
+                              controller: emailController,
                             ),
-                                          
                             const SizedBox(height: 24),
-                                          
-                            /// BOTÃO ENVIAR
                             ButtonCustom(
                               backgroundButton: CoreColors.buttonColorSecond,
                               colorText: CoreColors.textPrimary,
-                              text: CoreStrings.send,
-                              onPressed: () async {                                
-                                await controller.resetPassword(
-                                  email: resetPasswordController.text,
-                                );                                
-                              },
+                              text:
+                                  isLoading ? "Enviando..." : CoreStrings.send,
+                              isLoading: isLoading,
+                              onPressed: isLoading
+                                  ? null
+                                  : () async {
+                                      await controller.resetPassword(
+                                        email: emailController.text,
+                                      );
+                                    },
                             ),
-                                          
                             const SizedBox(height: 12),
-                                          
-                            /// CANCELAR
                             TextButton(
                               onPressed: () => Navigator.pop(context),
                               child: const Text(
                                 "Cancelar",
-                                style: TextStyle(color: CoreColors.textSecundary),
+                                style:
+                                    TextStyle(color: CoreColors.textSecundary),
                               ),
                             ),
                           ],
-                        );
-                      }
-                    ),
+                        ),
+                      );
+                    }),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

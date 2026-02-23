@@ -10,6 +10,8 @@ class ItensModel extends ItensEntity {
     required super.email,
     required super.login,
     required super.password,
+    super.isDeleted = false,
+    super.deletedAt,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +24,8 @@ class ItensModel extends ItensEntity {
       'email': email,
       'login': login,
       'password': password,
+      'is_deleted': isDeleted ? 1 : 0,
+      'deleted_at': deletedAt?.toIso8601String(),
     };
   }
 
@@ -35,6 +39,10 @@ class ItensModel extends ItensEntity {
       email: map['email'] ?? '',
       login: map['login'] ?? '',
       password: map['password'] ?? '',
+      isDeleted: (map['is_deleted'] ?? 0) == 1,
+      deletedAt: map['deleted_at'] != null
+          ? DateTime.tryParse(map['deleted_at'])
+          : null,
     );
   }
 
@@ -48,6 +56,8 @@ class ItensModel extends ItensEntity {
       email: email,
       login: login,
       password: password,
+      isDeleted: isDeleted,
+      deletedAt: deletedAt,
     );
   }
 
@@ -61,6 +71,8 @@ class ItensModel extends ItensEntity {
       email: entity.email,
       login: entity.login,
       password: entity.password,
+      isDeleted: entity.isDeleted,
+      deletedAt: entity.deletedAt,
     );
   }
 }

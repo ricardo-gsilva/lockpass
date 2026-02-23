@@ -4,13 +4,11 @@ import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:crypto/crypto.dart'; // Pacote padrão do Flutter para Hashing
+import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 class EncryptDecrypt {
-  // Transforma o UID em uma chave de 32 bytes constante para aquele usuário
   static Key _generateKeyFromUid(String uid) {
-    // Usamos SHA-256 para garantir que qualquer UID vire uma chave de 32 bytes
     final bytes = utf8.encode(uid);
     final digest = sha256.convert(bytes);
     return Key(Uint8List.fromList(digest.bytes));
@@ -215,17 +213,13 @@ class EncryptDecrypt {
       );
 
       encoder.create(zipPath);
-      encoder.addFile(File(dbPath)); // ✅ ARQUIVO REAL
+      encoder.addFile(File(dbPath));
       encoder.close();
 
       final exists = File(zipPath).existsSync();
 
-      print('📦 ZIP criado em: $zipPath');
-      print('📦 ZIP existe? $exists');
-
       return exists;
-    } catch (e) {
-      print('❌ Erro ao criar ZIP: $e');
+    } catch (_) {
       return false;
     }
   }
@@ -280,9 +274,6 @@ class EncryptDecrypt {
 
       final zipFile = File(pathSave);
       final exists = zipFile.existsSync();
-
-      print('📦 ZIP criado em: $pathSave');
-      print('📦 ZIP existe? $exists');
 
       return exists;
     } catch (e) {

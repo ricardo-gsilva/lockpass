@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:lockpass/core/utils/extensions/string_validators.dart';
+import 'package:lockpass/core/extensions/string_validators.dart';
 
 class ItensEntity extends Equatable{
   final String userId;
@@ -10,6 +10,9 @@ class ItensEntity extends Equatable{
   final String email;
   final String login;
   final String password;
+  final bool isDeleted;
+  final DateTime? deletedAt;
+
 
   const ItensEntity({
     required this.userId,
@@ -20,6 +23,8 @@ class ItensEntity extends Equatable{
     required this.email,
     required this.login,
     required this.password,
+    this.isDeleted = false,
+    this.deletedAt,
   });
 
   const ItensEntity.empty()
@@ -30,7 +35,9 @@ class ItensEntity extends Equatable{
         site = '',
         email = '',
         login = '',
-        password = '';
+        password = '',
+        isDeleted = false,
+        deletedAt = null;
 
     bool isValid() {
     return service.isNotNullOrBlank &&
@@ -44,7 +51,8 @@ class ItensEntity extends Equatable{
         site != other.site ||
         email != other.email ||
         login != other.login ||
-        password != other.password;
+        password != other.password ||
+        isDeleted != other.isDeleted;
   }  
 
   ItensEntity copyWith({
@@ -56,6 +64,8 @@ class ItensEntity extends Equatable{
     String? email,
     String? login,
     String? password,
+    bool? isDeleted,
+    DateTime? deletedAt,
   }) {
     return ItensEntity(
       userId: userId ?? this.userId,
@@ -66,6 +76,8 @@ class ItensEntity extends Equatable{
       email: email ?? this.email,
       login: login ?? this.login,
       password: password ?? this.password,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -79,5 +91,7 @@ class ItensEntity extends Equatable{
     email,
     login,
     password,
+    isDeleted,
+    deletedAt,
   ];
 }

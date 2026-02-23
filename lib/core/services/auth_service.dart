@@ -21,7 +21,6 @@ class AuthService {
     return FirebaseAuth.instance.currentUser?.email ?? '';
   }
 
-
   _authCheck() {
     _auth.authStateChanges().listen((User? user) {
       userApp = (user == null) ? null : user;
