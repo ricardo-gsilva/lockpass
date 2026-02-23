@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_icons.dart';
-import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/utils/extensions/string_validators.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_icons.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/extensions/string_validators.dart';
 import 'package:lockpass/domain/entities/itens_entity.dart';
-import 'package:lockpass/widgets/info_item_custom.dart';
+import 'package:lockpass/features/list_item/presentation/enums/list_view_mode_enum.dart';
+import 'package:lockpass/features/list_item/presentation/widgets/info_item_custom.dart';
 
-class ItemInfoViewTeste extends StatelessWidget {
+class ItemInfoViewWidget extends StatelessWidget {
   final ItensEntity item;
   final bool showPassword;
   final String password;
   final VoidCallback onTogglePassword;
+  final ListViewModeEnum listMode;
 
-  const ItemInfoViewTeste({
+  const ItemInfoViewWidget({
     super.key,
     required this.item,
     required this.showPassword,
     required this.password,
     required this.onTogglePassword,
+    required this.listMode,
   });
 
   @override
@@ -54,26 +57,29 @@ class ItemInfoViewTeste extends StatelessWidget {
           titleColor: CoreColors.textSecundary,
           subtitleColor: CoreColors.textSecundary,
         ),
-        Row(
-          children: [
-            Expanded(
-              child: InfoItemCustom(
-                title: CoreStrings.password,
-                subtitle: showPassword ? password : '••••••••',
-                titleColor: CoreColors.textSecundary,
-          subtitleColor: CoreColors.textSecundary,
+        Visibility(
+          visible: listMode == ListViewModeEnum.list,
+          child: Row(
+            children: [
+              Expanded(
+                child: InfoItemCustom(
+                  title: CoreStrings.password,
+                  subtitle: showPassword ? password : '••••••••',
+                  titleColor: CoreColors.textSecundary,
+            subtitleColor: CoreColors.textSecundary,
+                ),
               ),
-            ),
-            IconButton(
-              icon: Icon(
-                showPassword
-                    ? CoreIcons.visibilityOff
-                    : CoreIcons.visibility,
-                    color: CoreColors.textSecundary,
+              IconButton(
+                icon: Icon(
+                  showPassword
+                      ? CoreIcons.visibilityOff
+                      : CoreIcons.visibility,
+                      color: CoreColors.textSecundary,
+                ),
+                onPressed: onTogglePassword,
               ),
-              onPressed: onTogglePassword,
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

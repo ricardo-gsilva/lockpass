@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_icons.dart';
-import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
-import 'package:lockpass/features/listItem/presentation/controller/list_item_controller.dart';
-import 'package:lockpass/features/listItem/presentation/state/list_item_state.dart';
-import 'package:lockpass/features/listItem/presentation/widgets/delete_item_bottom_sheet.dart';
-import 'package:lockpass/features/listItem/presentation/widgets/item_details_bottom_sheet.dart';
-import 'package:lockpass/widgets/text_custom.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_icons.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/ui/overlays/bottom_sheet_utils.dart';
+import 'package:lockpass/features/list_item/presentation/controller/list_item_controller.dart';
+import 'package:lockpass/features/list_item/presentation/state/list_item_state.dart';
+import 'package:lockpass/features/list_item/presentation/widgets/bottom_sheet/delete_item_bottom_sheet.dart';
+import 'package:lockpass/features/list_item/presentation/widgets/bottom_sheet/item_details_bottom_sheet.dart';
+import 'package:lockpass/core/ui/components/text_custom.dart';
 
 class ListItemGroupedWidget extends StatelessWidget {
   const ListItemGroupedWidget({super.key});
@@ -21,13 +22,11 @@ class ListItemGroupedWidget extends StatelessWidget {
 
         final groupKeys =
             controller.buildTypesFromFiltered(state.filteredItems);
-            print(groupKeys);
 
         return ListView.builder(
           shrinkWrap: true,
           itemCount: groupKeys.length,
           itemBuilder: (context, groupIndex) {
-            print(state.allGroups);
             final group = state.allGroups[groupIndex];
             final isExpanded = group.visible;
             final groupItems = state.filteredItems
@@ -38,20 +37,18 @@ class ListItemGroupedWidget extends StatelessWidget {
               padding:
                   const EdgeInsets.only(top: 4, bottom: 8, left: 12, right: 12),
               child: Container(
-                // DESIGN: O Card principal agora é mais redondo e tem uma sombra leve
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: CoreColors.titleItem,
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2))
                   ],
                 ),
                 child: Column(
                   children: [
-                    // DESIGN: Header do grupo mais limpo
                     ListTile(
                       onTap: () =>
                           context.read<ListItemController>().toggleGroup(group),
@@ -69,7 +66,6 @@ class ListItemGroupedWidget extends StatelessWidget {
                         color: Colors.black54,
                       ),
                     ),
-
                     Visibility(
                       visible: isExpanded,
                       child: ListView.builder(
@@ -86,7 +82,16 @@ class ListItemGroupedWidget extends StatelessWidget {
                                 context: context,
                                 child: BlocProvider.value(
                                   value: controller,
-                                  child: DeleteItemBottomSheet(item: item),
+                                  child: ConfirmationBottomSheet(
+                                    title: CoreStrings.delete,
+                                    description: CoreStrings.deleteThisLogin,
+                                    confirmButtonText: "Mover para Lixeira",
+                                    confirmButtonColor:
+                                        CoreColors.buttonColorSecond,
+                                    onConfirm: () {
+                                      controller.moveToTrash(item);
+                                    },
+                                  ),
                                 ),
                               );
                               return confirm ?? false;
@@ -97,17 +102,18 @@ class ListItemGroupedWidget extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
-                                  color: CoreColors.cardItem.withOpacity(0.5),
+                                  color: CoreColors.cardItem
+                                      .withValues(alpha: 0.5),
                                   boxShadow: [
                                     BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.05),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2))
                                   ],
                                 ),
                                 child: Column(
                                   children: [
-                                    // DESIGN: Removemos o container interno pesado e usamos o ListTile direto
                                     ListTile(
                                       contentPadding:
                                           const EdgeInsets.symmetric(
@@ -129,13 +135,10 @@ class ListItemGroupedWidget extends StatelessWidget {
                                             value: controller,
                                             child: ItemDetailsBottomSheet(
                                               item: decryptedItem,
-                                              listGroups: state.allGroups,
                                             ),
                                           ),
                                         ).whenComplete(() {
-                                          controller
-                                              .toggleItemPasswordVisibility(
-                                                  false);
+                                          controller.onBottomSheetClosed();
                                         });
                                       },
                                     ),
@@ -144,8 +147,8 @@ class ListItemGroupedWidget extends StatelessWidget {
                                           height: 1,
                                           indent: 20,
                                           endIndent: 20,
-                                          color:
-                                              Colors.black.withOpacity(0.05)),
+                                          color: Colors.black
+                                              .withValues(alpha: 0.05)),
                                     if (index == groupItems.length - 1)
                                       const SizedBox(height: 10),
                                   ],

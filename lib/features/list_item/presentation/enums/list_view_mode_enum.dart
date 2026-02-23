@@ -1,0 +1,4 @@
+enum ListViewModeEnum {
+  list,
+  trash,
+}

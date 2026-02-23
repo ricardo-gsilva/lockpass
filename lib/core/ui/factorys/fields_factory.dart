@@ -16,10 +16,10 @@ class FieldsFactory {
     required VoidCallback onToggleVisibility,
     String? label,
     String? Function(String?)? validator,
+    Function(String)? onChanged,
     Color color = _defaultColor,
     FocusNode? focusNode,
     TextInputAction? textInputAction,
-    TextFormFieldCustom? override, 
   }) {
     return TextFormFieldCustom(
       label: label ?? CoreStrings.password,
@@ -30,8 +30,11 @@ class FieldsFactory {
       cursorColor: color,
       colorTextInput: color,
       colorTextLabel: color,
+      colorErrorText: color,
       colorBorder: color,
+      colorErrorBorder: CoreColors.alertError,
       validator: validator,
+      onChanged: onChanged,
       icon: IconButton(
         icon: Icon(
           obscureText ? Icons.visibility_off : Icons.visibility,
@@ -47,6 +50,7 @@ class FieldsFactory {
     required TextEditingController controller,
     String? label,
     String? Function(String?)? validator,
+    Function(String)? onChanged,
     Color color = _defaultColor,
     FocusNode? focusNode,
   }) {
@@ -61,7 +65,9 @@ class FieldsFactory {
       colorBorder: color,
       colorErrorText: color,
       colorErrorBorder: CoreColors.alertError,
-      validator: validator ?? (value) => value.isValidEmail ? null : value?.emailError,
+      onChanged: onChanged,
+      validator:
+          validator ?? (value) => value.isValidEmail ? null : value?.emailError,
     );
   }
 
@@ -88,6 +94,8 @@ class FieldsFactory {
       colorTextInput: color,
       colorTextLabel: color,
       colorBorder: color,
+      colorErrorText: color,
+      colorErrorBorder: CoreColors.alertError,
       validator: validator ?? (value) => value?.pinError,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
@@ -109,6 +117,7 @@ class FieldsFactory {
     required TextEditingController controller,
     String? Function(String?)? validator,
     Color color = _defaultColor,
+    Function(String)? onChanged,
     TextInputType keyboardType = TextInputType.text,
     Widget? suffixIcon,
     FocusNode? focusNode,
@@ -121,6 +130,7 @@ class FieldsFactory {
       focusNode: focusNode,
       readOnly: readOnly,
       maxLength: maxLength,
+      onChanged: onChanged,
       keyboardType: keyboardType,
       cursorColor: color,
       colorTextInput: color,

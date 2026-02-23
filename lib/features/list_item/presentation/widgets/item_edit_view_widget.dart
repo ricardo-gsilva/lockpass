@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/utils/extensions/string_validators.dart';
-import 'package:lockpass/widgets/edit_item.dart';
-import 'package:lockpass/widgets/text_custom.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/extensions/string_validators.dart';
+import 'package:lockpass/features/list_item/presentation/widgets/edit_item.dart';
+import 'package:lockpass/core/ui/components/text_custom.dart';
 
-class ItemEditViewTeste extends StatelessWidget {
+class ItemEditViewWidget extends StatelessWidget {
   final TextEditingController groupController;
   final TextEditingController serviceController;
   final TextEditingController siteController;
@@ -15,7 +15,7 @@ class ItemEditViewTeste extends StatelessWidget {
   final List<String> groupOptions;
   final String selectedType;
 
-  const ItemEditViewTeste({
+  const ItemEditViewWidget({
     super.key,
     required this.groupController,
     required this.serviceController,
@@ -29,6 +29,8 @@ class ItemEditViewTeste extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final safeValue =
+    groupOptions.contains(selectedType) ? selectedType : null;
     return Column(
       children: [
         const TextCustom(
@@ -38,7 +40,7 @@ class ItemEditViewTeste extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: selectedType.isNotEmpty ? selectedType : null,
+          initialValue: safeValue,
           items: groupOptions
               .map(
                   (v) => DropdownMenuItem(value: v, child: TextCustom(text: v)))
@@ -113,11 +115,10 @@ class ItemEditViewTeste extends StatelessWidget {
           cursorColor: CoreColors.textSecundary,
           colorTextInput: CoreColors.textSecundary,
           labelColor: CoreColors.textSecundary,
-          colorBorder: CoreColors.textSecundary,
+          colorBorder: CoreColors.textSecundary,          
           colorFocusedBorder: CoreColors.focusedBorder,
           width: double.infinity,
           controller: passwordController,
-          validator: (value) => value.passwordError,
         ),
       ],
     );
