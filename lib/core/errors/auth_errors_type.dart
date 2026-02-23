@@ -1,4 +1,4 @@
-import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
 
 enum AuthErrorType {
   invalidEmail,

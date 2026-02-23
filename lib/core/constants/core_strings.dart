@@ -28,6 +28,7 @@ class CoreStrings {
   static const String emailRegistered = 'Digite o email cadastrado';
   static const String emailRegister = 'Email de Cadastro';
   static const String enter = 'Entrar';
+  static const String enterEmailAndPassword = 'Entrar com e-mail e senha';
   static const String enterLogin = 'Entrar com Login';
   static const String enterPin = 'Entrar com PIN';
   static const String enterYourPinForDecryption =
@@ -74,15 +75,18 @@ class CoreStrings {
 
   //P
   static const String password = 'Password';
+  static const String passwordRequired = "A senha é obrigatória";
+  static const String passwordMinLength = "Mínimo de 6 caracteres";
   static const String pin = 'PIN';
   static const String pinDoesNotMatch =
       'O PIN não corresponde a senha do arquivo.';
   static const String pinMustContain = 'O PIN deve conter 5 números.';
   static const String pinRemoved = 'Seu PIN foi removido!';
+  static const String pinWeak = "PIN muito fraco. Escolha uma combinação menos previsível.";
   static const String provideEmail = 'Informe o Email';
 
   //R
-  static const String regExpValidatePin = r'^(?:([0-9])(?!\1)){5}$';
+  // static const String regExpValidatePin = r'^(?:([0-9])(?!\1)){5}$';
   static const String regExpValidateEmail = r'^[^@]+@[^@]+\.[^@]+$';
   static const String register1 = 'Cadastro';
   static const String register2 = 'Cadastrar';
@@ -96,7 +100,7 @@ class CoreStrings {
   static const String saveList = 'Salvar Lista';
   static const String savedBackup = 'Backup Salvo';
   static const String saveListLogins = 'Salvar Lista de Logins';
-  static const String searchLogin = 'Busca por Login';
+  static const String searchLogin = 'Buscar Item';
   static const String selectGroup =
       'Selecione um grupo já criado ou cadastre um novo grupo abaixo';
   static const String send = 'Enviar';
@@ -108,7 +112,7 @@ class CoreStrings {
 
   //U
   static const String updatePin = 'Atualizar PIN';
-  static const String userCreateSucess = 'Usuário criado com Sucesso!';
+  static const String userCreateSuccess = 'Usuário criado com Sucesso!';
 
   //W
   static const String wantDeleteRegisteredPin =
@@ -158,9 +162,9 @@ class CoreStrings {
   static const String infoEmailInvalid =
       'Utilize um email válido para criar seu cadastro. Após a criação do cxadastro, poderá acessar o app.';
   static const String noticeCreatePin =
-      'Vá até configurações e crie seu PIN para dar mais segurança no acesso as suas senhas.\n'
-      'Você poderá continuar utilizando o APP sem que crie um PIN! Mas lembre-se que qualquer '
-      'pessoa que tiver acesso ao seu celular, poderá ter acesso as senhas, caso você não crie um PIN.';
+      'Crie um PIN para facilitar e proteger o acesso ao aplicativo.\n'
+'O PIN permite que você desbloqueie o app de forma rápida e segura após o login.\n'
+'Sempre que o aplicativo for reaberto, será necessário autenticação.';
   static const String pinNotCreated = 'Você ainda não criou um PIN!';
   static const String enterYourPin = 'Você não digitou o seu PIN!';
   static const String pinIncorrect = 'O PIN digitado está incorreto!';
@@ -169,22 +173,28 @@ class CoreStrings {
       'Utilize seu login para poder criar um novo PIN.';
   static const String receivePasswordResetLink =
       'Utilize seu email cadastrado para receber um link de redefinição de senha.';
-  static const String wantSaveListLogin = 'Deseja salvar sua lista de logins?';
+  static const String wantSaveListLogin = 'Escolha como deseja salvar sua lista de logins:';
   static const String infoSaveList =
       'Você irá salvar um arquivo zip contendo sua lista de logins salvos no App.';
   static const String infoSaveListIos =
-      "Você irá salvar um arquivo ZIP com sua lista de logins. \n\nDica: Se não conseguir selecionar uma pasta, toque no ícone de 'três pontos' (...) e crie uma nova pasta para autorizar o salvamento no seu iPhone.";
+    "Um arquivo ZIP contendo sua lista de logins será gerado. "
+    "Você pode optar por salvar o arquivo no dispositivo, escolhendo uma pasta de sua preferência, "
+    "ou compartilhá-lo por meio de um aplicativo ou serviço de nuvem.\n\n"
+    "Dica: Caso não consiga selecionar uma pasta, toque no ícone de três pontos (...) "
+    "e crie uma nova pasta para autorizar o salvamento no seu iPhone.";
   static const String infoSaveListAndroid =
-      "Você irá salvar um arquivo ZIP com sua lista de logins. Escolha uma pasta de sua preferência no dispositivo ou crie uma nova para organizar seus backups.";
+    "Um arquivo ZIP contendo sua lista de logins será gerado. "
+    "Você pode optar por salvar o arquivo no dispositivo, escolhendo uma pasta de sua preferência, "
+    "ou compartilhá-lo por meio de um aplicativo ou serviço de nuvem.";
   static const String choiceFile =
       'Você precisa escolher um arquivo para ser carregado.';
   static const String loadedList = 'Sua lista de logins salva, foi carregada.';
-  static const String pinInfo =
-      'Para validar seu PIN, nāo repita o mesmo número em sequência.\n'
-      '\n'
-      'Ex: 11111, 25400, 78883.'
-      '\n\n';
-
+  static const String pinInfo = 
+      '''Para proteger seus dados, o PIN deve seguir estas regras:\n
+Sem sequências simples: Evite números em ordem (ex: 12345 ou 54321).\n
+Sem repetições excessivas: Não use o mesmo número 3 ou mais vezes seguidas (ex: 11123 ou 24666).\n
+Evite o óbvio: Não use datas de nascimento ou padrões previsíveis (ex: 11111).\n
+Um bom PIN é aquele que só você conhece e que não segue padrões previsíveis."\n''';
   static const String pinVazio =
       'O PIN está vazio ou contém menos do que 5 números.\n'
       '\n'

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_keys.dart';
-import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/di/get_it.dart';
-import 'package:lockpass/features/login/presentation/pages/login_page.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_keys.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/di/service_locator.dart';
+import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/features/splash/presentation/controller/splash_controller.dart';
 import 'package:lockpass/features/splash/presentation/state/splash_state.dart';
-import 'package:lockpass/widgets/text_custom.dart';
+import 'package:lockpass/core/ui/components/text_custom.dart';
 
 class SplashScreenPage extends StatefulWidget {
   const SplashScreenPage({super.key});
@@ -33,15 +33,13 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     return BlocProvider.value(
       value: splashController,
       child: BlocListener<SplashController, SplashState>(
-        listenWhen: (previous, current) =>
-            previous.isLoading != current.isLoading,
-        listener: (context, state) {
-          Future.delayed(const Duration(seconds: 3),(){
-            if (!mounted) return;            
-          Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const LoginPage1()));
-          });
-          
+        listenWhen: (previous, current) => previous.ready != current.ready,
+        listener: (context, state) async {
+          if (state.ready) {
+            await Future.delayed(const Duration(seconds: 2), (){
+              Navigator.pushReplacementNamed(context, AppRoutes.login);
+            });
+          }          
         },
         child: Scaffold(
           backgroundColor: CoreColors.primaryColor,

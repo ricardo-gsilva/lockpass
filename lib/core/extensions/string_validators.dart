@@ -1,6 +1,7 @@
-import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+
 extension StringValidators on String? {
-  bool get isNullOrBlank => this == null || this!.trim().isEmpty;
+  bool get isNullOrBlank => this?.trim().isEmpty ?? true;
 
   bool get isNotNullOrBlank => !isNullOrBlank;
 
@@ -11,21 +12,62 @@ extension StringValidators on String? {
   }
 
   bool get isValidEmail {
-    final text = trimmed;
-    if (text.isEmpty) return false;
+    final value = trimmed;
+    if (value.isEmpty) return false;
     final regex = RegExp(CoreStrings.regExpValidateEmail);
-    return regex.hasMatch(text);
+    return regex.hasMatch(value);
   }
 
   String? get emailError {
-    if (isNullOrBlank) return "O e-mail é obrigatório";
-    if (!isValidEmail) return "E-mail inválido";
+    if (isNullOrBlank) return CoreStrings.fillField;
+    if (!isValidEmail) return CoreStrings.emailInvalid;
     return null;
   }
 
   String? get passwordError {
-    if (isNullOrBlank) return "A senha é obrigatória";
-    if (this!.length < 6) return "Mínimo de 6 caracteres";
+    final value = this?.trim();
+    if (value == null) return CoreStrings.passwordRequired;
+    if (value.length < 6) return CoreStrings.passwordMinLength;
+    return null;
+  }
+
+  bool _isSequential(String value) {
+    const asc = '0123456789';
+    const desc = '9876543210';
+
+    return asc.contains(value) || desc.contains(value);
+  }
+
+  bool _hasThreeOrMoreConsecutiveRepeat(String value) {
+    int repeatCount = 1;
+
+    for (int i = 1; i < value.length; i++) {
+      if (value[i] == value[i - 1]) {
+        repeatCount++;
+        if (repeatCount >= 3) return true;
+      } else {
+        repeatCount = 1;
+      }
+    }
+
+    return false;
+  }
+
+  String? get pinError {
+    final value = trimmed;
+
+    if (!RegExp(r'^\d{5}$').hasMatch(value)) {
+      return CoreStrings.pinMustContain;
+    }
+
+    if (_isSequential(value)) {
+      return CoreStrings.pinWeak;
+    }
+
+    if (_hasThreeOrMoreConsecutiveRepeat(value)) {
+      return CoreStrings.pinWeak;
+    }
+
     return null;
   }
 }
