@@ -44,12 +44,6 @@ class LoginController extends Cubit<AuthState> {
     ));
   }
 
-  void togglePasswordVisibility() {
-    emit(state.copyWith(
-      obscureText: !state.obscureText,
-    ));
-  }
-
   Future<void> loginWithEmailAndPassword(
     String email,
     String password,

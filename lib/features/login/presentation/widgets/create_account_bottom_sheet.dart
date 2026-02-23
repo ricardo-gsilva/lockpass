@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/constants/core_colors.dart';
 import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/extensions/context_extensions.dart';
+import 'package:lockpass/core/extensions/string_validators.dart';
 import 'package:lockpass/core/ui/factorys/fields_factory.dart';
 import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
 import 'package:lockpass/features/login/presentation/state/auth_state.dart';
@@ -24,6 +25,7 @@ class CreateAccountBottomSheet extends StatefulWidget {
 class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -90,9 +92,13 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                               const SizedBox(height: 16),
                               FieldsFactory.password(
                                 controller: passwordController,
-                                obscureText: state.obscureText,
-                                onToggleVisibility:
-                                    controller.togglePasswordVisibility,
+                                obscureText: _obscurePassword,
+                                validator: (value) => value.passwordError,
+                                onToggleVisibility: (){
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
                               ),
                               const SizedBox(height: 24),
                               ButtonCustom(

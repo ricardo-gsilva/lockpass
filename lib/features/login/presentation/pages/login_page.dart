@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/di/service_locator.dart';
+import 'package:lockpass/core/extensions/string_validators.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
-import 'package:lockpass/core/ui/components/credential_fields_custom.dart';
+import 'package:lockpass/core/ui/factorys/fields_factory.dart';
 import 'package:lockpass/core/ui/overlays/bottom_sheet_utils.dart';
 import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
 import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
@@ -30,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailResetPasswordController = TextEditingController();
   late final LoginController loginController;
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -88,23 +90,24 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 20, right: 20),
-
-                            /// LOGIN FIELDS
-                            // child: LoginFields(
-                            //     controller: loginController,
-                            //     emailController: emailController,
-                            //     passwordController: passwordController),
-                            child: CredentialsFieldsCustom(
-                              emailController: emailController,
-                              passwordController: passwordController,
-                              obscureText: state.obscureText,
-                              onTogglePassword:
-                                  loginController.togglePasswordVisibility,
-                            ),
+                            child: FieldsFactory.email(controller: emailController)
                           ),
                         ),
-
-                        /// REGISTER
+                        SizedBox(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20, right: 20),
+                            child: FieldsFactory.password(
+                              controller: passwordController,
+                              obscureText: _obscurePassword,
+                              validator: (value) => value.passwordError,
+                              onToggleVisibility: (){
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              }
+                            )
+                          ),
+                        ),
                         Padding(
                           padding: EdgeInsets.only(right: 10),
                           child: Align(
@@ -129,8 +132,6 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-
-                        /// RESET PASSWORD
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
                           child: Align(

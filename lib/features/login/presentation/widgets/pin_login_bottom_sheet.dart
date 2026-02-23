@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/constants/core_colors.dart';
-import 'package:lockpass/core/constants/core_icons.dart';
-import 'package:lockpass/core/constants/core_keys.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
-import 'package:lockpass/core/extensions/string_validators.dart';
 import 'package:lockpass/core/ui/factorys/fields_factory.dart';
 import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
 import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
 import 'package:lockpass/features/login/presentation/state/auth_state.dart';
 import 'package:lockpass/core/ui/components/button_custom.dart';
-import 'package:lockpass/core/ui/components/iconbutton_custom.dart';
 import 'package:lockpass/core/ui/components/text_custom.dart';
-import 'package:lockpass/core/ui/components/textformfield_custom.dart';
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 
 class PinLoginBottomSheet extends StatefulWidget {
@@ -27,6 +21,7 @@ class PinLoginBottomSheet extends StatefulWidget {
 
 class _PinLoginBottomSheetState extends State<PinLoginBottomSheet> {
   final TextEditingController pinController = TextEditingController();
+  bool _obscurePin = true;
 
   @override
   void dispose() {
@@ -83,8 +78,7 @@ class _PinLoginBottomSheetState extends State<PinLoginBottomSheet> {
                     ),
                     child: BlocBuilder<LoginController, AuthState>(
                         buildWhen: (previous, current) =>
-                            previous.canSubmitPin != current.canSubmitPin ||
-                            previous.obscureText != current.obscureText,
+                            previous.canSubmitPin != current.canSubmitPin,
                         builder: (context, state) {
                           final isLoading = state.status is AuthLoading;
                           return Column(
@@ -100,37 +94,14 @@ class _PinLoginBottomSheetState extends State<PinLoginBottomSheet> {
                               const SizedBox(height: 15),
                               FieldsFactory.pin(
                                 controller: pinController,
-                                obscureText: state.obscureText,
-                                onToggleVisibility:
-                                    controller.togglePasswordVisibility,
-                                onChanged: controller.onPinChanged,
-                              ),
-                              TextFormFieldCustom(
-                                label: "PIN",
-                                maxLength: 5,
-                                controller: pinController,
-                                obscureText: state.obscureText,
-                                keyboardType: TextInputType.number,
-                                colorTextInput: CoreColors.textSecundary,
-                                colorTextLabel: CoreColors.textSecundary,
-                                colorBorder: CoreColors.textSecundary,
-                                cursorColor: CoreColors.textSecundary,
-                                onChanged: controller.onPinChanged,
-                                validator: (value) => value.pinError,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(5),
-                                ],
-                                icon: IconButtonCustom(
-                                  key: CoreKeys.iconVisibilityPasswordLogin,
-                                  color: CoreColors.textSecundary,
-                                  icon: state.obscureText
-                                      ? CoreIcons.visibility
-                                      : CoreIcons.visibilityOff,
-                                  onPressed:
-                                      controller.togglePasswordVisibility,
-                                ),
-                              ),
+                                obscureText: _obscurePin,
+                                onToggleVisibility: (){
+                                  setState(() {
+                                    _obscurePin = !_obscurePin;
+                                  });
+                                },                                  
+                                onChanged: controller.onPinChanged,                                
+                              ),                              
                               const SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment:
