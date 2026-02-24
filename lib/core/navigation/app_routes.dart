@@ -6,6 +6,7 @@ import 'package:lockpass/features/add_item/presentation/page/add_item_page.dart'
 import 'package:lockpass/features/config/presentation/page/config_page.dart';
 import 'package:lockpass/features/home/presentation/controller/home_controller.dart';
 import 'package:lockpass/features/home/presentation/pages/home_page.dart';
+import 'package:lockpass/features/list_item/presentation/page/list_item_page.dart';
 import 'package:lockpass/features/login/presentation/pages/login_page.dart';
 import 'package:lockpass/features/splash/presentation/pages/splash_screen_page.dart';
 
@@ -22,6 +23,7 @@ class AppRoutes {
   static const config = '/config';
   static const cardItem = '/cardItem';
   static const lockScreen = '/lockScreen';
+  static const listItem = '/listItem';
 
   static Map<String, WidgetBuilder> get routes => {
     splash: (_) => const SplashScreenPage(),
@@ -31,6 +33,7 @@ class AppRoutes {
       child: const HomePage()),
     addItem: (_) => const AddItemPage(),
     config: (_) => const ConfigPage(),
-    lockScreen: (_) => const LockScreenPage()
+    lockScreen: (_) => const LockScreenPage(),
+    listItem: (_) => const ListItemPage()
   };
 }

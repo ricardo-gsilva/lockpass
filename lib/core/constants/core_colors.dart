@@ -5,6 +5,7 @@ class CoreColors {
   static const Color primaryColor =  Color(0xFF3D3C3C);
   static const Color secondColor =  Color (0xFFb4b4b4);
   static const Color tertiaryColor =  Color (0XFF868686);
+  static const Color backgroundModeTrash = Color(0xFFF5C9C9);
 
   static const Color selectBottomBar = Color (0xFFFFBF00);
   static const Color selectBorder = Color (0xFFFFBF00);

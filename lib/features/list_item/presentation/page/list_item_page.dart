@@ -23,10 +23,10 @@ import 'package:lockpass/core/ui/components/button_custom.dart';
 import 'package:lockpass/core/ui/components/textbutton_custom.dart';
 
 class ListItemPage extends StatefulWidget {
-  final ListViewEnum viewMode;
+  final ListViewEnum? viewMode;
   const ListItemPage({
     super.key,
-    required this.viewMode,
+    this.viewMode,
   });
 
   @override
@@ -86,6 +86,18 @@ class _ListItemPageState extends State<ListItemPage> {
     );
   }
 
+  String _text(ListItemState state) {
+    if (state.listMode == ListViewModeEnum.trash) {
+      return "Modo Lixeira";
+    }
+
+    if (state.hasDeletedItems) {
+      return "Mostrar itens Excluídos?";
+    }
+
+    return "Lixeira Vazia!";
+  }
+
   @override
   void dispose() {
     _searchFocusNode.removeListener(_onFocusChange);
@@ -122,9 +134,10 @@ class _ListItemPageState extends State<ListItemPage> {
             return GestureDetector(
               onTap: () => _searchFocusNode.unfocus(),
               child: Scaffold(
-                backgroundColor: CoreColors.secondColor,
                 body: Container(
-                  color: CoreColors.secondColor,
+                  color: state.listMode == ListViewModeEnum.list
+                      ? CoreColors.secondColor
+                      : CoreColors.backgroundModeTrash,
                   child: Column(
                     children: [
                       Container(
@@ -184,9 +197,7 @@ class _ListItemPageState extends State<ListItemPage> {
                                   ),
                                   Expanded(
                                     child: TextCustom(
-                                      text: state.hasDeletedItems
-                                          ? "Mostrar itens Excluídos?"
-                                          : "Lixeira Vazia!",
+                                      text: _text(state),
                                       fontSize: 18,
                                       color: CoreColors.textSecundary,
                                       maxLines: 1,

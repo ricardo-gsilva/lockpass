@@ -91,7 +91,8 @@ class AddItemController extends Cubit<AddItemState> {
     }
   }
 
-  void setDropDownGroups(List<ItensEntity> itens) {
+  void setDropDownGroups() async {
+    final itens = await _itensRepository.getActiveItensByUser(currentUserId);
     final groups = itens
         .map((e) => e.group)
         .whereType<String>()

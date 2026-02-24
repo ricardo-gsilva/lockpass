@@ -152,13 +152,10 @@ class _HomePageState extends State<HomePage> {
               ListItemPage(
                 viewMode: state.viewMode,
               ),
-              AddItemPage(
-                itens: context.select((HomeController c) => []),
-              ),
+              AddItemPage(),
               const ConfigPage(),
             ];
             return Scaffold(
-              backgroundColor: CoreColors.secondColor,
               appBar: AppBar(
                 centerTitle: true,
                 toolbarHeight: 76,

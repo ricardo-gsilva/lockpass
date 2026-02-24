@@ -16,8 +16,7 @@ import 'package:lockpass/core/ui/components/text_custom.dart';
 import 'package:lockpass/features/add_item/presentation/state/add_item_status.dart';
 
 class AddItemPage extends StatefulWidget {
-  final List<ItensEntity>? itens;
-  const AddItemPage({this.itens, super.key});
+  const AddItemPage({super.key});
 
   @override
   State<AddItemPage> createState() => _AddItemPageState();
@@ -38,7 +37,7 @@ class _AddItemPageState extends State<AddItemPage> {
   void initState() {
     super.initState();
     addItemController = getIt<AddItemController>();
-    addItemController.setDropDownGroups(widget.itens ?? []);
+    addItemController.setDropDownGroups();
   }
 
   @override

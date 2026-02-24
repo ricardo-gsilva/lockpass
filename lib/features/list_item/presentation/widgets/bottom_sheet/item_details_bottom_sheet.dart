@@ -119,7 +119,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
         child: GestureDetector(
           onTap: () {
             controller.onBottomSheetClosed();
-            Navigator.pop(context);          
+            Navigator.pop(context);
           },
           behavior: HitTestBehavior.opaque,
           child: Stack(
@@ -202,20 +202,58 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                      Visibility(
-                                        visible: state.listMode ==
-                                            ListViewModeEnum.list,
-                                        child: IconButtonCustom(
-                                          icon: _isEditingItem
-                                              ? CoreIcons.close
-                                              : CoreIcons.edit,
-                                          color: CoreColors.textSecundary,
-                                          onPressed: () {
-                                            _resetControllers(item);
-                                            _toggleEditing();
-                                          },
-                                        ),
-                                      ),
+                                      Row(
+                                        children: [
+                                          Visibility(
+                                            visible: state.listMode ==
+                                                    ListViewModeEnum.list &&
+                                                !_isEditingItem,
+                                            child: IconButtonCustom(
+                                              icon: CoreIcons.delete,
+                                              color: CoreColors.textSecundary,
+                                              onPressed: () async {
+                                                showCustomBottomSheet(
+                                                  context: context,
+                                                  child: BlocProvider.value(
+                                                    value: controller,
+                                                    child:
+                                                        ConfirmationBottomSheet(
+                                                      title: CoreStrings.delete,
+                                                      description: CoreStrings
+                                                          .deleteThisLogin,
+                                                      confirmButtonText:
+                                                          "Mover para Lixeira",
+                                                      confirmButtonColor:
+                                                          CoreColors
+                                                              .buttonColorSecond,
+                                                      onConfirm: () {
+                                                        controller
+                                                            .moveToTrash(item);
+                                                        Navigator.popUntil(context, ModalRoute.withName('/home'));
+                                                      },
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Visibility(
+                                            visible: state.listMode ==
+                                                ListViewModeEnum.list,
+                                            child: IconButtonCustom(
+                                              icon: _isEditingItem
+                                                  ? CoreIcons.close
+                                                  : CoreIcons.edit,
+                                              color: CoreColors.textSecundary,
+                                              onPressed: () {
+                                                _resetControllers(item);
+                                                _toggleEditing();
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      )
                                     ],
                                   ),
                                   const SizedBox(height: 16),
