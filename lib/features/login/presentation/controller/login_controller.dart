@@ -3,29 +3,24 @@ import 'package:lockpass/core/extensions/string_validators.dart';
 import 'package:lockpass/core/session/session_lock_service.dart';
 import 'package:lockpass/features/login/presentation/state/auth_state.dart';
 import 'package:lockpass/core/services/auth_service.dart';
-import 'package:lockpass/core/security/vault/vault_service.dart';
 import 'package:lockpass/core/services/pin_service.dart';
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 
 class LoginController extends Cubit<AuthState> {
   final AuthService _authService;
-  final VaultService _vaultService;
   final PinService _pinService;
   final SessionLockService _sessionLockService;
 
   LoginController({
     required AuthService authService,
-    required VaultService vaultService,
     required PinService pinService,
     required SessionLockService sessionLockService,
   })  : _authService = authService,
-        _vaultService = vaultService,
         _pinService = pinService,
         _sessionLockService = sessionLockService,
         super(const AuthState());
 
   Future<void> init() async {
-    await _vaultService.initializeVaultEnvironment();
     await checkPinAvailability();
   }
 
@@ -74,7 +69,6 @@ class LoginController extends Cubit<AuthState> {
       }
 
       await _waitMinLoadingTime(stopWatch);
-      await _vaultService.initializeVaultEnvironment();
 
       _sessionLockService.unlock();
       _emitStatus(EmailAuthenticated());
