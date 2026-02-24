@@ -113,7 +113,7 @@ class FieldsFactory {
 
   /// GENERIC TEXT FIELD
   static Widget text({
-    required String label,
+    String? label,
     required TextEditingController controller,
     String? Function(String?)? validator,
     Color color = _defaultColor,

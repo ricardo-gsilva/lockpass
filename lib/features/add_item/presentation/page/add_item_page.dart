@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/core/di/get_it.dart';
+import 'package:lockpass/core/di/service_locator.dart';
+import 'package:lockpass/core/extensions/string_validators.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
-import 'package:lockpass/core/utils/extensions/string_validators.dart';
-import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
-import 'package:lockpass/features/addItem/presentation/controller/add_item_controller.dart';
-import 'package:lockpass/features/addItem/presentation/state/add_item_state.dart';
+import 'package:lockpass/core/ui/factorys/fields_factory.dart';
+import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
+import 'package:lockpass/features/add_item/presentation/controller/add_item_controller.dart';
+import 'package:lockpass/features/add_item/presentation/state/add_item_state.dart';
 import 'package:lockpass/domain/entities/itens_entity.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_icons.dart';
-import 'package:lockpass/constants/core_keys.dart';
-import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/widgets/button_custom.dart';
-import 'package:lockpass/widgets/field_custom.dart';
-import 'package:lockpass/widgets/iconbutton_custom.dart';
-import 'package:lockpass/widgets/text_custom.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_keys.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/ui/components/button_custom.dart';
+import 'package:lockpass/core/ui/components/text_custom.dart';
+import 'package:lockpass/features/add_item/presentation/state/add_item_status.dart';
 
 class AddItemPage extends StatefulWidget {
   final List<ItensEntity>? itens;
@@ -33,12 +32,13 @@ class _AddItemPageState extends State<AddItemPage> {
   TextEditingController passwordController = TextEditingController();
   late final AddItemController addItemController;
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
 
   @override
   void initState() {
-    super.initState();    
+    super.initState();
     addItemController = getIt<AddItemController>();
-    addItemController.setDropDownGroups(widget.itens?? []);
+    addItemController.setDropDownGroups(widget.itens ?? []);
   }
 
   @override
@@ -57,30 +57,26 @@ class _AddItemPageState extends State<AddItemPage> {
     return BlocProvider.value(
       value: addItemController,
       child: BlocListener<AddItemController, AddItemState>(
-        listenWhen: (previous, current) =>
-            previous.createdItem != current.createdItem ||
-            previous.exception != current.exception,
+        listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.createdItem) {
-            SnackUtils.showSuccess(
-              context,
-              content: "Item criado com sucesso!",
-            );
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              AppRoutes.home,
-              (route) => false,
-            );
-          }
-          if (state.exception.isNotEmpty) {
-            SnackUtils.showError(
-              context,
-              content: state.exception,
-            );
-          }
+          switch (state.status) {
+            case AddItemSuccess():
+              OverlayToast.showSuccess(content: "Item criado com sucesso!");
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.home,
+                (route) => false,
+              );  
+              break;
+            case AddItemFailure(:final message):
+              OverlayToast.showError(content: message);
+            default:
+              break;
+          }          
         },
         child: BlocBuilder<AddItemController, AddItemState>(
           builder: (context, state) {
+            final isLoading = state.status is AddItemLoading;
             return Scaffold(
               body: Container(
                 color: CoreColors.secondColor,
@@ -120,7 +116,8 @@ class _AddItemPageState extends State<AddItemPage> {
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: CoreColors.transparent,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 16),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12.0),
                                       borderSide: BorderSide(
@@ -140,7 +137,7 @@ class _AddItemPageState extends State<AddItemPage> {
                                       ? ''
                                       : state.listItensDrop.first,
                                   onChanged: (newValue) {
-                                      groupController.text = newValue.toString();
+                                    groupController.text = newValue.toString();
                                   },
                                   items: state.listItensDrop.map((value) {
                                     return DropdownMenuItem(
@@ -153,94 +150,130 @@ class _AddItemPageState extends State<AddItemPage> {
                               ],
                             ),
                           ),
-                          FieldCustom(
-                            key: CoreKeys.fieldCustomAddNewGroup,
-                            title: CoreStrings.addNewGroup,
-                            label: CoreStrings.labelGroup,
-                            keyboardType: TextInputType.name,
-                            controller: groupController,
+                          ListTile(
+                            title: TextCustom(
+                              text: CoreStrings.addNewGroup,
+                              color: CoreColors.textPrimary,
+                              fontSize: 16,
+                            ),
+                            contentPadding: const EdgeInsets.only(),
+                            subtitle: FieldsFactory.text(
+                              label: CoreStrings.labelGroup,
+                              controller: groupController,
+                              color: CoreColors.textPrimary,
+                            ),
                           ),
-                          FieldCustom(
-                            key: CoreKeys.fieldCustomService,
-                            title: CoreStrings.nameService,
-                            label: CoreStrings.labelService,
-                            keyboardType: TextInputType.name,
-                            controller: serviceController,
-                            validator: (value) {
-                              if (value.isNullOrBlank) return CoreStrings.fillField;
-                              return null;
-                            },
+                          ListTile(
+                            title: TextCustom(
+                              text: CoreStrings.nameService,
+                              color: CoreColors.textPrimary,
+                              fontSize: 16,
+                            ),
+                            contentPadding: const EdgeInsets.only(),
+                            subtitle: FieldsFactory.text(
+                              label: CoreStrings.labelService,
+                              controller: serviceController,
+                              color: CoreColors.textPrimary,
+                              validator: (value) {
+                                if (value.isNullOrBlank) return CoreStrings.fillField;
+                                return null;
+                              },
+                            ),
                           ),
-                          FieldCustom(
-                            key: CoreKeys.fieldCustomWebSite,
-                            title: CoreStrings.webSite,
-                            label: CoreStrings.labelWebSite,
-                            controller: siteController,
-                            keyboardType: TextInputType.url,
+                          ListTile(
+                            title: TextCustom(
+                              text: CoreStrings.webSite,
+                              color: CoreColors.textPrimary,
+                              fontSize: 16,
+                            ),
+                            contentPadding: const EdgeInsets.only(),
+                            subtitle: FieldsFactory.text(
+                              label: CoreStrings.labelWebSite,
+                              controller: siteController,
+                              keyboardType: TextInputType.url,
+                              color: CoreColors.textPrimary,
+                            ),
                           ),
-                          FieldCustom(
-                            key: CoreKeys.fieldCustomEmailRegister,
-                            title: CoreStrings.emailRegister,
-                            label: CoreStrings.labelEmailRegister,
-                            keyboardType: TextInputType.emailAddress,
-                            controller: emailController,
-                            validator: (value) {
-                              if (value.isNullOrBlank) return CoreStrings.fillField;
-                              if (!value.isValidEmail) return CoreStrings.emailInvalid;
-                              return null;
-                            },
+                          ListTile(
+                            title: TextCustom(
+                              text: CoreStrings.emailRegister,
+                              color: CoreColors.textPrimary,
+                              fontSize: 16,
+                            ),
+                            contentPadding: const EdgeInsets.only(),
+                            subtitle: FieldsFactory.email(
+                              label: CoreStrings.labelEmailRegister,
+                              controller: emailController,
+                              color: CoreColors.textPrimary,
+                              validator: (value) => value.emailError,
+                            ),
                           ),
-                          FieldCustom(
-                            key: CoreKeys.fieldCustomLogin,
-                            title: CoreStrings.login,
-                            keyboardType: TextInputType.text,
-                            controller: loginController,
-                            validator: (value) {
-                              if (value.isNullOrBlank) return CoreStrings.fillField;
-                              return null;
-                            },
+                          ListTile(
+                            title: TextCustom(
+                              text: CoreStrings.login,
+                              color: CoreColors.textPrimary,
+                              fontSize: 16,
+                            ),
+                            contentPadding: const EdgeInsets.only(),
+                            subtitle: FieldsFactory.text(
+                              controller: loginController,
+                              keyboardType: TextInputType.url,
+                              color: CoreColors.textPrimary,
+                              validator: (value) {
+                                if (value.isNullOrBlank) return CoreStrings.fillField;
+                                return null;
+                              },
+                            ),
                           ),
-                          FieldCustom(
-                            key: CoreKeys.fieldCustomPassword,
-                            title: CoreStrings.password,
-                            keyboardType: TextInputType.text,
-                            controller: passwordController,
-                            obscureText: state.obscureText,
-                            validator: (value) => value.passwordError,
-                            icon: IconButtonCustom(
-                                key: CoreKeys.visibilityPasswordAddItem,
-                                color: CoreColors.textPrimary,
-                                icon: state.sufixIcon
-                                    ? CoreIcons.visibility
-                                    : CoreIcons.visibilityOff,
-                                onPressed: () {
-                                  addItemController.visibilityPass();
-                                }),
-                          ),
+                          ListTile(
+                            title: TextCustom(
+                              text: CoreStrings.password,
+                              color: CoreColors.textPrimary,
+                              fontSize: 16,
+                            ),
+                            contentPadding: const EdgeInsets.only(),
+                            subtitle: FieldsFactory.password(
+                              controller: passwordController,
+                              color: CoreColors.textPrimary,
+                              obscureText: _obscurePassword,
+                              onToggleVisibility: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                              validator: (value) {
+                                if (value.isNullOrBlank) return CoreStrings.fillField;
+                                return null;
+                              },
+                            ),
+                          ),                          
                           Align(
                             alignment: Alignment.bottomRight,
                             child: ButtonCustom(
                               key: CoreKeys.buttonCustomCreateItem,
-                              isLoading: state.isLoading,
+                              isLoading: isLoading,
                               height: 50,
                               width: MediaQuery.of(context).size.width * 0.5,
                               backgroundButton: CoreColors.buttonColorSecond,
-                              text: state.isLoading? "Salvando..." : CoreStrings.save,
+                              text:
+                                  isLoading ? "Salvando..." : CoreStrings.save,
                               colorText: CoreColors.textPrimary,
                               fontSize: 16,
-                              onPressed: !state.isFormValid ? null :
-                                () async {
-                                  ItensEntity item = ItensEntity(
-                                    userId: addItemController.currentUserId,
-                                    group: groupController.text,
-                                    service: serviceController.text,
-                                    site: siteController.text,
-                                    email: emailController.text,
-                                    login: loginController.text,
-                                    password: passwordController.text,
-                                  );
-                                  await addItemController.formValidator(item);
-                                },
+                              onPressed: !state.isFormValid
+                                  ? null
+                                  : () async {
+                                      ItensEntity item = ItensEntity(
+                                        userId: addItemController.currentUserId,
+                                        group: groupController.text,
+                                        service: serviceController.text,
+                                        site: siteController.text,
+                                        email: emailController.text,
+                                        login: loginController.text,
+                                        password: passwordController.text,
+                                      );
+                                      await addItemController
+                                          .formValidator(item);
+                                    },
                             ),
                           )
                         ],
