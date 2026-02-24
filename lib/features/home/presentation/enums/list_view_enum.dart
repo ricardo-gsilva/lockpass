@@ -1,4 +1,0 @@
-enum ListViewEnum {
-  list,
-  grouped,
-}

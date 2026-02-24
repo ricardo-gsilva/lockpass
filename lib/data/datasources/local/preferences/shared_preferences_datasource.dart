@@ -6,7 +6,8 @@ class SharedPreferencesDatasource {
   final SharedPreferences sharedPreferences;
 
   static const String permissionStorageKey = 'permissionStorage';
-  static const String visibleInfoCreatePinKey = 'visibleInfoCreatePin';
+  // static const String visibleInfoCreatePinKey = 'visibleInfoCreatePin';
+  static const String hideCreatePinAlertKey = 'hideCreatePinAlertKey';
 
   Future<bool> setPermissionStorage(bool value) async {
     return sharedPreferences.setBool(permissionStorageKey, value);
@@ -16,15 +17,21 @@ class SharedPreferencesDatasource {
     return sharedPreferences.getBool(permissionStorageKey) ?? false;
   }
 
-  Future<bool> setVisibleCreatePinInfo(bool value) async {
-    return sharedPreferences.setBool(visibleInfoCreatePinKey, value);
+  Future<bool> setHideCreatePinAlert(bool value){
+    return sharedPreferences.setBool(hideCreatePinAlertKey, value);
   }
+  // Future<bool> setVisibleCreatePinInfo(bool value) async {
+  //   return sharedPreferences.setBool(hideCreatePinAlertKey, value);
+  // }
 
-  bool getVisibleCreatePinInfo() {
-    return sharedPreferences.getBool(visibleInfoCreatePinKey) ?? false;
+  bool getHideCreatePinAlert(){
+    return sharedPreferences.getBool(hideCreatePinAlertKey) ?? false;
   }
+  // bool getVisibleCreatePinInfo() {
+  //   return sharedPreferences.getBool(hideCreatePinAlertKey) ?? false;
+  // }
 
   Future<void> clearUserData() async {
-    await sharedPreferences.remove(visibleInfoCreatePinKey);
+    await sharedPreferences.remove(hideCreatePinAlertKey);
   }
 }

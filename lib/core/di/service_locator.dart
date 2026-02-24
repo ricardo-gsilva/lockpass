@@ -48,7 +48,6 @@ Future<void> setupGetIt() async {
   getIt.registerFactory<SplashController>(() => SplashController());
   getIt.registerFactory<LoginController>(() => LoginController(
         authService: getIt<AuthService>(),
-        vaultService: getIt<VaultService>(),
         pinService: getIt<PinService>(),
         sessionLockService: getIt<SessionLockService>(),
       ));
@@ -57,6 +56,7 @@ Future<void> setupGetIt() async {
         vaultService: getIt<VaultService>(),
         authService: getIt<AuthService>(),
         pinService: getIt<PinService>(),
+        prefs: getIt<SharedPreferencesDatasource>(),
       ));
   getIt.registerFactory<AddItemController>(() => AddItemController(
         itensRepository: getIt<ItensRepository>(),

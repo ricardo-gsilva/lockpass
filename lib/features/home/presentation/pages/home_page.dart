@@ -1,34 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/core/di/get_it.dart';
-import 'package:lockpass/features/addItem/presentation/page/add_item_page.dart';
+import 'package:lockpass/core/di/service_locator.dart';
+import 'package:lockpass/core/ui/components/button_custom.dart';
+import 'package:lockpass/features/add_item/presentation/page/add_item_page.dart';
 import 'package:lockpass/features/config/presentation/page/config_page.dart';
 import 'package:lockpass/features/home/presentation/controller/home_controller.dart';
-import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
-import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
+import 'package:lockpass/features/home/presentation/state/home_event.dart';
+import 'package:lockpass/features/home/presentation/state/home_status.dart';
+import 'package:lockpass/features/list_item/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/features/home/presentation/state/home_state.dart';
 import 'package:lockpass/domain/entities/itens_entity.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_icons.dart';
-import 'package:lockpass/constants/core_keys.dart';
-import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/features/listItem/presentation/page/list_item_page.dart';
-import 'package:lockpass/widgets/iconbutton_custom.dart';
-import 'package:lockpass/widgets/text_custom.dart';
-import 'package:lockpass/widgets/textformfield_custom.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_icons.dart';
+import 'package:lockpass/core/constants/core_keys.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/features/list_item/presentation/page/list_item_page.dart';
+import 'package:lockpass/core/ui/components/iconbutton_custom.dart';
+import 'package:lockpass/core/ui/components/text_custom.dart';
 
-class HomePage1 extends StatefulWidget {
+class HomePage extends StatefulWidget {
   final ItensEntity? listItens;
-  const HomePage1({this.listItens, super.key});
+  const HomePage({this.listItens, super.key});
 
   @override
-  State<HomePage1> createState() => _HomePage1State();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePage1State extends State<HomePage1> {
+class _HomePageState extends State<HomePage> {
   final _searchController = TextEditingController();
-  bool _dialogShown = false;
   late final HomeController homeController;
+  bool dontShowAgain = false;
 
   @override
   void initState() {
@@ -37,7 +38,6 @@ class _HomePage1State extends State<HomePage1> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       homeController.init();
     });
-    print("🔥 HOME INITSTATE");
   }
 
   @override
@@ -47,74 +47,88 @@ class _HomePage1State extends State<HomePage1> {
     super.dispose();
   }
 
-  void showCreatePinDialog(BuildContext context, HomeState state) {
+  void showCreatePinDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) {
-        return AlertDialog(
-          key: CoreKeys.alertDialogCreatePin,
-          actionsOverflowDirection: VerticalDirection.down,
-          backgroundColor: CoreColors.secondColor,
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextCustom(
-                textAlign: TextAlign.center,
-                text: CoreStrings.createYourPin,
-                fontSize: 18,
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              key: CoreKeys.alertDialogCreatePin,
+              actionsOverflowDirection: VerticalDirection.down,
+              backgroundColor: CoreColors.secondColor,
+              title: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextCustom(
+                    textAlign: TextAlign.center,
+                    text: CoreStrings.createYourPin,
+                    fontSize: 18,
+                  ),
+                  Icon(CoreIcons.warning)
+                ],
               ),
-              Icon(CoreIcons.warning)
-            ],
-          ),
-          content: const TextCustom(
-            text: CoreStrings.noticeCreatePin,
-            fontSize: 16,
-          ),
-          actionsPadding:
-              const EdgeInsets.only(left: 10, right: 10, bottom: 15),
-          actions: [
-            Flex(
-              direction: Axis.horizontal,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButtonCustom(
-                  icon: CoreIcons.arrowBack,
-                  color: CoreColors.textPrimary,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                IconButtonCustom(
-                  icon: CoreIcons.config,
-                  color: CoreColors.textPrimary,
-                  onPressed: () {
-                    homeController.onItemTapped(2);
-                    Navigator.of(context).pop();
-                  },
-                ),
-                Flexible(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const TextCustom(
-                        text: CoreStrings.showAnymore,
+              content: const TextCustom(
+                text: CoreStrings.noticeCreatePin,
+                fontSize: 16,
+              ),
+              actions: [
+                Flex(
+                  direction: Axis.horizontal,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Checkbox(
+                            activeColor: CoreColors.primaryColor,
+                            checkColor: CoreColors.textSecundary,
+                            value: dontShowAgain,
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setDialogState(() {
+                                dontShowAgain = value;
+                              });
+                            },
+                          ),
+                          const TextCustom(
+                            text: CoreStrings.showAnymore,
+                          ),
+                        ],
                       ),
-                      Checkbox(
-                        activeColor: CoreColors.primaryColor,
-                        checkColor: CoreColors.textSecundary,
-                        value: state.hideCreatePinInfo,
-                        onChanged: (value) {
-                          if (value == null) return;
-                          homeController.setHideCreatePinInfo(value);
-                        },
-                      ),
-                    ],
+                    ),
+                    IconButtonCustom(
+                      icon: CoreIcons.config,
+                      color: CoreColors.textPrimary,
+                      onPressed: () async {
+                        await homeController
+                            .setHideCreatePinInfo(dontShowAgain);
+                        homeController.onItemTapped(2);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ButtonCustom(
+                    key: CoreKeys.buttonCreatePin,
+                    colorText: CoreColors.textPrimary,
+                    text: "Fechar",
+                    fontSize: 16,
+                    backgroundButton: CoreColors.buttonColorSecond,
+                    onPressed: () async {
+                      await homeController.setHideCreatePinInfo(dontShowAgain);
+                      Navigator.of(context).pop();
+                    },
                   ),
                 ),
               ],
-            )
-          ],
+            );
+          },
         );
       },
     );
@@ -125,20 +139,21 @@ class _HomePage1State extends State<HomePage1> {
     return BlocProvider.value(
       value: homeController,
       child: BlocListener<HomeController, HomeState>(
-        listenWhen: (previous, current) =>
-            previous.showPinAlert != current.showPinAlert,
+        listenWhen: (previous, current) => previous.event != current.event,
         listener: (context, state) {
-          if (state.showPinAlert && !_dialogShown) {
-            _dialogShown = true;
-            showCreatePinDialog(context, state);
+          if (state.event is ShowPinDialogEvent) {
+            showCreatePinDialog(context);
+            homeController.clearEvent();
           }
         },
         child: BlocBuilder<HomeController, HomeState>(
           builder: (context, state) {
             final screens = <Widget>[
-              ListItemPage(viewMode: state.viewMode,),
+              ListItemPage(
+                viewMode: state.viewMode,
+              ),
               AddItemPage(
-                itens: context.select((HomeController c) => c.state.allItems),
+                itens: context.select((HomeController c) => []),
               ),
               const ConfigPage(),
             ];
@@ -148,39 +163,12 @@ class _HomePage1State extends State<HomePage1> {
                 centerTitle: true,
                 toolbarHeight: 76,
                 backgroundColor: CoreColors.primaryColor,
-                title: state.searchTextField && state.currentTab == HomeTab.list
-                    ? TextFormFieldCustom(
-                        key: CoreKeys.formFieldSearchItem,
-                        label: CoreStrings.searchLogin,
-                        colorTextLabel: CoreColors.textSecundary,
-                        colorFocusedBorder: CoreColors.unselectBottomBar,
-                        keyboardType: TextInputType.text,
-                        controller: _searchController,
-                        cursorColor: CoreColors.textSecundary,
-                        colorTextInput: CoreColors.textPrimary,
-                        onChanged: (value) {
-                          homeController.searchList(value);
-                        },
-                      )
-                    : SizedBox(
-                        key: CoreKeys.sizedBoxIconApp,
-                        height: 70,
-                        child: Image.asset(CoreStrings.iconApp),
-                      ),
-                actions: [
-                  Visibility(
-                      visible: state.currentTab == HomeTab.list,
-                      child: IconButtonCustom(
-                        key: CoreKeys.iconButtonSearch,
-                        onPressed: () {
-                          homeController.visibleSearch();
-                        },
-                        icon: CoreIcons.search,
-                        color: CoreColors.textSecundary,
-                      )),
-                ],
+                title: SizedBox(
+                  key: CoreKeys.sizedBoxIconApp,
+                  height: 70,
+                  child: Image.asset(CoreStrings.iconApp),
+                ),
                 leading: MenuAnchor(
-                  // Estilização do menu para combinar com seus cards amarelos
                   style: MenuStyle(
                     backgroundColor:
                         WidgetStateProperty.all(CoreColors.titleItem),
@@ -206,8 +194,7 @@ class _HomePage1State extends State<HomePage1> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: TextCustom(
-                        text:
-                            'Logado: ${state.userEmail}', // O email que você quer mostrar
+                        text: 'Logado: ${state.userEmail}',
                       ),
                     ),
                   ],
@@ -215,18 +202,8 @@ class _HomePage1State extends State<HomePage1> {
               ),
               body: Stack(
                 children: [
-                  Positioned.fill(
-                    child: state.filteredItems.isEmpty &&
-                            state.currentTab == HomeTab.list
-                        ? Center(
-                            child: TextCustom(
-                              key: CoreKeys.notFoundItem,
-                              text: CoreStrings.notFoundItem,
-                            ),
-                          )
-                        : screens[state.selectedIndex],
-                  ),
-                  if (state.isLoading)
+                  screens[state.selectedIndex],
+                  if (state.status is HomeLoading)
                     Positioned.fill(
                       child: Container(
                         color: Colors.black.withAlpha(89),
@@ -255,11 +232,11 @@ class _HomePage1State extends State<HomePage1> {
                 items: [
                   BottomNavigationBarItem(
                     icon: state.viewMode == ListViewEnum.list
-                        ? const Icon(CoreIcons.list)
-                        : const Icon(CoreIcons.group),
+                        ? const Icon(CoreIcons.group)
+                        : const Icon(CoreIcons.list),
                     label: state.viewMode == ListViewEnum.list
-                        ? CoreStrings.list
-                        : CoreStrings.group,
+                        ? CoreStrings.group
+                        : CoreStrings.list,
                   ),
                   const BottomNavigationBarItem(
                     icon: Icon(CoreIcons.add),

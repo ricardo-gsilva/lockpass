@@ -1,112 +1,40 @@
 import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
-import 'package:lockpass/features/home/presentation/enums/list_view_enum.dart';
-import 'package:lockpass/domain/entities/itens_entity.dart';
-import 'package:lockpass/domain/entities/groups_entity.dart';
+import 'package:lockpass/features/home/presentation/state/home_event.dart';
+import 'package:lockpass/features/home/presentation/state/home_status.dart';
+import 'package:lockpass/features/list_item/presentation/enums/list_view_enum.dart';
 
 class HomeState {
+  final HomeStatus status;
+  final HomeEvent? event;
   final HomeTab currentTab;
-  final List<ItensEntity> allItems;
-  final List<GroupsEntity> allGroups;
-  final List<ItensEntity> filteredItems;
   final ListViewEnum viewMode;
-  final String? selectedType;
-  final String? expandedTypeKey;
-  final bool searchTextField;
-  final String searchText;
   final int selectedIndex;
-  final bool isLoading;
-  final String errorMessage;
-  final String successMessage;
-  final bool showPinAlert;
-  final bool hideCreatePinInfo;
-  final String? path;
-  final bool itemRemoved;
   final String? userEmail;
-  final bool isEditingItem;
-  final bool showItemPassword;
-  final bool isSavingItem;
-  final bool isFormValid;
-  final bool hasChanges;
-  final ItensEntity? selectedItem;
-  
+
   const HomeState({
+    this.status = const HomeInitial(),
+    this.event,
     this.currentTab = HomeTab.list,
-    this.allItems = const [],
-    this.allGroups = const [],
-    this.filteredItems = const [],
     this.viewMode = ListViewEnum.list,
-    this.selectedType,
-    this.expandedTypeKey,
-    this.searchTextField = false,
-    this.searchText = '',
     this.selectedIndex = 0,
-    this.isLoading = false,
-    this.errorMessage = '',
-    this.successMessage = '',
-    this.showPinAlert = false,
-    this.hideCreatePinInfo = false,
-    this.path,
-    this.itemRemoved = false,
-    this.userEmail = '',
-    this.isEditingItem = false,
-    this.isSavingItem = false,
-    this.showItemPassword = false,
-    this.isFormValid = false,
-    this.hasChanges = false,
-    this.selectedItem,
+    this.userEmail,
   });
 
   HomeState copyWith({
+    HomeStatus? status,
+    HomeEvent? event,
     HomeTab? currentTab,
-    List<ItensEntity>? allItems,
-    List<GroupsEntity>? allGroups,
-    List<ItensEntity>? filteredItems,
     ListViewEnum? viewMode,
-    String? selectedType,
-    String? expandedTypeKey,
-    bool? searchTextField,
-    String? searchText,
     int? selectedIndex,
-    bool? isLoading,
-    String? errorMessage,
-    String? successMessage,
-    bool? showPinAlert,
-    bool? hideCreatePinInfo,
-    String? path,
-    bool? itemRemoved,
     String? userEmail,
-    bool? isEditingItem,
-    bool? showItemPassword,
-    bool? isSavingItem,
-    bool? isFormValid,
-    bool? hasChanges,
-    ItensEntity? selectedItem,
   }) {
     return HomeState(
+      status: status ?? this.status,
+      event: event,
       currentTab: currentTab ?? this.currentTab,
-      allItems: allItems ?? this.allItems,
-      allGroups: allGroups ?? this.allGroups,
-      filteredItems: filteredItems ?? this.filteredItems,
       viewMode: viewMode ?? this.viewMode,
-      selectedType: selectedType ?? this.selectedType,
-      expandedTypeKey: expandedTypeKey ?? this.expandedTypeKey,
-      searchTextField: searchTextField ?? this.searchTextField,
-      searchText: searchText ?? this.searchText,
       selectedIndex: selectedIndex ?? this.selectedIndex,
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
-      successMessage: successMessage ?? this.successMessage,
-      showPinAlert: showPinAlert ?? this.showPinAlert,
-      hideCreatePinInfo: hideCreatePinInfo ?? this.hideCreatePinInfo,
-      path: path ?? this.path,
-      itemRemoved: itemRemoved ?? this.itemRemoved,
       userEmail: userEmail ?? this.userEmail,
-      isEditingItem: isEditingItem ?? this.isEditingItem,
-      showItemPassword: showItemPassword ?? this.showItemPassword,
-      isSavingItem: isSavingItem ?? this.isSavingItem,
-      isFormValid: isFormValid ?? this.isFormValid,
-      hasChanges: hasChanges ?? this.hasChanges,
-      selectedItem: selectedItem ?? this.selectedItem,
     );
   }
-}   
+}

@@ -21,14 +21,6 @@ class VaultServiceImpl implements VaultService {
         _sharedPrefs = sharedPrefs;
 
   @override
-  Future<void> initializeVaultEnvironment() async {
-    final hasPermission = await hasStoragePermission();
-    if (!hasPermission) {
-      await requestStoragePermission();
-    }
-  }
-
-  @override
   Future<void> clearUserPreferences() async {
     await _sharedPrefs.clearUserData();
   }
@@ -36,11 +28,6 @@ class VaultServiceImpl implements VaultService {
   @override
   Future<SharedPreferencesDatasource> prefs() async {
     return _sharedPrefs;
-  }
-
-  @override
-  Future<void> resetCreatePinInfo() async {
-    await _sharedPrefs.setVisibleCreatePinInfo(false);
   }
 
   @override
@@ -57,16 +44,6 @@ class VaultServiceImpl implements VaultService {
       final status = await Permission.storage.request();
       _sharedPrefs.setPermissionStorage(status.isGranted);
     }
-  }
-
-  @override
-  Future<bool> getHideCreatePinInfo() async {
-    return _sharedPrefs.getVisibleCreatePinInfo();
-  }
-
-  @override
-  Future<void> setHideCreatePinInfo(bool value) async {
-    _sharedPrefs.setVisibleCreatePinInfo(value);
   }
 
   @override

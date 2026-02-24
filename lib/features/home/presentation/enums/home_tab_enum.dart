@@ -1,1 +1,1 @@
-enum HomeTab { list, add, config }
+enum HomeTab { list, add, config, group}
