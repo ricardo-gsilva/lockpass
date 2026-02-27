@@ -117,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                   child: ButtonCustom(
                     key: CoreKeys.buttonCreatePin,
                     colorText: CoreColors.textPrimary,
-                    text: "Fechar",
+                    text: CoreStrings.close,
                     fontSize: 16,
                     backgroundButton: CoreColors.buttonColorSecond,
                     onPressed: () async {
@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                 viewMode: state.viewMode,
               ),
               AddItemPage(),
-              const ConfigPage(),
+              ConfigPage(),
             ];
             return Scaffold(
               appBar: AppBar(
@@ -184,14 +184,14 @@ class _HomePageState extends State<HomePage> {
                         }
                       },
                       icon:
-                          const Icon(Icons.account_circle, color: Colors.white),
+                          const Icon(Icons.account_circle, color: CoreColors.buttonColorPrimary),
                     );
                   },
                   menuChildren: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: TextCustom(
-                        text: 'Logado: ${state.userEmail}',
+                        text: '${CoreStrings.loggedInAs} ${state.userEmail}',
                       ),
                     ),
                   ],
@@ -203,7 +203,7 @@ class _HomePageState extends State<HomePage> {
                   if (state.status is HomeLoading)
                     Positioned.fill(
                       child: Container(
-                        color: Colors.black.withAlpha(89),
+                        color: CoreColors.black.withAlpha(89),
                         child: Center(
                           child: SizedBox(
                             height: 48,

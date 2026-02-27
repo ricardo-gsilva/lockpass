@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/core/security/vault/vault_service.dart';
-import 'package:lockpass/core/services/pin_service.dart';
-import 'package:lockpass/data/datasources/local/preferences/shared_preferences_datasource.dart';
-import 'package:lockpass/domain/repositories/itens_repository.dart';
+import 'package:lockpass/features/home/domain/usecases/check_if_should_show_pin_alert_usecase.dart';
+import 'package:lockpass/features/home/domain/usecases/create_automatic_backup_usecase.dart';
+import 'package:lockpass/features/home/domain/usecases/get_current_user_usecase.dart';
+import 'package:lockpass/features/home/domain/usecases/set_hide_create_pin_usecase.dart';
 import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
 import 'package:lockpass/features/home/presentation/state/home_event.dart';
 import 'package:lockpass/features/home/presentation/state/home_state.dart';
@@ -10,68 +10,55 @@ import 'package:lockpass/features/home/presentation/state/home_status.dart';
 import 'package:lockpass/features/list_item/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/domain/entities/itens_entity.dart';
 import 'package:lockpass/domain/entities/groups_entity.dart';
-import 'package:lockpass/core/services/auth_service.dart';
 
 class HomeController extends Cubit<HomeState> {
-  final VaultService _vaultService;
-  final AuthService _authService;
-  final PinService _pinService;
-  final ItensRepository _itensRepository;
-  final SharedPreferencesDatasource _prefs;
+  final CheckIfShouldShowPinAlertUseCase _checkIfShouldShowPinAlertUseCase;
+  final CreateAutomaticBackupUseCase _createAutomaticBackupUseCase;
+  final SetHideCreatePinAlertUseCase _setHideCreatePinAlertUseCase;
+  final GetCurrentUserUseCase _getCurrentUserUseCase;
 
   HomeController({
-    required VaultService vaultService,
-    required AuthService authService,
-    required PinService pinService,
-    required ItensRepository itensRepository,
-    required SharedPreferencesDatasource prefs,
-  })  : _vaultService = vaultService,
-        _authService = authService,
-        _pinService = pinService,
-        _itensRepository = itensRepository,
-        _prefs = prefs,
+    required CheckIfShouldShowPinAlertUseCase checkIfShouldShowPinAlertUseCase,
+    required CreateAutomaticBackupUseCase createAutomaticBackupUseCase,
+    required SetHideCreatePinAlertUseCase setHideCreatePinAlertUseCase,
+    required GetCurrentUserUseCase getCurrentUserUseCase,
+  })  :_checkIfShouldShowPinAlertUseCase = checkIfShouldShowPinAlertUseCase,
+        _createAutomaticBackupUseCase = createAutomaticBackupUseCase,
+        _setHideCreatePinAlertUseCase = setHideCreatePinAlertUseCase,
+        _getCurrentUserUseCase = getCurrentUserUseCase,
         super(const HomeState());
 
   Future<void> init() async {
     emit(state.copyWith(
       status: const HomeLoading(),
-      userEmail: _authService.currentUserEmail,
+      userEmail: _getCurrentUserUseCase.email,
     ));
 
+    final uid = _getCurrentUserUseCase.uid;
+
     await Future.wait([
-      checkIfShouldShowPinAlert(),
+      checkIfShouldShowPinAlert(uid),
       createAutomaticBackup(),
     ]);
-    
+
     emit(state.copyWith(status: const HomeSuccess()));
   }
 
-  String get _uid => _authService.currentUserId;
-
   Future<void> createAutomaticBackup() async {
-    final itens = await _itensRepository.getActiveItensByUser(_uid);
-
-    if (itens.isEmpty) {
-      return;
-    }
-
-    await _vaultService.createAutomaticBackup();
+    final uid = _getCurrentUserUseCase.uid;
+    await _createAutomaticBackupUseCase(uid);
   }
 
-  Future<void> checkIfShouldShowPinAlert() async {
-    final hideAlert = _prefs.getHideCreatePinAlert();
+  Future<void> checkIfShouldShowPinAlert(String uid) async {
+    final shouldShow = await _checkIfShouldShowPinAlertUseCase(uid);
 
-    if (hideAlert) return;
-
-    final hasPin = await _pinService.hasPin(_uid);
-
-    if (!hasPin) {
+    if (shouldShow) {
       emit(state.copyWith(event: const ShowPinDialogEvent()));
     }
   }
 
   Future<void> setHideCreatePinInfo(bool check) async {
-    await _prefs.setHideCreatePinAlert(check);
+    await _setHideCreatePinAlertUseCase(check);
   }
 
   void clearEvent() {
@@ -81,10 +68,7 @@ class HomeController extends Cubit<HomeState> {
   void onItemTapped(int index) {
     final tab = _mapIndexToTab(index);
     if (tab == HomeTab.list) {
-      final nextView = state.viewMode == ListViewEnum.list
-          ? ListViewEnum.grouped
-          : ListViewEnum.list;
-      // getData();
+      final nextView = state.viewMode == ListViewEnum.list ? ListViewEnum.grouped : ListViewEnum.list;
       emit(state.copyWith(
         currentTab: tab,
         selectedIndex: index,
@@ -121,8 +105,6 @@ class HomeController extends Cubit<HomeState> {
       groupedItems.putIfAbsent(key, () => []).add(item);
     }
 
-    return groupedItems.keys
-        .map((group) => GroupsEntity(groupName: group))
-        .toList();
+    return groupedItems.keys.map((group) => GroupsEntity(groupName: group)).toList();
   }
 }
