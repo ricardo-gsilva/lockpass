@@ -32,6 +32,7 @@ class _AddItemPageState extends State<AddItemPage> {
   late final AddItemController addItemController;
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
+  final String userId = '';
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _AddItemPageState extends State<AddItemPage> {
     emailController.dispose();
     loginController.dispose();
     passwordController.dispose();
+    addItemController.close();
   }
 
   @override
@@ -60,18 +62,18 @@ class _AddItemPageState extends State<AddItemPage> {
         listener: (context, state) {
           switch (state.status) {
             case AddItemSuccess():
-              OverlayToast.showSuccess(content: "Item criado com sucesso!");
+              OverlayToast.showSuccess(content: CoreStrings.itemCreatedSuccess);
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 AppRoutes.home,
                 (route) => false,
-              );  
+              );
               break;
             case AddItemFailure(:final message):
               OverlayToast.showError(content: message);
             default:
               break;
-          }          
+          }
         },
         child: BlocBuilder<AddItemController, AddItemState>(
           builder: (context, state) {
@@ -86,6 +88,7 @@ class _AddItemPageState extends State<AddItemPage> {
                       key: _formKey,
                       onChanged: () {
                         addItemController.onFormChanged(
+                          group: groupController.text,
                           service: serviceController.text,
                           email: emailController.text,
                           login: loginController.text,
@@ -96,7 +99,6 @@ class _AddItemPageState extends State<AddItemPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Visibility(
-                            key: CoreKeys.visibilityDropDownAddItem,
                             visible: state.listItensDrop.isEmpty ? false : true,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,26 +117,19 @@ class _AddItemPageState extends State<AddItemPage> {
                                   decoration: InputDecoration(
                                     filled: true,
                                     fillColor: CoreColors.transparent,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 14, vertical: 16),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12.0),
-                                      borderSide: BorderSide(
-                                          color: CoreColors.textTertiary,
-                                          width: 1.0),
+                                      borderSide: BorderSide(color: CoreColors.textTertiary, width: 1.0),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12.0),
-                                      borderSide: BorderSide(
-                                          color: CoreColors.textPrimary,
-                                          width: 1.0),
+                                      borderSide: BorderSide(color: CoreColors.textPrimary, width: 1.0),
                                     ),
                                   ),
                                   dropdownColor: CoreColors.dropDownField,
                                   focusColor: CoreColors.transparent,
-                                  initialValue: state.listItensDrop.isEmpty
-                                      ? ''
-                                      : state.listItensDrop.first,
+                                  initialValue: state.listItensDrop.isEmpty ? '' : state.listItensDrop.first,
                                   onChanged: (newValue) {
                                     groupController.text = newValue.toString();
                                   },
@@ -245,7 +240,7 @@ class _AddItemPageState extends State<AddItemPage> {
                                 return null;
                               },
                             ),
-                          ),                          
+                          ),
                           Align(
                             alignment: Alignment.bottomRight,
                             child: ButtonCustom(
@@ -254,24 +249,25 @@ class _AddItemPageState extends State<AddItemPage> {
                               height: 50,
                               width: MediaQuery.of(context).size.width * 0.5,
                               backgroundButton: CoreColors.buttonColorSecond,
-                              text:
-                                  isLoading ? "Salvando..." : CoreStrings.save,
+                              text: isLoading ? CoreStrings.saving : CoreStrings.save,
                               colorText: CoreColors.textPrimary,
                               fontSize: 16,
                               onPressed: !state.isFormValid
                                   ? null
                                   : () async {
-                                      ItensEntity item = ItensEntity(
-                                        userId: addItemController.currentUserId,
-                                        group: groupController.text,
-                                        service: serviceController.text,
-                                        site: siteController.text,
-                                        email: emailController.text,
-                                        login: loginController.text,
-                                        password: passwordController.text,
-                                      );
-                                      await addItemController
-                                          .formValidator(item);
+                                      if (_formKey.currentState!.validate()) {
+                                        ItensEntity item = ItensEntity(
+                                          userId: userId,
+                                          group: groupController.text.trim(),
+                                          service: serviceController.text.trim(),
+                                          site: siteController.text.trim().isEmpty
+                                            ? null : siteController.text.trim(),
+                                          email: emailController.text.trim(),
+                                          login: loginController.text.trim(),
+                                          password: passwordController.text.trim(),
+                                        );
+                                        await addItemController.submit(item);
+                                      }
                                     },
                             ),
                           )
