@@ -6,10 +6,8 @@ import 'package:lockpass/core/extensions/string_validators.dart';
 import 'package:lockpass/core/ui/components/textformfield_custom.dart';
 
 class FieldsFactory {
-  // Centralizando os padrões para não repetir código
   static const Color _defaultColor = CoreColors.textSecundary;
 
-  /// PASSWORD FIELD
   static Widget password({
     required TextEditingController controller,
     required bool obscureText,
@@ -45,7 +43,6 @@ class FieldsFactory {
     );
   }
 
-  /// EMAIL FIELD
   static Widget email({
     required TextEditingController controller,
     String? label,
@@ -71,7 +68,6 @@ class FieldsFactory {
     );
   }
 
-  /// PIN FIELD
   static Widget pin({
     required TextEditingController controller,
     required bool obscureText,
@@ -111,7 +107,6 @@ class FieldsFactory {
     );
   }
 
-  /// GENERIC TEXT FIELD
   static Widget text({
     String? label,
     required TextEditingController controller,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
 
 Future<T?> showCustomBottomSheet<T>({
   required BuildContext context,
@@ -9,9 +10,8 @@ Future<T?> showCustomBottomSheet<T>({
   return   showModalBottomSheet(
     context: context,
     isScrollControlled: isScrollControlled,
-    // useSafeArea: true,
     useRootNavigator: useRootNavigator?? false,
-    backgroundColor: Colors.transparent,
+    backgroundColor: CoreColors.transparent,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),

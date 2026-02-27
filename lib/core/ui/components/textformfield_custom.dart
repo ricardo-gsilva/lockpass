@@ -30,33 +30,33 @@ class TextFormFieldCustom extends StatelessWidget {
   final FocusNode? focusNode;
   final bool? enabled;
 
-  const TextFormFieldCustom({
-    this.label,
-    this.colorTextInput = CoreColors.textPrimary,
-    this.cursorColor = CoreColors.textPrimary,
-    this.colorTextLabel = CoreColors.textPrimary,
-    this.colorErrorText = CoreColors.textPrimary,
-    this.colorErrorBorder = CoreColors.textPrimary,
-    this.colorBorder = CoreColors.textPrimary,
-    this.fillColor = CoreColors.transparent,
-    this.colorFocusedBorder = CoreColors.focusedBorder,
-    this.fonteSize,
-    this.colorIcon = CoreColors.transparent,
-    this.icons,    
-    this.controller,
-    this.keyboardType,
-    this.obscureText = false,
-    this.icon,
-    this.validator,
-    this.errorText,
-    this.onChanged,
-    this.initialValue,
-    this.maxLength,
-    this.readOnly = false,
-    this.inputFormatters,
-    this.focusNode,
-    this.enabled,
-    super.key});
+  const TextFormFieldCustom(
+      {this.label,
+      this.colorTextInput = CoreColors.textPrimary,
+      this.cursorColor = CoreColors.textPrimary,
+      this.colorTextLabel = CoreColors.textPrimary,
+      this.colorErrorText = CoreColors.textPrimary,
+      this.colorErrorBorder = CoreColors.textPrimary,
+      this.colorBorder = CoreColors.textPrimary,
+      this.fillColor = CoreColors.transparent,
+      this.colorFocusedBorder = CoreColors.focusedBorder,
+      this.fonteSize,
+      this.colorIcon = CoreColors.transparent,
+      this.icons,
+      this.controller,
+      this.keyboardType,
+      this.obscureText = false,
+      this.icon,
+      this.validator,
+      this.errorText,
+      this.onChanged,
+      this.initialValue,
+      this.maxLength,
+      this.readOnly = false,
+      this.inputFormatters,
+      this.focusNode,
+      this.enabled,
+      super.key});
 
   OutlineInputBorder _border(Color color) {
     return OutlineInputBorder(
@@ -70,14 +70,14 @@ class TextFormFieldCustom extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 5, bottom: 10),
       child: Material(
-        color: Colors.transparent,
+        color: CoreColors.transparent,
         child: TextFormField(
-          readOnly: readOnly!,     
+          readOnly: readOnly!,
           maxLength: maxLength,
           onChanged: onChanged,
           enabled: enabled,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: validator,     
+          validator: validator,
           keyboardType: keyboardType,
           controller: controller,
           cursorColor: cursorColor,
@@ -86,24 +86,26 @@ class TextFormFieldCustom extends StatelessWidget {
           focusNode: focusNode,
           style: TextStyle(color: colorTextInput),
           inputFormatters: inputFormatters,
-          decoration: InputDecoration(    
-              border: _border(colorBorder!),
-              focusedBorder: _border(colorFocusedBorder!),
-              errorBorder: _border(colorErrorBorder!),
-              enabledBorder: _border(colorBorder!),              
-              focusedErrorBorder: _border(colorErrorBorder!),
-              errorStyle: TextStyle(color: colorErrorText!),
-              counterStyle: const TextStyle(color: CoreColors.textSecundary),
-              errorText: errorText,
-              suffixIcon: icon,
-              filled: true,
-              fillColor: fillColor,
-              label: TextCustom(
-                text: label,
-                color: colorTextLabel,
-                fontSize: fonteSize,
-              ),
+          decoration: InputDecoration(
+            border: _border(colorBorder!),
+            focusedBorder: _border(colorFocusedBorder!),
+            errorBorder: _border(colorErrorBorder!),
+            enabledBorder: _border(colorBorder!),
+            focusedErrorBorder: _border(colorErrorBorder!),
+            errorStyle: TextStyle(color: colorErrorText!),
+            counterStyle: const TextStyle(color: CoreColors.textSecundary),
+            errorText: errorText,
+            suffixIcon: icon,
+            filled: true,
+            fillColor: fillColor,
+            label: TextCustom(
+              text: label,
+              color: colorTextLabel,
+              fontSize: fonteSize,
+            ),
+          ),
         ),
-      )));
+      ),
+    );
   }
 }

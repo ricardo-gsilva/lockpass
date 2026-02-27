@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/extensions/context_extensions.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
 
 class OverlayToast {
@@ -10,7 +11,6 @@ class OverlayToast {
   static Duration _calculateDuration(String content) {
     final length = content.length;
 
-    // 1 segundo base + 1 segundo a cada ~40 caracteres
     final seconds = 2 + (length / 40).ceil();
 
     return Duration(seconds: seconds.clamp(2, 6));
@@ -22,7 +22,7 @@ class OverlayToast {
   }) {
     _show(
       content: content,
-      backgroundColor: Colors.red,
+      backgroundColor: CoreColors.alertError,
       duration: duration
     );
   }
@@ -33,7 +33,7 @@ class OverlayToast {
   }) {
     _show(
       content: content,
-      backgroundColor: Colors.green,
+      backgroundColor: CoreColors.alertSuccess,
       duration: duration,
     );
   }
@@ -62,7 +62,7 @@ class OverlayToast {
         child: Material(
           color: backgroundColor,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(16, 14, 16, 14 + bottomPadding),
+            padding: EdgeInsets.fromLTRB(16, 14, 16, 14 + context.bottomSystemSpace),
             child: Text(
               content,
               style: const TextStyle(color: CoreColors.textPrimary),
@@ -97,9 +97,9 @@ class _ToastWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: CoreColors.transparent,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: EdgeInsets.only(left: 16, right: 16, top: 14, bottom: context.bottomSystemSpace),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),

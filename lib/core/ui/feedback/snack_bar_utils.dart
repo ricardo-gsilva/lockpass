@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
 import 'package:lockpass/core/ui/components/text_custom.dart';
 
 class SnackUtils {
@@ -12,7 +13,7 @@ class SnackUtils {
     _show(
       context,
       content: content,
-      backgroundColor: Colors.green,
+      backgroundColor: CoreColors.alertSuccess,
       duration: duration,
     );
   }
@@ -25,7 +26,7 @@ class SnackUtils {
     _show(
       context,
       content: content,
-      backgroundColor: Colors.red,
+      backgroundColor: CoreColors.alertError,
       duration: duration,
     );
   }
@@ -38,7 +39,7 @@ class SnackUtils {
     _show(
       context,
       content: content,
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: CoreColors.alertDefault,
       duration: duration,
     );
   }
