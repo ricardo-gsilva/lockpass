@@ -1,26 +1,33 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/extensions/string_validators.dart';
-import 'package:lockpass/core/services/auth_service.dart';
-import 'package:lockpass/core/services/pin_service.dart';
+import 'package:lockpass/core/session/domain/usecases/get_lock_timeout__session_usercase.dart';
+import 'package:lockpass/core/session/domain/usecases/get_pin_status_session_usecase.dart';
+import 'package:lockpass/core/session/domain/usecases/unlock_with_credentials_usecase.dart';
+import 'package:lockpass/core/session/domain/usecases/unlock_with_pin_usecase.dart';
 import 'package:lockpass/core/session/presentation/state/lock_screen_state.dart';
 import 'package:lockpass/core/session/presentation/state/lock_screen_status.dart';
-import 'package:lockpass/core/session/session_lock_service.dart';
 
 class LockScreenController extends Cubit<LockScreenState> {
-  final PinService _pinService;
-  final SessionLockService _sessionLock;
-  final AuthService _authService;
+  final UnlockWithPinUseCase _unlockWithPinUseCase;
+  final UnlockWithCredentialsUseCase _unlockWithCredentialsUseCase;
+  final GetLockTimeoutSessionUseCase _getLockTimeoutSessionUseCase;
+  final GetPinStatusSessionUseCase _getPinStatusSessionUseCase;
 
   LockScreenController({
-    required PinService pinService,
-    required SessionLockService sessionLock,
-    required AuthService authService,
-  })  : _pinService = pinService,
-        _sessionLock = sessionLock,
-        _authService = authService,
+    required UnlockWithPinUseCase unlockWithPinUseCase,
+    required UnlockWithCredentialsUseCase unlockWithCredentialUseCase,
+    required GetLockTimeoutSessionUseCase getLockTimeoutSessionUseCase,
+    required GetPinStatusSessionUseCase getPinStatusSessionUseCase,
+  })  : _unlockWithPinUseCase = unlockWithPinUseCase,
+        _unlockWithCredentialsUseCase = unlockWithCredentialUseCase,
+        _getLockTimeoutSessionUseCase = getLockTimeoutSessionUseCase,
+        _getPinStatusSessionUseCase = getPinStatusSessionUseCase,
         super(const LockScreenState());
 
-  String get _uid => _authService.currentUserId;
+  void init() {
+    getPinVerification();
+  }
 
   void toggleCredentials() {
     emit(state.copyWith(showCredentials: !state.showCredentials));
@@ -35,17 +42,11 @@ class LockScreenController extends Cubit<LockScreenState> {
   }
 
   void onCredentialsChanged(String email, String password) {
-    final isEmailValid = email.contains('@'); // ou sua extension
+    final isEmailValid = email.contains('@');
     final isPasswordValid = password.trim().length >= 6;
 
     emit(state.copyWith(
       canSubmit: isEmailValid && isPasswordValid,
-    ));
-  }
-
-  void toggleAuthMethod() {
-    emit(state.copyWith(
-      pinOrEmailAndPassword: !state.pinOrEmailAndPassword,
     ));
   }
 
@@ -58,30 +59,33 @@ class LockScreenController extends Cubit<LockScreenState> {
 
     if (!typedEmail.isValidEmail || typedPassword.isEmpty) {
       emit(state.copyWith(
-          status: LockScreenFailure("Preencha e-mail e senha corretamente.")));
+        status: LockScreenFailure(CoreStrings.fillEmailAndPassword),
+      ));
       return;
     }
-    try {
-      emit(state.copyWith(status: const LockScreenLoading()));
 
-      final isValid = await _authService.reauthenticateWithPassword(
+    emit(state.copyWith(status: const LockScreenLoading()));
+
+    try {
+      final success = await _unlockWithCredentialsUseCase(
         email: typedEmail,
         password: typedPassword,
       );
 
-      if (!isValid) {
+      if (!success) {
         emit(state.copyWith(
-            status: LockScreenFailure("Credenciais inválidas.")));
+          status: LockScreenFailure(CoreStrings.invalidCredentials),
+        ));
         return;
       }
 
-      _sessionLock.unlock();
-
-      emit(state.copyWith(status: const LockScreenSuccess()));
+      emit(state.copyWith(
+        status: const LockScreenSuccess(),
+      ));
     } catch (_) {
       emit(state.copyWith(
-          status: LockScreenFailure("Erro ao validar credenciais.")));
-      return;
+        status: LockScreenFailure(CoreStrings.credentialsValidationError),
+      ));
     }
   }
 
@@ -89,34 +93,36 @@ class LockScreenController extends Cubit<LockScreenState> {
     final typedPin = (pin ?? '').trim();
 
     if (typedPin.length != 5) {
-      emit(state.copyWith(status: LockScreenFailure("Digite um PIN válido.")));
+      emit(state.copyWith(
+        status: LockScreenFailure(CoreStrings.enterValidPin),
+      ));
       return;
     }
+
+    emit(state.copyWith(status: const LockScreenLoading()));
+
     try {
-      emit(state.copyWith(status: const LockScreenLoading()));
+      final success = await _unlockWithPinUseCase(typedPin);
 
-      final isValid = await _pinService.validatePin(_uid, typedPin);
-
-      if (!isValid) {
-        emit(state.copyWith(status: LockScreenFailure("PIN incorreto.")));
+      if (!success) {
+        emit(state.copyWith(
+          status: LockScreenFailure(CoreStrings.incorrectPin),
+        ));
         return;
       }
 
-      _sessionLock.unlock();
-
-      emit(state.copyWith(status: const LockScreenSuccess()));
+      emit(state.copyWith(
+        status: const LockScreenSuccess(),
+      ));
     } catch (_) {
-      emit(state.copyWith(status: LockScreenFailure("Erro ao validar PIN.")));
-      return;
+      emit(state.copyWith(
+        status: LockScreenFailure(CoreStrings.pinValidationError),
+      ));
     }
   }
 
-  Future<void> unlock({
-    String? pin,
-    String? email,
-    String? password,
-  }) async {
-    if (!state.pinOrEmailAndPassword) {
+  Future<void> unlock({required bool pinOrEmailAndPassword, String? pin, String? email, String? password}) async {
+    if (pinOrEmailAndPassword) {
       await unlockWithPin(pin);
     } else {
       await unlockWithCredentials(
@@ -126,14 +132,24 @@ class LockScreenController extends Cubit<LockScreenState> {
     }
   }
 
-  Future<void> initializeAuthMethod() async {
+  int getLockTimeout() {
+    return _getLockTimeoutSessionUseCase();
+  }
+
+  Future<bool> getPinVerification() async {
     emit(state.copyWith(status: const LockScreenLoading()));
 
-    final bool userHasPin = await _pinService.hasPin(_uid);
-
-    emit(state.copyWith(
-      status: const LockScreenInitial(),
-      pinOrEmailAndPassword: !userHasPin,
-    ));
+    try {
+      final hasPin = await _getPinStatusSessionUseCase();
+      emit(state.copyWith(
+        status: const LockScreenInitial(),
+      ));
+      return hasPin;
+    } catch (e) {
+      emit(state.copyWith(
+        status: LockScreenFailure(CoreStrings.pinVerificationError),
+      ));
+      return false;
+    }
   }
 }

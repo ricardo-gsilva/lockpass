@@ -5,11 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/di/service_locator.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
+import 'package:lockpass/core/security/screen/screen_protection.dart';
 import 'package:lockpass/core/session/presentation/page/app_lifecycle_wrapper.dart';
 import 'package:lockpass/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ScreenProtection.enable();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);

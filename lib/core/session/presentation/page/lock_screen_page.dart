@@ -29,13 +29,20 @@ class _LockScreenPageState extends State<LockScreenPage> {
   late final LockScreenController lockScreenController;
   bool _obscurePin = false;
   bool _obscurePassword = false;
+  bool _usePin = false;
+  bool _hasPin = false;
 
   @override
   void initState() {
     super.initState();
     lockScreenController = getIt<LockScreenController>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      lockScreenController.initializeAuthMethod();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final hasPin = await lockScreenController.getPinVerification();
+      if(!mounted) return;
+      setState(() {
+        _hasPin = hasPin;
+        _usePin = hasPin;
+      });
     });
   }
 
@@ -73,7 +80,7 @@ class _LockScreenPageState extends State<LockScreenPage> {
               onPopInvokedWithResult: (didPop, result) {
                 if (didPop) return;
                 OverlayToast.showError(
-                    content: "Por favor, insira suas credenciais.");
+                    content: CoreStrings.insertCredentialsPrompt);
               },
               child: Scaffold(
                 backgroundColor: CoreColors.primaryColor,
@@ -90,37 +97,41 @@ class _LockScreenPageState extends State<LockScreenPage> {
                             ),
                           ),
                           TextCustom(
-                            text: "Desbloquear tela",
+                            text: CoreStrings.unlockScreenTitle,
                             color: CoreColors.textSecundary,
                             fontSize: 20,
                           ),
                           Padding(
                             padding: EdgeInsets.all(20),
-                            child: !state.pinOrEmailAndPassword
-                                ? Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 20, right: 10),
-                                        child: const Icon(
-                                          CoreIcons.pin,
-                                          color: CoreColors.textSecundary,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: FieldsFactory.pin(
-                                            controller: pinController,
+                            child: 
+                            _usePin
+                                ? Visibility(
+                                  visible: _hasPin,
+                                  child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 20, right: 10),
+                                          child: const Icon(
+                                            CoreIcons.pin,
                                             color: CoreColors.textSecundary,
-                                            obscureText: _obscurePin,
-                                            onToggleVisibility: () {
-                                              setState(() {
-                                                _obscurePin = !_obscurePin;
-                                              });
-                                            }),
-                                      ),
-                                    ],
-                                  )
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: FieldsFactory.pin(
+                                              controller: pinController,
+                                              color: CoreColors.textSecundary,
+                                              obscureText: _obscurePin,
+                                              onToggleVisibility: () {
+                                                setState(() {
+                                                  _obscurePin = !_obscurePin;
+                                                });
+                                              }),
+                                        ),
+                                      ],
+                                    ),
+                                )
                                 : Column(
                                     children: [
                                       Row(
@@ -165,28 +176,31 @@ class _LockScreenPageState extends State<LockScreenPage> {
                             height: 50,
                             width: MediaQuery.of(context).size.width * 0.75,
                             backgroundButton: CoreColors.buttonColorSecond,
-                            text: isLoading ? "Desbloqueando..." : "Desbloquear",
+                            text: isLoading ? CoreStrings.unlocking : CoreStrings.unlockAction,
                             colorText: CoreColors.textPrimary,
                             fontSize: 18,
                             isLoading: isLoading,
                             onPressed: () {
                               lockScreenController.unlock(
+                                  pinOrEmailAndPassword: _usePin,
                                   pin: pinController.text,
                                   password: passwordController.text,
                                   email: emailController.text);
                             },
                           ),
                           SizedBox(height: 15),
-                          TextButtonCustom(
+                          if(_hasPin) TextButtonCustom(
                             onPressed: () {
                               pinController.clear();
                               emailController.clear();
                               passwordController.clear();
-                              lockScreenController.toggleAuthMethod();
+                              setState(() {
+                                _usePin = !_usePin;
+                              });
                             },
-                            text: state.pinOrEmailAndPassword
-                                ? CoreStrings.enterPin
-                                : CoreStrings.enterEmailAndPassword,
+                            text: _usePin
+                                ? CoreStrings.enterEmailAndPassword
+                                : CoreStrings.enterPin,
                             colorText: CoreColors.textSecundary,
                           ),
                         ],
