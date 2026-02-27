@@ -42,7 +42,7 @@ class ListItemGroupedWidget extends StatelessWidget {
                   color: CoreColors.titleItem,
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: const Color.fromRGBO(0, 0, 0, 1).withValues(alpha: 0.05),
                         blurRadius: 8,
                         offset: const Offset(0, 2))
                   ],
@@ -63,7 +63,7 @@ class ListItemGroupedWidget extends StatelessWidget {
                         isExpanded
                             ? Icons.remove_circle_outline
                             : Icons.add_circle_outline,
-                        color: Colors.black54,
+                        color: CoreColors.black54,
                       ),
                     ),
                     Visibility(
@@ -85,7 +85,7 @@ class ListItemGroupedWidget extends StatelessWidget {
                                   child: ConfirmationBottomSheet(
                                     title: CoreStrings.delete,
                                     description: CoreStrings.deleteThisLogin,
-                                    confirmButtonText: "Mover para Lixeira",
+                                    confirmButtonText: CoreStrings.moveToTrash,
                                     confirmButtonColor:
                                         CoreColors.buttonColorSecond,
                                     onConfirm: () {
@@ -106,7 +106,7 @@ class ListItemGroupedWidget extends StatelessWidget {
                                       .withValues(alpha: 0.5),
                                   boxShadow: [
                                     BoxShadow(
-                                        color: Colors.black
+                                        color: CoreColors.black
                                             .withValues(alpha: 0.05),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2))
@@ -121,7 +121,7 @@ class ListItemGroupedWidget extends StatelessWidget {
                                       title: TextCustom(text: item.service),
                                       subtitle: Text(item.login,
                                           style: TextStyle(
-                                              color: Colors.black54,
+                                              color: CoreColors.black54,
                                               fontSize: 13)),
                                       trailing: const Icon(CoreIcons.visibility,
                                           size: 20),
@@ -147,7 +147,7 @@ class ListItemGroupedWidget extends StatelessWidget {
                                           height: 1,
                                           indent: 20,
                                           endIndent: 20,
-                                          color: Colors.black
+                                          color: CoreColors.black
                                               .withValues(alpha: 0.05)),
                                     if (index == groupItems.length - 1)
                                       const SizedBox(height: 10),

@@ -1,79 +1,95 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/core/extensions/string_validators.dart';
-import 'package:lockpass/core/services/pin_service.dart';
-import 'package:lockpass/domain/repositories/itens_repository.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/errors/auth_errors_type.dart';
+import 'package:lockpass/features/list_item/domain/usecases/authenticate_with_pin_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/check_if_has_deleted_items_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/decrypt_item_password_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/delete_item_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/delete_permanentetly_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/edit_item_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/load_items_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/move_to_trash_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/reauthenticate_with_credentials_usecase.dart';
+import 'package:lockpass/features/list_item/domain/usecases/restore_item_usecase.dart';
 import 'package:lockpass/features/list_item/presentation/enums/list_view_mode_enum.dart';
 import 'package:lockpass/features/list_item/presentation/state/list_item_state.dart';
 import 'package:lockpass/domain/entities/itens_entity.dart';
 import 'package:lockpass/domain/entities/groups_entity.dart';
-import 'package:lockpass/core/security/crypto/encrypt_decrypt.dart';
-import 'package:lockpass/core/services/auth_service.dart';
 import 'package:lockpass/features/list_item/presentation/state/list_item_status.dart';
 
 class ListItemController extends Cubit<ListItemState> {
-  final AuthService _authService;
-  final ItensRepository _itensRepository;
-  final PinService _pinService;
+  final LoadItemsUseCase _loadItemsUseCase;
+  final DecryptItemPasswordUseCase _decryptItemPasswordUseCase;
+  final EditItemUseCase _editItemUseCase;
+  final DeleteItemUseCase _deleteItemUseCase;
+  final MoveItemToTrashUseCase _moveItemToTrashUseCase;
+  final RestoreItemUseCase _restoreItemUseCase;
+  final DeleteItemPermanentlyUseCase _deleteItemPermanentlyUseCase;
+  final ReauthenticateWithCredentialsUseCase _reauthenticateWithCredentialsUseCase;
+  final AuthenticateTrashWithPinUseCase _authenticateTrashWithPinUseCase;
+  final CheckHasDeletedItemsUseCase _checkHasDeletedItemsUseCase;
 
   ListItemController({
-    required AuthService authService,
-    required ItensRepository itensRepository,
-    required PinService pinService,
-  })  : _authService = authService,
-        _itensRepository = itensRepository,
-        _pinService = pinService,
+    required LoadItemsUseCase loadItemsUseCase,
+    required DecryptItemPasswordUseCase decryptItemPasswordUseCase,
+    required EditItemUseCase editItemUseCase,
+    required DeleteItemUseCase deleteItemUseCase,
+    required MoveItemToTrashUseCase moveItemToTrashUseCase,
+    required RestoreItemUseCase restoreItemUseCase,
+    required DeleteItemPermanentlyUseCase deleteItemPermanentlyUseCase,
+    required ReauthenticateWithCredentialsUseCase reauthenticateWithCredentialsUseCase,
+    required AuthenticateTrashWithPinUseCase authenticateTrashWithPinUseCase,
+    required CheckHasDeletedItemsUseCase checkHasDeletedItemsUseCase,
+  })  : _loadItemsUseCase = loadItemsUseCase,
+        _decryptItemPasswordUseCase = decryptItemPasswordUseCase,
+        _editItemUseCase = editItemUseCase,
+        _deleteItemUseCase = deleteItemUseCase,
+        _moveItemToTrashUseCase = moveItemToTrashUseCase,
+        _restoreItemUseCase = restoreItemUseCase,
+        _deleteItemPermanentlyUseCase = deleteItemPermanentlyUseCase,
+        _reauthenticateWithCredentialsUseCase = reauthenticateWithCredentialsUseCase,
+        _authenticateTrashWithPinUseCase = authenticateTrashWithPinUseCase,
+        _checkHasDeletedItemsUseCase = checkHasDeletedItemsUseCase,
         super(const ListItemState());
 
-  String get _uid => _authService.currentUserId;
-
   Future<void> loadItems() async {
-    if (_uid.isEmpty) {
-      emit(state.copyWith(
-        status: ListItemError('Usuário não autenticado'),
-      ));
-      return;
-    }
-
     emit(state.copyWith(status: ListItemLoading()));
 
     try {
-      final deleted = await _itensRepository.getDeletedItensByUser(_uid);
-      final hasDeleted = deleted.isNotEmpty;
-      final nextListMode = hasDeleted ? state.listMode : ListViewModeEnum.list;
-      final items = nextListMode == ListViewModeEnum.trash
-          ? deleted
-          : await _itensRepository.getActiveItensByUser(_uid);
+      final result = await _loadItemsUseCase(state.listMode);
 
-      final sortedItems = [...items]
-        ..sort((a, b) => (a.service).compareTo(b.service));
+      print(result);
 
-      final groups = _buildGroups(sortedItems);
+      final groups = _buildGroups(result.sorted);
 
       emit(state.copyWith(
-        allItems: items,
-        filteredItems: sortedItems,
+        allItems: result.items,
+        filteredItems: result.sorted,
         allGroups: groups,
-        hasDeletedItems: hasDeleted,
+        hasDeletedItems: result.hasDeleted,
+        listMode: result.mode,
         status: const ListItemLoaded(),
-        listMode: nextListMode,
+      ));
+    } on AuthErrorType catch (type) {
+      emit(state.copyWith(
+        status: ListItemError(type.message),
       ));
     } catch (_) {
       emit(state.copyWith(
-        status: ListItemError('Erro ao carregar itens'),
+        status: ListItemError(CoreStrings.loadItemsError),
       ));
     }
+  }
+
+  List<GroupsEntity> _buildGroups(List<ItensEntity> items) {
+    final groups = items.map((e) => e.group).whereType<String>().toSet().toList()..sort();
+
+    return groups.map((name) => GroupsEntity(groupName: name)).toList();
   }
 
   void setViewMode(ListViewModeEnum mode) {
     emit(state.copyWith(listMode: mode));
     loadItems();
-  }
-
-  List<GroupsEntity> _buildGroups(List<ItensEntity> items) {
-    final groups =
-        items.map((e) => e.group).whereType<String>().toSet().toList()..sort();
-
-    return groups.map((name) => GroupsEntity(groupName: name)).toList();
   }
 
   void onBottomSheetClosed() {
@@ -85,35 +101,8 @@ class ListItemController extends Cubit<ListItemState> {
     );
   }
 
-  List<GroupsEntity> buildTypesFromFiltered(List<ItensEntity> items) {
-    final groupedItems = <String, List<ItensEntity>>{};
-
-    for (final item in items) {
-      final key = item.group;
-      groupedItems.putIfAbsent(key, () => []).add(item);
-    }
-
-    return groupedItems.keys.map((t) => GroupsEntity(groupName: t)).toList();
-  }
-
-  // void toggleItemPasswordVisibility([bool? value]) {
-  //   emit(
-  //     state.copyWith(
-  //       showItemPassword: value ?? !state.showItemPassword,
-  //     ),
-  //   );
-  // }
-
   ItensEntity decryptedPass(ItensEntity item) {
-    final uid = _authService.currentUserId;
-
-    if (uid.isNullOrBlank) {
-      return item;
-    }
-
-    final passVisible = EncryptDecrypt.decrypt(item.password, uid);
-
-    return item.copyWith(password: passVisible);
+    return _decryptItemPasswordUseCase(item);
   }
 
   void toggleGroup(GroupsEntity groups) {
@@ -141,30 +130,16 @@ class ListItemController extends Cubit<ListItemState> {
     emit(state.copyWith(canSave: canSave));
   }
 
-  // void toggleItemEditing() {
-  //   emit(state.copyWith(isEditingItem: !state.isEditingItem));
-  // }
-  
   Future<void> editItem(ItensEntity item) async {
     emit(state.copyWith(status: ListItemLoading()));
 
     try {
-      final uid = _authService.currentUserId;
+      final updatedItem = await _editItemUseCase(item);
 
-      if (uid.isNullOrBlank) {
-        emit(state.copyWith(
-          status: ListItemError('Usuário não autenticado.'),
-        ));
-        return;
-      }
+      final updatedList = _updateItemInList(state.allItems, updatedItem);
 
-      final encrypted = EncryptDecrypt.encrypt(item.password, uid);
-      final itemToSave = item.copyWith(userId: uid, password: encrypted);
-
-      await _itensRepository.updateItem(itemToSave);
-
-      final updatedList = _updateItemInList(state.allItems, itemToSave);
       final updatedFiltered = _applySearch(updatedList, state.searchText);
+
       final groupEntities = _buildGroups(updatedFiltered);
 
       emit(state.copyWith(
@@ -175,9 +150,13 @@ class ListItemController extends Cubit<ListItemState> {
         canSave: false,
         status: ItemUpdatedSuccess(),
       ));
-    } catch (e) {
+    } on AuthErrorType catch (type) {
       emit(state.copyWith(
-        status: ListItemError('Não foi possível atualizar o item.'),
+        status: ListItemError(type.message),
+      ));
+    } catch (_) {
+      emit(state.copyWith(
+        status: ListItemError(CoreStrings.updateItemError),
       ));
     }
   }
@@ -201,8 +180,7 @@ class ListItemController extends Cubit<ListItemState> {
     final query = search.toLowerCase();
 
     return list.where((e) {
-      return e.service.toLowerCase().contains(query) ||
-          e.login.toLowerCase().contains(query);
+      return e.service.toLowerCase().contains(query) || e.login.toLowerCase().contains(query);
     }).toList();
   }
 
@@ -210,16 +188,16 @@ class ListItemController extends Cubit<ListItemState> {
     emit(state.copyWith(status: const ListItemLoading()));
 
     try {
-      await _itensRepository.deleteItem(item);
+      await _deleteItemUseCase(item);
 
       await loadItems();
 
       emit(state.copyWith(
-        status: ListItemActionSuccess('Item removido com sucesso'),
+        status: ListItemActionSuccess(CoreStrings.itemRemovedSuccess),
       ));
-    } catch (e) {
+    } catch (_) {
       emit(state.copyWith(
-        status: ListItemError('Erro ao excluir item! Tente novamente.'),
+        status: ListItemError(CoreStrings.deleteItemError),
       ));
     }
   }
@@ -229,8 +207,7 @@ class ListItemController extends Cubit<ListItemState> {
     emit(state.copyWith(isSearch: false));
 
     if (query.isEmpty) {
-      final sorted = [...state.allItems]
-        ..sort((a, b) => a.service.compareTo(b.service));
+      final sorted = [...state.allItems]..sort((a, b) => a.service.compareTo(b.service));
 
       final updatedTypes = buildTypesFromFiltered(sorted);
 
@@ -263,35 +240,35 @@ class ListItemController extends Cubit<ListItemState> {
     ));
   }
 
+  List<GroupsEntity> buildTypesFromFiltered(List<ItensEntity> items) {
+    final groupedItems = <String, List<ItensEntity>>{};
+
+    for (final item in items) {
+      final key = item.group;
+      groupedItems.putIfAbsent(key, () => []).add(item);
+    }
+
+    return groupedItems.keys.map((t) => GroupsEntity(groupName: t)).toList();
+  }
+
   void toggleSearchMode(bool hasFocus) {
     emit(state.copyWith(isSearch: hasFocus));
-  }
-
-  void enableTrashMode() {
-    emit(state.copyWith(
-      listMode: ListViewModeEnum.trash,
-    ));
-  }
-
-  void disableTrashMode() {
-    emit(state.copyWith(
-      listMode: ListViewModeEnum.list,
-    ));
   }
 
   Future<void> moveToTrash(ItensEntity item) async {
     emit(state.copyWith(status: ListItemLoading()));
 
     try {
-      await _itensRepository.softDeleteItem(item);
+      await _moveItemToTrashUseCase(item);
+
       await loadItems();
 
       emit(state.copyWith(
-        status: ListItemActionSuccess('Item movido para lixeira'),
+        status: ListItemActionSuccess(CoreStrings.movedToTrashSuccess),
       ));
     } catch (_) {
       emit(state.copyWith(
-        status: ListItemError('Erro ao mover item para lixeira'),
+        status: ListItemError(CoreStrings.moveToTrashError),
       ));
     }
   }
@@ -300,7 +277,8 @@ class ListItemController extends Cubit<ListItemState> {
     emit(state.copyWith(status: ListItemLoading()));
 
     try {
-      await _itensRepository.restoreItem(item);
+      await _restoreItemUseCase(item);
+
       await loadItems();
 
       emit(state.copyWith(
@@ -308,7 +286,7 @@ class ListItemController extends Cubit<ListItemState> {
       ));
     } catch (_) {
       emit(state.copyWith(
-        status: ListItemError('Erro ao restaurar item'),
+        status: ListItemError(CoreStrings.restoreItemError),
       ));
     }
   }
@@ -317,7 +295,7 @@ class ListItemController extends Cubit<ListItemState> {
     emit(state.copyWith(status: ListItemLoading()));
 
     try {
-      await _itensRepository.deleteItem(item);
+      await _deleteItemPermanentlyUseCase(item);
 
       await loadItems();
 
@@ -326,7 +304,7 @@ class ListItemController extends Cubit<ListItemState> {
       ));
     } catch (_) {
       emit(state.copyWith(
-        status: ListItemError('Erro ao excluir permanentemente'),
+        status: ListItemError(CoreStrings.deletePermanentlyError),
       ));
     }
   }
@@ -354,20 +332,21 @@ class ListItemController extends Cubit<ListItemState> {
     emit(state.copyWith(status: ListItemLoading()));
 
     try {
-      final isValid = await _authService.reauthenticateWithPassword(
+      await _reauthenticateWithCredentialsUseCase(
         email: email,
         password: password,
       );
 
-      if (!isValid) {
-        emit(state.copyWith(status: TrashAuthFailure("Credenciais inválidas."),
-        ));
-        return;
-      }
-
-      emit(state.copyWith(status: TrashAuthSuccess()));
+      emit(state.copyWith(
+        status: TrashAuthSuccess(),
+      ));
+    } on AuthErrorType catch (type) {
+      emit(state.copyWith(
+        status: TrashAuthFailure(type.message),
+      ));
     } catch (_) {
-      emit(state.copyWith(status: TrashAuthFailure("Erro ao validar credenciais."),
+      emit(state.copyWith(
+        status: TrashAuthFailure(CoreStrings.credentialsValidationError),
       ));
     }
   }
@@ -376,25 +355,24 @@ class ListItemController extends Cubit<ListItemState> {
     emit(state.copyWith(status: ListItemLoading()));
 
     try {
-      final isValid = await _pinService.validatePin(_uid, pin);
+      await _authenticateTrashWithPinUseCase(pin);
 
-      if (!isValid) {
-        emit(state.copyWith(status: TrashAuthFailure("PIN incorreto."),
-        ));
-        return;
-      }
-
-      emit(state.copyWith(status: TrashAuthSuccess()));
+      emit(state.copyWith(
+        status: TrashAuthSuccess(),
+      ));
+    } on AuthErrorType catch (type) {
+      emit(state.copyWith(
+        status: TrashAuthFailure(type.message),
+      ));
     } catch (_) {
-      emit(state.copyWith(status: TrashAuthFailure("Erro ao validar PIN."),
+      emit(state.copyWith(
+        status: TrashAuthFailure(CoreStrings.pinValidationError),
       ));
     }
   }
 
   Future<void> checkIfHasDeletedItems() async {
-    if (_uid.isEmpty) return;
-
-    final hasDeleted = await _itensRepository.hasDeletedItensByUser(_uid);
+    final hasDeleted = await _checkHasDeletedItemsUseCase();
 
     emit(state.copyWith(
       hasDeletedItems: hasDeleted,

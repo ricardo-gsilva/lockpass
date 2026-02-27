@@ -93,16 +93,16 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
       listener: (context, state) async {
         switch (state.status) {
           case ItemUpdatedSuccess():
-            OverlayToast.showSuccess(content: "Item atualizado com sucesso!");
+            OverlayToast.showSuccess(content: CoreStrings.itemUpdatedSuccess);
             break;
 
           case ItemDeletedPermanentlySuccess():
-            OverlayToast.showSuccess(content: "Item excluído permanentemente");
+            OverlayToast.showSuccess(content: CoreStrings.itemDeletedPermanentlySuccess);
             Navigator.maybePop(context);
             break;
 
           case ItemRestoredSuccess():
-            OverlayToast.showSuccess(content: "Item restaurado");
+            OverlayToast.showSuccess(content: CoreStrings.itemRestoredSuccess);
             Navigator.maybePop(context);
             break;
 
@@ -221,8 +221,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                                                       title: CoreStrings.delete,
                                                       description: CoreStrings
                                                           .deleteThisLogin,
-                                                      confirmButtonText:
-                                                          "Mover para Lixeira",
+                                                      confirmButtonText: CoreStrings.moveToTrash,
                                                       confirmButtonColor:
                                                           CoreColors
                                                               .buttonColorSecond,
@@ -320,13 +319,14 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
             width: MediaQuery.of(context).size.width * 0.3,
             backgroundButton: CoreColors.buttonColorSecond,
             colorText: CoreColors.textPrimary,
-            text: isLoading ? 'Salvando...' : CoreStrings.save,
+            text: isLoading ? CoreStrings.saving : CoreStrings.save,
             onPressed: state.canSave && !isLoading
                 ? () {
                     final updatedItem = item.copyWith(
                       group: groupController.text.trim(),
                       service: serviceController.text.trim(),
-                      site: siteController.text.trim(),
+                      site: siteController.text.trim().isEmpty 
+                        ? null : siteController.text.trim(),
                       email: emailController.text.trim(),
                       login: loginController.text.trim(),
                       password: passwordController.text.trim(),
@@ -351,7 +351,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                 width: MediaQuery.of(context).size.width * 0.35,
                 backgroundButton: CoreColors.buttonColorSecond,
                 colorText: CoreColors.textPrimary,
-                text: "Restaurar",
+                text: CoreStrings.restore,
                 onPressed: () async {
                   await controller.restoreItem(item);
                 },
@@ -361,7 +361,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                 width: MediaQuery.of(context).size.width * 0.35,
                 backgroundButton: CoreColors.deleteItem,
                 colorText: CoreColors.textPrimary,
-                text: "Excluir",
+                text: CoreStrings.delete,
                 onPressed: () {
                   showCustomBottomSheet(
                     context: context,
@@ -369,10 +369,9 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                     child: BlocProvider.value(
                       value: controller,
                       child: ConfirmationBottomSheet(
-                        title: "Excluir Permanentemente",
-                        description:
-                            "Essa ação é irreversível. Você não poderá recuperar esse item!",
-                        confirmButtonText: "Excluir",
+                        title: CoreStrings.deletePermanently,
+                        description: CoreStrings.irreversibleActionWarning,
+                        confirmButtonText: CoreStrings.delete,
                         confirmButtonColor: CoreColors.buttonColorSecond,
                         onConfirm: () async {
                           await controller.deletePermanently(item);
@@ -404,7 +403,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
       height: 50,
       backgroundButton: CoreColors.buttonColorSecond,
       colorText: CoreColors.textPrimary,
-      text: "Fechar",
+      text: CoreStrings.close,
       onPressed: () {
         Navigator.pop(context);
       },

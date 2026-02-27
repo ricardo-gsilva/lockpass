@@ -29,31 +29,31 @@ class ItemInfoViewWidget extends StatelessWidget {
       children: [
         InfoItemCustom(
           title: CoreStrings.group,
-          subtitle: item.group.isNotNullOrBlank? item.group : 'Não informado!',
+          subtitle: item.group.isNotNullOrBlank? item.group : CoreStrings.notInformed,
           titleColor: CoreColors.textSecundary,
           subtitleColor: CoreColors.textSecundary,
         ),
         InfoItemCustom(
           title: CoreStrings.service,
-          subtitle: item.service.isNotNullOrBlank? item.service : 'Não informado!',
+          subtitle: item.service.isNotNullOrBlank? item.service : CoreStrings.notInformed,
           titleColor: CoreColors.textSecundary,
           subtitleColor: CoreColors.textSecundary,
         ),
         InfoItemCustom(
           title: CoreStrings.webSite,
-          subtitle: item.site.isNotNullOrBlank? item.site! : 'Não informado!',
+          subtitle: item.site.isNotNullOrBlank? item.site! : CoreStrings.notInformed,
           titleColor: CoreColors.textSecundary,
           subtitleColor: CoreColors.textSecundary,
         ),
         InfoItemCustom(
           title: CoreStrings.email,
-          subtitle: item.email.isNotNullOrBlank? item.email : 'Não informado!',
+          subtitle: item.email.isNotNullOrBlank? item.email : CoreStrings.notInformed,
           titleColor: CoreColors.textSecundary,
           subtitleColor: CoreColors.textSecundary,
         ),
         InfoItemCustom(
           title: CoreStrings.login,
-          subtitle: item.login.isNotNullOrBlank? item.login : 'Não informado!',
+          subtitle: item.login.isNotNullOrBlank? item.login : CoreStrings.notInformed,
           titleColor: CoreColors.textSecundary,
           subtitleColor: CoreColors.textSecundary,
         ),
@@ -64,7 +64,7 @@ class ItemInfoViewWidget extends StatelessWidget {
               Expanded(
                 child: InfoItemCustom(
                   title: CoreStrings.password,
-                  subtitle: showPassword ? password : '••••••••',
+                  subtitle: showPassword ? password : CoreStrings.obscurePassword,
                   titleColor: CoreColors.textSecundary,
             subtitleColor: CoreColors.textSecundary,
                 ),

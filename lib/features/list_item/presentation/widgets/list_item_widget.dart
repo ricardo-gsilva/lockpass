@@ -25,7 +25,7 @@ class ListItemWidget extends StatelessWidget {
       if(state.filteredItems.isEmpty){
               return const Center(
                 child: TextCustom(
-                  text: "Nenhum item foi encontrado! Adicione um item.",
+                  text: CoreStrings.noItemsFound,
                 ),
               );
             }
@@ -82,7 +82,7 @@ class ListItemWidget extends StatelessWidget {
                     child: ConfirmationBottomSheet(
                       title: CoreStrings.delete,
                       description: CoreStrings.deleteThisLogin,
-                      confirmButtonText: "Mover para Lixeira",
+                      confirmButtonText: CoreStrings.moveToTrash,
                       onConfirm: () {
                         Navigator.of(context).pop(true);
                       },
@@ -140,7 +140,7 @@ class ListItemWidget extends StatelessWidget {
                       child: ConfirmationBottomSheet(
                         title: CoreStrings.delete,
                         description: CoreStrings.deleteThisLogin,
-                        confirmButtonText: "Mover para Lixeira",
+                        confirmButtonText: CoreStrings.moveToTrash,
                         confirmButtonColor: CoreColors.buttonColorSecond,
                         onConfirm: () {
                           controller.moveToTrash(item);

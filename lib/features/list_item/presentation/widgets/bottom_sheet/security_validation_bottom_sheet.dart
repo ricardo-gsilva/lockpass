@@ -21,12 +21,10 @@ class SecurityValidationBottomSheet extends StatefulWidget {
   const SecurityValidationBottomSheet({super.key});
 
   @override
-  State<SecurityValidationBottomSheet> createState() =>
-      _SecurityValidationBottomSheetState();
+  State<SecurityValidationBottomSheet> createState() => _SecurityValidationBottomSheetState();
 }
 
-class _SecurityValidationBottomSheetState
-    extends State<SecurityValidationBottomSheet> {
+class _SecurityValidationBottomSheetState extends State<SecurityValidationBottomSheet> {
   final TextEditingController pinController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -58,7 +56,7 @@ class _SecurityValidationBottomSheetState
         content: msg,
         widgets: [
           TextButtonCustom(
-            text: "Fechar",
+            text: CoreStrings.close,
             colorText: CoreColors.textPrimary,
             fontSize: 16,
             onPressed: () {
@@ -82,8 +80,7 @@ class _SecurityValidationBottomSheetState
               OverlayToast.showError(content: message);
               break;
             case TrashAuthSuccess():
-              OverlayToast.showSuccess(
-                  content: "Suas credenciais estão válidas");
+              OverlayToast.showSuccess(content: CoreStrings.credentialsValid);
               Navigator.maybePop(context, true);
               break;
             default:
@@ -104,8 +101,7 @@ class _SecurityValidationBottomSheetState
                     padding: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
                       color: CoreColors.primaryColor,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                     ),
                     child: BlocBuilder<ListItemController, ListItemState>(
                       builder: (context, state) {
@@ -118,11 +114,10 @@ class _SecurityValidationBottomSheetState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     TextCustom(
-                                      text: "Validação de Segurança",
+                                      text: CoreStrings.securityValidation,
                                       color: CoreColors.textSecundary,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -132,8 +127,8 @@ class _SecurityValidationBottomSheetState
                                       iconSize: 22,
                                       color: CoreColors.textSecundary,
                                       onPressed: () => _showInfo(
-                                        "Caso deseje rever itens que foram excluídos, prossiga com a validação de segurança.\n\nApós a validação, a tela de listagem exibirá todos os itens excluídos até o momento. Lá, você poderá restaurar um item, apagá-lo permanentemente ou sair do modo de visualização a qualquer momento.",
-                                        "Mostrar Itens Excluídos",
+                                        CoreStrings.showDeletedExplanation,
+                                        CoreStrings.showDeletedItemsAction,
                                       ),
                                     ),
                                   ],
@@ -141,20 +136,18 @@ class _SecurityValidationBottomSheetState
                                 const SizedBox(height: 30),
                                 TextCustom(
                                   text: !_pinOrEmailAndPassword
-                                      ? "Digite seu PIN de 5 dígitos para prosseguir."
-                                      : "Insira suas credenciais de acesso.",
+                                      ? CoreStrings.enterFiveDigitPin
+                                      : CoreStrings.insertAccessCredentials,
                                   color: CoreColors.textSecundary,
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 20),
                                 !_pinOrEmailAndPassword
                                     ? Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
                                           Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 20),
+                                            padding: const EdgeInsets.only(bottom: 20),
                                             child: const Icon(
                                               CoreIcons.pin,
                                               color: CoreColors.textSecundary,
@@ -162,13 +155,11 @@ class _SecurityValidationBottomSheetState
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 10),
+                                              padding: const EdgeInsets.only(left: 10),
                                               child: FieldsFactory.pin(
                                                 controller: pinController,
                                                 obscureText: _obscurePin,
-                                                validator: (value) =>
-                                                    value.pinError,
+                                                validator: (value) => value.pinError,
                                                 onToggleVisibility: () {
                                                   setState(() {
                                                     _obscurePin = !_obscurePin;
@@ -176,9 +167,7 @@ class _SecurityValidationBottomSheetState
                                                 },
                                                 onChanged: (value) {
                                                   setState(() {
-                                                    _canSubmit =
-                                                        value.trim().length >=
-                                                            5;
+                                                    _canSubmit = value.trim().length >= 5;
                                                   });
                                                 },
                                               ),
@@ -190,27 +179,22 @@ class _SecurityValidationBottomSheetState
                                         children: [
                                           FieldsFactory.email(
                                               controller: emailController,
-                                              validator: (value) =>
-                                                  value.emailError,
+                                              validator: (value) => value.emailError,
                                               onChanged: (value) {
-                                                _canSubmit =
-                                                    value.emailError == null;
+                                                _canSubmit = value.emailError == null;
                                               }),
                                           FieldsFactory.password(
                                             controller: passwordController,
                                             obscureText: _obscurePassword,
-                                            validator: (value) =>
-                                                value.passwordError,
+                                            validator: (value) => value.passwordError,
                                             onToggleVisibility: () {
                                               setState(() {
-                                                _obscurePassword =
-                                                    !_obscurePassword;
+                                                _obscurePassword = !_obscurePassword;
                                               });
                                             },
                                             onChanged: (value) {
                                               setState(() {
-                                                _canSubmit =
-                                                    value.passwordError == null;
+                                                _canSubmit = value.passwordError == null;
                                               });
                                             },
                                           )
@@ -221,13 +205,12 @@ class _SecurityValidationBottomSheetState
                                   children: [
                                     TextButtonCustom(
                                       text: _pinOrEmailAndPassword
-                                          ? CoreStrings.enterPin
+                                          ? CoreStrings.signInWithPin
                                           : CoreStrings.enterEmailAndPassword,
                                       colorText: CoreColors.textSecundary,
                                       onPressed: () {
                                         setState(() {
-                                          _pinOrEmailAndPassword =
-                                              !_pinOrEmailAndPassword;
+                                          _pinOrEmailAndPassword = !_pinOrEmailAndPassword;
                                         });
                                       },
                                     ),
@@ -235,37 +218,27 @@ class _SecurityValidationBottomSheetState
                                 ),
                                 const SizedBox(height: 20),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(context),
-                                      child: const Text(
-                                        "Cancelar",
-                                        style: TextStyle(
-                                          color: CoreColors.textTertiary,
-                                        ),
+                                      child: const TextCustom(
+                                        text: CoreStrings.cancel,
+                                        color: CoreColors.textTertiary,
                                       ),
                                     ),
                                     ButtonCustom(
-                                      isLoading:
-                                          state.status == ListItemLoading(),
-                                      backgroundButton:
-                                          CoreColors.buttonColorSecond,
+                                      isLoading: state.status == ListItemLoading(),
+                                      backgroundButton: CoreColors.buttonColorSecond,
                                       colorText: CoreColors.textPrimary,
-                                      text: state.status == ListItemLoading()
-                                          ? 'Carregando... '
-                                          : "Mostrar Excluídos",
+                                      text: state.status == ListItemLoading() ? CoreStrings.loading : CoreStrings.showDeleted,
                                       onPressed: _canSubmit
                                           ? () async {
-                                              await listItemController
-                                                  .authenticateTrashMode(
-                                                pinOrEmailAndPassword:
-                                                    _pinOrEmailAndPassword,
+                                              await listItemController.authenticateTrashMode(
+                                                pinOrEmailAndPassword: _pinOrEmailAndPassword,
                                                 pin: pinController.text,
                                                 email: emailController.text,
-                                                password:
-                                                    passwordController.text,
+                                                password: passwordController.text,
                                               );
                                             }
                                           : null,

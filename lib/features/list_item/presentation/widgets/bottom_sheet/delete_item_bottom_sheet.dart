@@ -29,65 +29,61 @@ class ConfirmationBottomSheet extends StatelessWidget {
       child: GestureDetector(
         onTap: () => Navigator.pop(context),
         behavior: HitTestBehavior.opaque,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          resizeToAvoidBottomInset: false,
-          body: Stack(
-            children: [
-              GestureDetector(
-                onTap: () {},
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: CoreColors.primaryColor,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                    ),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          TextCustom(
-                            text: title,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: CoreColors.textSecundary,
-                          ),
-                          const SizedBox(height: 16),
-                          TextCustom(
-                            text: description,
-                            fontSize: 16,
-                            color: CoreColors.textSecundary,
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              TextButtonCustom(
-                                colorText: CoreColors.textTertiary,
-                                text: CoreStrings.cancel,
-                                fontSize: 16,
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                              ButtonCustom(
-                                colorText: CoreColors.textPrimary,
-                                backgroundButton: confirmButtonColor ?? CoreColors.buttonColorSecond,
-                                text: confirmButtonText,
-                                fontSize: 16,
-                                onPressed: onConfirm,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTap: () {},
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    color: CoreColors.primaryColor,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextCustom(
+                          text: title,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: CoreColors.textSecundary,
+                        ),
+                        const SizedBox(height: 16),
+                        TextCustom(
+                          text: description,
+                          fontSize: 16,
+                          color: CoreColors.textSecundary,
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            TextButtonCustom(
+                              colorText: CoreColors.textTertiary,
+                              text: CoreStrings.cancel,
+                              fontSize: 16,
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                            ButtonCustom(
+                              colorText: CoreColors.textPrimary,
+                              backgroundButton: confirmButtonColor ?? CoreColors.buttonColorSecond,
+                              text: confirmButtonText,
+                              fontSize: 16,
+                              onPressed: onConfirm,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -7,7 +7,6 @@ import 'package:lockpass/core/ui/components/text_custom.dart';
 import 'package:lockpass/core/ui/components/textformfield_custom.dart';
 import 'package:lockpass/core/ui/overlays/bottom_sheet_utils.dart';
 import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
-import 'package:lockpass/data/datasources/local/database/database_helper.dart';
 import 'package:lockpass/features/list_item/presentation/controller/list_item_controller.dart';
 import 'package:lockpass/features/list_item/presentation/enums/list_view_enum.dart';
 import 'package:lockpass/features/list_item/presentation/enums/list_view_mode_enum.dart';
@@ -34,7 +33,6 @@ class ListItemPage extends StatefulWidget {
 }
 
 class _ListItemPageState extends State<ListItemPage> {
-  DataBaseHelper db = DataBaseHelper();
   late final ListItemController listItemController;
   final _searchController = TextEditingController();
   final _searchFocusNode = FocusNode();
@@ -53,7 +51,7 @@ class _ListItemPageState extends State<ListItemPage> {
     } else {
       listItemController.toggleSearchMode(false);
     }
-  }
+  }  
 
   Future showDelete(ItensEntity item) async {
     return await showDialog(
@@ -88,14 +86,14 @@ class _ListItemPageState extends State<ListItemPage> {
 
   String _text(ListItemState state) {
     if (state.listMode == ListViewModeEnum.trash) {
-      return "Modo Lixeira";
+      return CoreStrings.trashMode;
     }
 
     if (state.hasDeletedItems) {
-      return "Mostrar itens Excluídos?";
+      return CoreStrings.showDeletedItemsQuestion;
     }
 
-    return "Lixeira Vazia!";
+    return CoreStrings.emptyTrash;
   }
 
   @override
@@ -103,6 +101,7 @@ class _ListItemPageState extends State<ListItemPage> {
     _searchFocusNode.removeListener(_onFocusChange);
     _searchController.dispose();
     _searchFocusNode.dispose();
+    listItemController.close();
     super.dispose();
   }
 
@@ -271,7 +270,7 @@ class _ListItemPageState extends State<ListItemPage> {
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           child: Center(
                             child: TextCustom(
-                              text: "Nenhum item foi encontrado na busca!",
+                              text: CoreStrings.noItemsFoundInSearch,
                             ),
                           ),
                         ),
