@@ -1,40 +1,37 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lockpass/core/errors/auth_errors_type.dart';
+import 'package:lockpass/core/services/auth/auth_service.dart';
 
 class AuthException implements Exception {
   String message;
   AuthException(this.message);
 }
 
-class AuthService {
-  FirebaseAuth _auth = FirebaseAuth.instance;
-  User? userApp;
-  bool isLoading = true;
+class AuthServiceImpl implements AuthService {
+  final FirebaseAuth _auth;  
 
-  AuthService() {
-    _authCheck();
-  }
+  AuthServiceImpl({FirebaseAuth? auth})
+    : _auth = auth ?? FirebaseAuth.instance;
 
+  @override
+  User? get currentUser => _auth.currentUser;
+
+  @override
   String get currentUserId => _auth.currentUser?.uid ?? '';
 
+  @override
   String get currentUserEmail {
     return FirebaseAuth.instance.currentUser?.email ?? '';
   }
 
-  _authCheck() {
-    _auth.authStateChanges().listen((User? user) {
-      userApp = (user == null) ? null : user;
-      isLoading = false;
-    });
-  }
-
+  @override
   Future<bool> reauthenticateWithPassword({
     required String email,
     required String password,
   }) async {
     try {
-      final user = _auth.currentUser;      
-      if (user == null) return false;   
+      final user = _auth.currentUser;
+      if (user == null) return false;
       final credential = EmailAuthProvider.credential(
         email: email,
         password: password,
@@ -47,7 +44,8 @@ class AuthService {
     }
   }
 
-  Future<bool> sigInOut() async {
+  @override
+  Future<bool> signOut() async {
     try {
       await _auth.signOut();
       return true;
@@ -56,6 +54,7 @@ class AuthService {
     }
   }
 
+  @override
   Future<void> deleteAccount() async {
     try {
       await _auth.currentUser?.delete();
@@ -65,17 +64,18 @@ class AuthService {
     }
   }
 
+  @override
   Future<bool> register(String email, String password) async {
     try {
       await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      _getUser();
       return true;
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.code.toAuthErrorType().message);
     }
   }
 
+  @override
   Future<void> login(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
@@ -84,7 +84,8 @@ class AuthService {
     }
   }
 
-  Future<void>resetPassword(String email) async {
+  @override
+  Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
@@ -92,15 +93,16 @@ class AuthService {
     }
   }
 
+  @override
   Future<void> updatePassword({
     required String currentPassword,
     required String newPassword,
   }) async {
     try {
       final email = currentUserEmail;
-      
+
       final isValid = await reauthenticateWithPassword(
-        email: email, 
+        email: email,
         password: currentPassword,
       );
 
@@ -108,14 +110,9 @@ class AuthService {
         await _auth.currentUser?.updatePassword(newPassword);
       }
     } on AuthException {
-      // Repassa o erro de "Senha incorreta" que seu método já lança
-      rethrow; 
+      rethrow;
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.code.toAuthErrorType().message);
     }
-  }
-
-  _getUser() {
-    userApp = _auth.currentUser;
   }
 }
