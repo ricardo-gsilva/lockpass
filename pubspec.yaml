@@ -40,6 +40,7 @@ dependencies:
   archive: ^3.4.9
   # archive: ^4.0.7
   crypto: ^3.0.3
+  cryptography: ^2.7.0
   device_info_plus: ^12.3.0
   encrypt: ^5.0.3
   equatable: ^2.0.5
