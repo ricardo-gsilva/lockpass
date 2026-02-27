@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/paths/lockpass_paths.dart';
 import 'package:lockpass/data/models/itens_model.dart';
 import 'package:sqflite/sqflite.dart';
@@ -61,8 +64,7 @@ class DataBaseHelper {
       )
     ''');
 
-    await db.execute(
-        'CREATE INDEX idx_${itensTable}_is_deleted ON $itensTable($colIsDeleted)');
+    await db.execute('CREATE INDEX idx_${itensTable}_is_deleted ON $itensTable($colIsDeleted)');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
@@ -104,7 +106,7 @@ class DataBaseHelper {
   Future<int> updateItem(ItensModel item) async {
     Database db = await database;
     if (item.id == null) {
-      throw Exception('O ID do item não pode ser nulo na atualização');
+      throw Exception(CoreStrings.itemUpdateIdError);
     }
     return await db.update(
       itensTable,
@@ -177,5 +179,46 @@ class DataBaseHelper {
     );
 
     return result.isNotEmpty;
+  }
+
+  Future<void> replaceDatabase(List<int> newDbBytes) async {
+    final db = await database;
+    final String path = db.path;
+
+    // 1. Pega referências dos arquivos
+    final dbFile = File(path);
+    final walFile = File('$path-wal');
+    final shmFile = File('$path-shm');
+
+    // Arquivo temporário para o backup de emergência (Rollback)
+    final backupFile = File('$path.rollback');
+
+    // 2. Fecha a conexão
+    await db.close();
+    _database = null;
+
+    // 3. Backup de segurança: Renomeia o banco atual em vez de deletar
+    if (await dbFile.exists()) {
+      await dbFile.rename(backupFile.path);
+    }
+
+    try {
+      // 4. Limpa os logs (importante deletar antes de escrever o novo)
+      if (await walFile.exists()) await walFile.delete();
+      if (await shmFile.exists()) await shmFile.delete();
+
+      // 5. Tenta escrever o novo banco
+      await dbFile.writeAsBytes(newDbBytes);
+
+      // 6. Se chegou aqui com sucesso, deleta o arquivo de rollback
+      if (await backupFile.exists()) await backupFile.delete();
+    } catch (e) {
+      // 7. OCORREU ERRO: Rollback!
+      if (await backupFile.exists()) {
+        if (await dbFile.exists()) await dbFile.delete();
+        await backupFile.rename(path);
+      }
+      throw Exception("${CoreStrings.criticalRestoreError} $e");
+    }
   }
 }
