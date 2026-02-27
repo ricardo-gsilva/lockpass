@@ -1,23 +1,34 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lockpass/core/errors/auth_errors_type.dart';
 import 'package:lockpass/core/extensions/string_validators.dart';
-import 'package:lockpass/core/session/session_lock_service.dart';
+import 'package:lockpass/core/services/auth/auth_service_impl.dart';
+// import 'package:lockpass/core/session/session_lock_service.dart';
+import 'package:lockpass/features/login/domain/usecases/check_pin_availability_usecase.dart';
+import 'package:lockpass/features/login/domain/usecases/login_with_email_usecase.dart';
+import 'package:lockpass/features/login/domain/usecases/login_with_pin_usecase.dart';
+import 'package:lockpass/features/login/domain/usecases/register_user_usecase.dart';
+import 'package:lockpass/features/login/domain/usecases/reset_password_usecase.dart';
 import 'package:lockpass/features/login/presentation/state/auth_state.dart';
-import 'package:lockpass/core/services/auth_service.dart';
-import 'package:lockpass/core/services/pin_service.dart';
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 
 class LoginController extends Cubit<AuthState> {
-  final AuthService _authService;
-  final PinService _pinService;
-  final SessionLockService _sessionLockService;
+  final LoginWithEmailUseCase _loginWithEmailUseCase;
+  final CheckPinAvailabilityUseCase _checkPinAvailabilityUseCase;
+  final RegisterUserUseCase _registerUserUseCase;
+  final ResetPasswordUseCase _resetPasswordUseCase;
+  final LoginWithPinUseCase _loginWithPinUseCase;
 
   LoginController({
-    required AuthService authService,
-    required PinService pinService,
-    required SessionLockService sessionLockService,
-  })  : _authService = authService,
-        _pinService = pinService,
-        _sessionLockService = sessionLockService,
+    required LoginWithEmailUseCase loginWithEmailUseCase,
+    required CheckPinAvailabilityUseCase checkPinAvailabilityUseCase,
+    required RegisterUserUseCase registerUserUseCase,
+    required ResetPasswordUseCase resetPasswordUseCase,
+    required LoginWithPinUseCase loginWithPinUseCase,
+  })  : _loginWithEmailUseCase = loginWithEmailUseCase,
+        _checkPinAvailabilityUseCase = checkPinAvailabilityUseCase,
+        _registerUserUseCase = registerUserUseCase,
+        _resetPasswordUseCase = resetPasswordUseCase,
+        _loginWithPinUseCase = loginWithPinUseCase,
         super(const AuthState());
 
   Future<void> init() async {
@@ -28,14 +39,11 @@ class LoginController extends Cubit<AuthState> {
     emit(state.copyWith(status: status));
   }
 
-  String get _uid => _authService.currentUserId;
-
   Future<void> checkPinAvailability() async {
-    final isAuthenticated = _authService.currentUserId.isNotNullOrBlank;
-    final hasPin = await _pinService.hasPin(_uid);
+    final canUsePin = await _checkPinAvailabilityUseCase();
 
     emit(state.copyWith(
-      canAuthWithPin: isAuthenticated && hasPin,
+      canAuthWithPin: canUsePin,
     ));
   }
 
@@ -45,7 +53,6 @@ class LoginController extends Cubit<AuthState> {
   ) async {
     if (!email.isValidEmail) {
       final emailError = email.emailError;
-
       if (emailError != null) {
         _emitStatus(AuthError(emailError));
         return;
@@ -53,28 +60,32 @@ class LoginController extends Cubit<AuthState> {
     }
 
     if (password.isNullOrBlank) {
-      _emitStatus(AuthError("Digite sua senha."));
+      _emitStatus(const AuthError("Digite sua senha."));
       return;
     }
+
     _emitStatus(AuthLoading());
 
     final stopWatch = Stopwatch()..start();
 
     try {
-      await _authService.login(email, password);
-      if (_authService.currentUserId.isEmpty) {
-        await _waitMinLoadingTime(stopWatch);
-        _emitStatus(AuthError('Usuário não encontrado. Faça login novamente.'));
-        return;
-      }
+      await _loginWithEmailUseCase(
+        email: email,
+        password: password,
+      );
 
       await _waitMinLoadingTime(stopWatch);
 
-      _sessionLockService.unlock();
       _emitStatus(EmailAuthenticated());
+    } on AuthErrorType catch (type) {
+      await _waitMinLoadingTime(stopWatch);
+      _emitStatus(AuthError(type.message));
     } on AuthException catch (e) {
       await _waitMinLoadingTime(stopWatch);
       _emitStatus(AuthError(e.message));
+    } catch (e) {
+      await _waitMinLoadingTime(stopWatch);
+      _emitStatus(AuthError(AuthErrorType.unknown.message));
     }
   }
 
@@ -97,27 +108,23 @@ class LoginController extends Cubit<AuthState> {
   }
 
   Future<void> loginWithPin(String typedPin) async {
-    final uid = _authService.currentUserId;
-
-    if (uid.isEmpty) {
-      _emitStatus(AuthError('Sessão expirada. Faça login com e-mail.'));
-      return;
-    }
     _emitStatus(const AuthLoading());
 
     try {
-      final isValid = await _pinService.validatePin(uid, typedPin.trim());
+      final isValid = await _loginWithPinUseCase(typedPin);
 
       if (!isValid) {
         _emitStatus(const AuthError('PIN incorreto.'));
         return;
       }
 
-      _sessionLockService.unlock();
-
       _emitStatus(const PinAuthenticated());
+    } on AuthErrorType catch (errorType) {
+      _emitStatus(AuthError(errorType.message));
     } catch (_) {
-      _emitStatus(const AuthError('Erro ao validar o PIN.'));
+      _emitStatus(
+        const AuthError('Erro ao validar o PIN.'),
+      );
     }
   }
 
@@ -127,14 +134,22 @@ class LoginController extends Cubit<AuthState> {
   }) async {
     _emitStatus(const AuthLoading());
 
+    final stopWatch = Stopwatch()..start();
+
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      await _authService.register(email, password);
-      await _authService.sigInOut();
+      await _registerUserUseCase(
+        email: email,
+        password: password,
+      );
+
+      await _waitMinLoadingTime(stopWatch);
+
       _emitStatus(const AccountCreated());
-    } on AuthException catch (e) {
-      _emitStatus(AuthError(e.message));
+    } on AuthErrorType catch (errorType) {
+      await _waitMinLoadingTime(stopWatch);
+      _emitStatus(AuthError(errorType.message));
     } catch (_) {
+      await _waitMinLoadingTime(stopWatch);
       _emitStatus(
         const AuthError("Erro inesperado. Tente novamente."),
       );
@@ -144,7 +159,6 @@ class LoginController extends Cubit<AuthState> {
   Future<void> resetPassword({required String email}) async {
     if (!email.isValidEmail) {
       final emailError = email.emailError;
-
       if (emailError != null) {
         _emitStatus(AuthError(emailError));
         return;
@@ -154,11 +168,11 @@ class LoginController extends Cubit<AuthState> {
     _emitStatus(AuthLoading());
 
     try {
-      await _authService.resetPassword(email);
+      await _resetPasswordUseCase(email);
 
       _emitStatus(PasswordResetSent());
-    } on AuthException catch (e) {
-      _emitStatus(AuthError(e.message));
+    } on AuthErrorType catch (errorType) {
+      _emitStatus(AuthError(errorType.message));
     } catch (_) {
       _emitStatus(
         const AuthError("Erro inesperado. Tente novamente."),

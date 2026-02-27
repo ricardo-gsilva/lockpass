@@ -18,8 +18,7 @@ class CreateAccountBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<CreateAccountBottomSheet> createState() =>
-      _CreateAccountBottomSheetState();
+  State<CreateAccountBottomSheet> createState() => _CreateAccountBottomSheetState();
 }
 
 class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
@@ -70,11 +69,9 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                       padding: const EdgeInsets.all(20),
                       decoration: const BoxDecoration(
                         color: CoreColors.primaryColor,
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(24)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                       ),
-                      child: BlocBuilder<LoginController, AuthState>(
-                          builder: (context, state) {
+                      child: BlocBuilder<LoginController, AuthState>(builder: (context, state) {
                         final isLoading = state.status is AuthLoading;
                         return SingleChildScrollView(
                           child: Column(
@@ -94,7 +91,7 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                                 controller: passwordController,
                                 obscureText: _obscurePassword,
                                 validator: (value) => value.passwordError,
-                                onToggleVisibility: (){
+                                onToggleVisibility: () {
                                   setState(() {
                                     _obscurePassword = !_obscurePassword;
                                   });
@@ -105,22 +102,18 @@ class _CreateAccountBottomSheetState extends State<CreateAccountBottomSheet> {
                                 isLoading: isLoading,
                                 backgroundButton: CoreColors.buttonColorSecond,
                                 colorText: CoreColors.textPrimary,
-                                text: isLoading
-                                    ? 'Criando conta... '
-                                    : CoreStrings.register2,
+                                text: isLoading ? 'Criando conta... ' : CoreStrings.register2,
                                 onPressed: () async {
                                   await controller.register(
-                                      email: emailController.text,
-                                      password: passwordController.text);
+                                      email: emailController.text, password: passwordController.text);
                                 },
                               ),
                               const SizedBox(height: 12),
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text(
-                                  "Cancelar",
-                                  style: TextStyle(
-                                      color: CoreColors.textSecundary),
+                                child: const TextCustom(
+                                  text: CoreStrings.cancel,
+                                  color: CoreColors.textSecundary,
                                 ),
                               )
                             ],

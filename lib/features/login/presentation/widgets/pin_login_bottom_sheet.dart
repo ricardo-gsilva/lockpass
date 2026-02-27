@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/core/ui/factorys/fields_factory.dart';
 import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
@@ -54,10 +55,8 @@ class _PinLoginBottomSheetState extends State<PinLoginBottomSheet> {
       child: GestureDetector(
         onTap: () => Navigator.pop(context),
         behavior: HitTestBehavior.opaque,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          resizeToAvoidBottomInset: false,
-          body: Stack(children: [
+        child: Stack(
+          children: [
             Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
@@ -73,73 +72,66 @@ class _PinLoginBottomSheetState extends State<PinLoginBottomSheet> {
                     clipBehavior: Clip.antiAlias,
                     decoration: const BoxDecoration(
                       color: CoreColors.primaryColor,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(20)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                     ),
                     child: BlocBuilder<LoginController, AuthState>(
-                        buildWhen: (previous, current) =>
-                            previous.canSubmitPin != current.canSubmitPin,
-                        builder: (context, state) {
-                          final isLoading = state.status is AuthLoading;
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const TextCustom(
-                                text: "Entrar com PIN",
-                                color: CoreColors.textSecundary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              const SizedBox(height: 15),
-                              FieldsFactory.pin(
-                                controller: pinController,
-                                obscureText: _obscurePin,
-                                onToggleVisibility: (){
-                                  setState(() {
-                                    _obscurePin = !_obscurePin;
-                                  });
-                                },                                  
-                                onChanged: controller.onPinChanged,                                
-                              ),                              
-                              const SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text(
-                                      "Cancelar",
-                                      style: TextStyle(
-                                          color: CoreColors.textSecundary),
-                                    ),
+                      buildWhen: (previous, current) => previous.canSubmitPin != current.canSubmitPin,
+                      builder: (context, state) {
+                        final isLoading = state.status is AuthLoading;
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const TextCustom(
+                              text: CoreStrings.signInWithPin,
+                              color: CoreColors.textSecundary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            const SizedBox(height: 15),
+                            FieldsFactory.pin(
+                              controller: pinController,
+                              obscureText: _obscurePin,
+                              onToggleVisibility: () {
+                                setState(() {
+                                  _obscurePin = !_obscurePin;
+                                });
+                              },
+                              onChanged: controller.onPinChanged,
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const TextCustom(
+                                    text: CoreStrings.cancel,
+                                    color: CoreColors.textSecundary,
                                   ),
-                                  ButtonCustom(
-                                    text: isLoading
-                                        ? "Validando..."
-                                        : "Logar com PIN",
-                                    height: 50,
-                                    backgroundButton:
-                                        CoreColors.buttonColorSecond,
-                                    colorText: CoreColors.textPrimary,
-                                    onPressed: isLoading || !state.canSubmitPin
-                                        ? null
-                                        : () async {
-                                            await controller.loginWithPin(
-                                                pinController.text);
-                                          },
-                                  ),
-                                ],
-                              )
-                            ],
-                          );
-                        }),
+                                ),
+                                ButtonCustom(
+                                  text: isLoading ? CoreStrings.validating : CoreStrings.loginWithPin,
+                                  height: 50,
+                                  backgroundButton: CoreColors.buttonColorSecond,
+                                  colorText: CoreColors.textPrimary,
+                                  onPressed: isLoading || !state.canSubmitPin
+                                      ? null
+                                      : () async {
+                                          await controller.loginWithPin(pinController.text);
+                                        },
+                                ),
+                              ],
+                            )
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
-          ]),
+          ],
         ),
       ),
     );

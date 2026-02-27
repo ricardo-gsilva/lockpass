@@ -46,6 +46,7 @@ class _LoginPageState extends State<LoginPage> {
     passwordController.dispose();
     pinController.dispose();
     emailResetPasswordController.dispose();
+    loginController.close();
     super.dispose();
   }
 
@@ -157,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                           height: 50,
                           width: MediaQuery.of(context).size.width * 0.75,
                           backgroundButton: CoreColors.buttonColorSecond,
-                          text: isLoading ? "Entrando..." : CoreStrings.enter,
+                          text: isLoading ? CoreStrings.signingIn : CoreStrings.enter,
                           colorText: CoreColors.textPrimary,
                           fontSize: 18,
                           isLoading: isLoading,
@@ -183,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 );
                               },
-                              text: CoreStrings.enterPin,
+                              text: CoreStrings.signInWithPin,
                               colorText: CoreColors.textSecundary,
                             ),
                           ),

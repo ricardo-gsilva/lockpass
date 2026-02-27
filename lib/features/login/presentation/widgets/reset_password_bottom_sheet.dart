@@ -15,8 +15,7 @@ class ResetPasswordBottomSheet extends StatefulWidget {
   const ResetPasswordBottomSheet({super.key});
 
   @override
-  State<ResetPasswordBottomSheet> createState() =>
-      _ResetPasswordBottomSheetState();
+  State<ResetPasswordBottomSheet> createState() => _ResetPasswordBottomSheetState();
 }
 
 class _ResetPasswordBottomSheetState extends State<ResetPasswordBottomSheet> {
@@ -37,8 +36,7 @@ class _ResetPasswordBottomSheetState extends State<ResetPasswordBottomSheet> {
         switch (state.status) {
           case PasswordResetSent():
             OverlayToast.showSuccess(
-                content:
-                    'Enviamos um e-mail para o endereço que você digitou. O e-mail contém um link para redefinir sua senha!');
+                content: CoreStrings.passwordResetEmailSent);
             Navigator.of(context).maybePop();
             break;
           case AuthError(:final message):
@@ -63,11 +61,9 @@ class _ResetPasswordBottomSheetState extends State<ResetPasswordBottomSheet> {
                     padding: const EdgeInsets.all(20),
                     decoration: const BoxDecoration(
                       color: CoreColors.primaryColor,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                     ),
-                    child: BlocBuilder<LoginController, AuthState>(
-                        builder: (context, state) {
+                    child: BlocBuilder<LoginController, AuthState>(builder: (context, state) {
                       final isLoading = state.status is AuthLoading;
                       return SingleChildScrollView(
                         child: Column(
@@ -88,8 +84,7 @@ class _ResetPasswordBottomSheetState extends State<ResetPasswordBottomSheet> {
                             ButtonCustom(
                               backgroundButton: CoreColors.buttonColorSecond,
                               colorText: CoreColors.textPrimary,
-                              text:
-                                  isLoading ? "Enviando..." : CoreStrings.send,
+                              text: isLoading ? CoreStrings.sending : CoreStrings.send,
                               isLoading: isLoading,
                               onPressed: isLoading
                                   ? null
@@ -102,10 +97,9 @@ class _ResetPasswordBottomSheetState extends State<ResetPasswordBottomSheet> {
                             const SizedBox(height: 12),
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text(
-                                "Cancelar",
-                                style:
-                                    TextStyle(color: CoreColors.textSecundary),
+                              child: const TextCustom(
+                                text: CoreStrings.cancel,
+                                color: CoreColors.textSecundary,
                               ),
                             ),
                           ],
