@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/core/di/get_it.dart';
-import 'package:lockpass/core/utils/extensions/string_validators.dart';
-import 'package:lockpass/core/utils/ui/bottom_sheet_utils.dart';
-import 'package:lockpass/core/utils/ui/snack_bar_utils.dart';
-import 'package:lockpass/database/database_helper.dart';
-import 'package:lockpass/constants/core_colors.dart';
-import 'package:lockpass/constants/core_icons.dart';
-import 'package:lockpass/constants/core_keys.dart';
-import 'package:lockpass/constants/core_strings.dart';
+import 'package:lockpass/core/di/service_locator.dart';
+import 'package:lockpass/core/ui/overlays/bottom_sheet_utils.dart';
+import 'package:lockpass/core/constants/core_colors.dart';
+import 'package:lockpass/core/constants/core_icons.dart';
+import 'package:lockpass/core/constants/core_keys.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/features/config/presentation/controller/config_controller.dart';
 import 'package:lockpass/features/config/presentation/state/config_state.dart';
-import 'package:lockpass/features/config/presentation/widgets/change_password_bottom_sheet.dart';
-import 'package:lockpass/features/config/presentation/widgets/create_and_update_pin_bottom_sheet.dart';
-import 'package:lockpass/features/config/presentation/widgets/delete_account_bottom_sheet.dart';
-import 'package:lockpass/features/config/presentation/widgets/logout_app_bottom_sheet.dart';
-import 'package:lockpass/features/config/presentation/widgets/remove_pin_bottom_sheet.dart';
-import 'package:lockpass/features/config/presentation/widgets/save_list_logins_bottom_sheet.dart';
-import 'package:lockpass/features/config/presentation/widgets/backup_choice_bottom_sheet.dart';
-import 'package:lockpass/widgets/config_options_custom.dart';
+import 'package:lockpass/features/config/presentation/state/config_status.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/change_password_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/create_and_update_pin_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/delete_account_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/lock_timeout_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/logout_app_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/remove_pin_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/save_list_logins_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/restore_backup_choice_bottom_sheet.dart';
+import 'package:lockpass/features/config/presentation/widgets/config_options_custom.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -28,7 +27,6 @@ class ConfigPage extends StatefulWidget {
 }
 
 class _ConfigPageState extends State<ConfigPage> {
-  DataBaseHelper db = DataBaseHelper();
   late final ConfigController configController;
 
   void showBottomSheet(
@@ -44,15 +42,18 @@ class _ConfigPageState extends State<ConfigPage> {
     ).whenComplete(() {
       onComplete?.call();
     });
-  }
-
-  
+  }  
 
   @override
   void initState() {
     super.initState();
     configController = getIt<ConfigController>();
-    configController.init();
+  }
+
+  @override
+  void dispose() {
+    configController.close();
+    super.dispose();
   }
 
   @override
@@ -60,26 +61,15 @@ class _ConfigPageState extends State<ConfigPage> {
     return BlocProvider.value(
       value: configController,
       child: BlocListener<ConfigController, ConfigState>(
-        listenWhen: (previous, current) =>
-        previous.errorMessage != current.errorMessage ||
-        previous.successMessage != current.successMessage ||
-        previous.updatedPassword != current.updatedPassword,
+        listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state){
-          if (state.updatedPassword && state.successMessage.isNotNullOrBlank) {
-            if (mounted) {
-              
-            }
-          }
-          if (state.successMessage.isNotNullOrBlank) {
-            SnackUtils.showSuccess(context, content: state.successMessage);
-            configController.clearMessages();
-          }
+          
         },
         child: BlocBuilder<ConfigController, ConfigState>(
           builder: (context, state) {
             return Scaffold(
               backgroundColor: CoreColors.secondColor,
-              body: state.isCheckingPin
+              body: state.status is ConfigLoading
                   ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
                       child: SizedBox(
@@ -104,7 +94,7 @@ class _ConfigPageState extends State<ConfigPage> {
                                   ? CoreStrings.updatePin
                                   : CoreStrings.registerPin,
                               fontSize: 20,
-                              icons: CoreIcons.password,
+                              icons: CoreIcons.pin,
                               iconSize: 30,
                               iconColor: state.hasPin
                                   ? CoreColors.textPrimary
@@ -123,7 +113,7 @@ class _ConfigPageState extends State<ConfigPage> {
                                 },
                                 text: CoreStrings.deletePin,
                                 fontSize: 20,
-                                icons: CoreIcons.delete,
+                                icons: Icons.delete_outline,
                                 iconSize: 30,
                               ),
                             ),
@@ -145,21 +135,34 @@ class _ConfigPageState extends State<ConfigPage> {
                             ConfigOptions(
                               key: CoreKeys.updateListConfig,
                               onTap: () {
-                                showBottomSheet(BackupChoiceBottomSheet());
+                                showBottomSheet(RestoreBackupChoiceBottomSheet());
                               },
-                              text: CoreStrings.loadListLogins,
+                              text: CoreStrings.restoreListLogins,
                               fontSize: 20,
                               icons: CoreIcons.upload,
                               iconSize: 30,
                             ),
                             ConfigOptions(
-                              // key: CoreKeys.deleteAccount,
                               onTap: () {
                                 showBottomSheet(const ChangePasswordBottomSheet());
                               },
-                              text: "Alterar Senha",
+                              text: CoreStrings.changePasswordAction,
                               fontSize: 20,
                               icons: Icons.password,
+                              iconSize: 30,
+                            ),
+                            ConfigOptions(
+                              onTap: () async {
+                                showBottomSheet(
+                                  LockTimeoutBottomSheet(),
+                                  onComplete: () {
+                                    configController.resetSelectedFolder();
+                                  },
+                                );
+                              },
+                              text: CoreStrings.screenLockTimer,
+                              fontSize: 20,
+                              icons: CoreIcons.timerBlock,
                               iconSize: 30,
                             ),
                             ConfigOptions(

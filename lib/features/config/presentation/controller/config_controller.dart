@@ -1,800 +1,419 @@
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lockpass/constants/core_strings.dart';
-import 'package:lockpass/core/paths/lockpass_paths.dart';
-import 'package:lockpass/core/utils/extensions/string_validators.dart';
-import 'package:lockpass/core/vault/vault_service.dart';
-import 'package:lockpass/database/database_helper.dart';
-import 'package:lockpass/services/auth_service.dart';
-import 'package:lockpass/services/pin_service.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_archive/flutter_archive.dart';
-
-import '../state/config_state.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/errors/auth_errors_type.dart';
+import 'package:lockpass/core/extensions/string_validators.dart';
+import 'package:lockpass/core/services/auth/auth_service_impl.dart';
+import 'package:lockpass/domain/repositories/itens_repository.dart';
+import 'package:lockpass/features/config/domain/usecases/confirm_and_remove_pin_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/create_manual_backup_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/delete_account_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/get_lock_timeout_usercase.dart';
+import 'package:lockpass/features/config/domain/usecases/get_pin_status_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/reauthenticate_and_remove_pin_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/restore_automatic_backup_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/restore_manual_backup_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/save_pin_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/select_zip_file_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/set_lock_timeout_usercase.dart';
+import 'package:lockpass/features/config/domain/usecases/share_backup_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/sign_out_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/update_password_usecase.dart';
+import 'package:lockpass/features/config/domain/usecases/update_pin_usecase.dart';
+import 'package:lockpass/features/config/presentation/state/config_state.dart';
+import 'package:lockpass/features/config/presentation/state/config_status.dart';
 
 class ConfigController extends Cubit<ConfigState> {
-  final VaultService _vaultService;
-  final AuthService _authService;
-  final DataBaseHelper _db;
-  final PinService _pinService;
+  final GetPinStatusUseCase _getPinStatusUseCase;
+  final ReauthenticateAndRemovePinUseCase _reauthAndRemovePinUseCase;
+  final DeleteAccountUseCase _deleteAccountUseCase;
+  final SignOutUseCase _signOutUseCase;
+  final SavePinUseCase _savePinUseCase;
+  final UpdatePinUseCase _updatePinUseCase;
+  final ConfirmAndRemovePinUseCase _confirmAndRemovePinUseCase;
+  final UpdatePasswordUseCase _updatePasswordUseCase;
+  final CreateManualBackupUseCase _createManualBackupUseCase;
+  final ShareBackupUseCase _shareBackupUseCase;
+  final RestoreManualBackupUseCase _restoreManualBackupUseCase;
+  final RestoreAutomaticBackupUseCase _restoreAutomaticBackupUseCase;
+  final SelectZipFileUseCase _selectZipFileUseCase;
+  final SetLockTimeoutUseCase _setLockTimeoutUseCase;
+  final GetLockTimeoutUseCase _getLockTimeoutUseCase;
 
   ConfigController({
-    required VaultService vaultService,
-    required AuthService authService,
-    required DataBaseHelper db,
-    required PinService pinService,
-  })  : _vaultService = vaultService,
-        _authService = authService,
-        _db = db,
-        _pinService = pinService,
+    required ItensRepository itensRepository,
+    required GetPinStatusUseCase getPinStatusUseCase,
+    required ReauthenticateAndRemovePinUseCase reauthAndRemovePinUseCase,
+    required DeleteAccountUseCase deleteAccountUseCase,
+    required SignOutUseCase signOutUseCase,
+    required SavePinUseCase savePinUseCase,
+    required UpdatePinUseCase updatePinUseCase,
+    required ConfirmAndRemovePinUseCase confirmAndRemovePinUseCase,
+    required UpdatePasswordUseCase updatePasswordUseCase,
+    required CreateManualBackupUseCase createManualBackupUseCase,
+    required ShareBackupUseCase shareBackupUseCase,
+    required RestoreManualBackupUseCase restoreManualBackupUseCase,
+    required RestoreAutomaticBackupUseCase restoreAutomaticBackupUseCase,
+    required SelectZipFileUseCase selectZipFileUseCase,
+    required SetLockTimeoutUseCase setLockTimeoutUseCase,
+    required GetLockTimeoutUseCase getLockTimeoutUseCase,
+  })  : _getPinStatusUseCase = getPinStatusUseCase,
+        _reauthAndRemovePinUseCase = reauthAndRemovePinUseCase,
+        _deleteAccountUseCase = deleteAccountUseCase,
+        _signOutUseCase = signOutUseCase,
+        _savePinUseCase = savePinUseCase,
+        _updatePinUseCase = updatePinUseCase,
+        _confirmAndRemovePinUseCase = confirmAndRemovePinUseCase,
+        _updatePasswordUseCase = updatePasswordUseCase,
+        _createManualBackupUseCase = createManualBackupUseCase,
+        _shareBackupUseCase = shareBackupUseCase,
+        _restoreManualBackupUseCase = restoreManualBackupUseCase,
+        _restoreAutomaticBackupUseCase = restoreAutomaticBackupUseCase,
+        _selectZipFileUseCase = selectZipFileUseCase,
+        _setLockTimeoutUseCase = setLockTimeoutUseCase,
+        _getLockTimeoutUseCase = getLockTimeoutUseCase,
         super(const ConfigState()) {
     _initialize();
   }
 
   void _initialize() async {
+    emit(state.copyWith(isAndroid: Platform.isAndroid));
     await getPinVerification();
   }
 
-  void clearMessages() {
-    emit(state.copyWith(errorMessage: '', successMessage: ''));
+  Future<void> getPinVerification() async {
+    emit(state.copyWith(status: const ConfigLoading()));
+
+    try {
+      final hasPin = await _getPinStatusUseCase();
+      emit(state.copyWith(
+        status: const ConfigInitial(),
+        hasPin: hasPin,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: ConfigError(CoreStrings.pinVerificationError),
+      ));
+    }
   }
 
-  String get _uid {
-    final uid = _authService.currentUserId;
-    if (uid.isEmpty) throw Exception('Usuário não autenticado.');
-    return uid;
+  void _emitStatus(ConfigStatus status) {
+    emit(state.copyWith(status: status));
   }
 
   void resetPinForm() {
     emit(state.copyWith(
-      isFormValid: false,
-      pinValidate: false,
-    ));
+        // isFormValid: false,
+        // pinValidate: false,
+        ));
   }
 
-  void onFormChanged({
-    required bool isFormValid,
-    required bool isUpdate,
-    required String currentPin,
-    String? newPin,
-  }) {
-    final _currentPin =
-        currentPin.isNotNullOrBlank && currentPin.trim().length == 5;
-    final _newPin = newPin.isNotNullOrBlank && newPin?.trim().length == 5;
-
-    if (!isUpdate) {
-      if (!_newPin) {
-        emit(state.copyWith(pinValidate: false, isFormValid: false));
-        return;
-      }
-
-      emit(
-        state.copyWith(pinValidate: true, isFormValid: true),
-      );
-    }
-
-    if (!_currentPin || !_newPin) {
-      emit(
-        state.copyWith(
-          pinValidate: false,
-          isFormValid: false,
-        ),
-      );
-    }
-
-    emit(state.copyWith(
-      pinValidate: true,
-      isFormValid: isFormValid,
-    ));
-  }
-
-  // -------------------------
-  // Initial load
-  // -------------------------
-  Future<void> init() async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      await _vaultService.initializePreferences();
-      await verifyPlatform();
-      emit(state.copyWith(isLoading: false));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
-    }
-  }
-
-  Future<bool> reauthenticate({
+  Future<void> reauthenticate({
     required String email,
     required String password,
   }) async {
+    emit(state.copyWith(status: ConfigLoading()));
+
     try {
-      emit(state.copyWith(
-        isLoading: true,
-        successMessage: '',
-        errorMessage: '',
-      ));
-      await _authService.reauthenticateWithPassword(
+      await _reauthAndRemovePinUseCase(
         email: email,
         password: password,
       );
+
       emit(state.copyWith(
-        successMessage: "Identidade confirmada. Agora crie um novo PIN.",
-        isLoading: false,
+        status: ConfigPinResetSuccess(CoreStrings.identityConfirmedAndPinRemoved),
         hasPin: false,
       ));
-      removePin();
-      return true;
-    } catch (e) {
+    } catch (_) {
       emit(state.copyWith(
-        isLoading: false,
-        errorMessage:
-            "Não foi possível confirmar sua identidade. Verifique e-mail e senha e tente novamente.",
+        status: ConfigError(CoreStrings.identityValidationError),
       ));
-      return false;
     }
   }
 
-  // -------------------------
-  // Delete Account
-  // -------------------------
-
   Future<void> deleteAccount() async {
-    emit(
-      state.copyWith(isLoading: true, errorMessage: '', successMessage: ''),
-    );
+    emit(state.copyWith(status: ConfigLoading()));
 
     final stopwatch = Stopwatch()..start();
     const minDuration = Duration(milliseconds: 600);
 
-    bool success = false;
-
     try {
-      await _db.closeDatabase();
+      await _deleteAccountUseCase();
 
-      await _db.deleteLocalDatabase();
+      await _ensureMinDuration(stopwatch, minDuration);
 
-      final appDir = await getApplicationDocumentsDirectory();
-      final backupFile = File(p.join(appDir.path, 'LPB_automatic.zip'));
-      if (await backupFile.exists()) {
-        await backupFile.delete();
-        print("Backup automático removido com sucesso.");
-      }
-
-      await _vaultService.initializePreferences();
-      final prefs = await _vaultService.prefs();
-      await prefs.clearUserData();
-      await _authService.deleteAccount();
-
-      success = true;
-    } catch (e) {
-      success = false;
-      print("Erro ao excluir conta: $e");
       emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Não foi possível excluir a conta. Tente novamente.',
+        status: ConfigSuccess(CoreStrings.accountRemovedSuccess),
       ));
-    } finally {
-      final elapsed = stopwatch.elapsed;
-      if (elapsed < minDuration) {
-        await Future.delayed(minDuration - elapsed);
-      }
+    } catch (_) {
+      await _ensureMinDuration(stopwatch, minDuration);
 
       emit(state.copyWith(
-        isLoading: false,
-        successMessage: success ? 'Conta removida com sucesso.' : '',
+        status: ConfigError(CoreStrings.deleteAccountError),
       ));
     }
   }
 
-  Future<bool> signOut() async {
-    emit(state.copyWith(isLoading: true));
+  Future<void> signOut() async {
+    emit(state.copyWith(status: ConfigLoading()));
+
     try {
-      await importAutomaticBackup();
-      await AuthService().sigInOut();
-      emit(state.copyWith(isLoading: false, successMessage: 'Saiu da conta.'));
-      return true;
+      await _signOutUseCase();
+
+      emit(state.copyWith(
+        status: ConfigLogoutSuccess(),
+      ));
+    } on AuthErrorType catch (type) {
+      _emitStatus(ConfigError(type.message));
+    } on AuthException catch (e) {
+      _emitStatus(ConfigError(e.message));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
-      return false;
+      _emitStatus(ConfigError(AuthErrorType.unknown.message));
     }
   }
 
-  // -------------------------
-  // PIN
-  // -------------------------
+  Future<void> saveNewPin(String newPin) async {
+    emit(state.copyWith(status: ConfigLoading()));
 
-  Future<bool> verifyCurrentPin(String typedPin) async {
-    final uid = _authService.currentUserId;
-    if (uid.isEmpty) return false;
-
-    return await _pinService.validatePin(uid, typedPin.trim());
-  }
-
-  bool pinIsValid(String pin) {
-    final exp = RegExp(CoreStrings.regExpValidatePin);
-    return exp.hasMatch(pin);
-  }
-
-  Future<void> saveNewPin(String newAndUpdatePin) async {
     try {
-      final newPin = pinIsValid(newAndUpdatePin);
-      if (!newPin) {
-        emit(state.copyWith(
-          pinValidate: false,
-          errorMessage:
-              'PIN inválido. Consulta as regras de criaçāo no botāo de informação.',
-        ));
-        return;
-      }
-
-      await _pinService.savePin(_uid, newAndUpdatePin);
+      await _savePinUseCase(newPin);
 
       emit(state.copyWith(
-        pinValidate: true,
-        successMessage: 'PIN salvo com sucesso.',
+        status: ConfigSuccess(CoreStrings.savePinSuccess),
         hasPin: true,
       ));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      emit(state.copyWith(
+        status: ConfigError(e.toString()),
+      ));
     }
   }
 
-  Future<void> saveUpdatePin(String currentPin, String newAndUpdatePin) async {
-    try {
-      final isValidCurrentAndUpdatePin =
-          pinIsValid(currentPin) && pinIsValid(newAndUpdatePin);
-      final checkingCurrentPin = await verifyCurrentPin(currentPin);
-      if (!isValidCurrentAndUpdatePin) {
-        emit(state.copyWith(
-          pinValidate: false,
-          errorMessage:
-              'PIN inválido. Consulte as regras para criação do PIN no botão de informação.',
-        ));
-        return;
-      }
+  Future<void> saveUpdatePin(
+    String currentPin,
+    String newPin,
+  ) async {
+    emit(state.copyWith(status: ConfigLoading()));
 
-      if (!checkingCurrentPin) {
-        emit(state.copyWith(
-          pinValidate: false,
-          errorMessage: 'O PIN informado não corresponde ao PIN cadastrado.',
-        ));
-        return;
-      }
-      await _pinService.savePin(_uid, newAndUpdatePin);
+    try {
+      await _updatePinUseCase(
+        currentPin: currentPin,
+        newPin: newPin,
+      );
 
       emit(state.copyWith(
-        pinValidate: true,
-        successMessage: 'PIN atualizado com sucesso.',
+        status: ConfigSuccess(CoreStrings.updatePinSuccess),
         hasPin: true,
       ));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      if (e.toString().contains("INVALID_CURRENT_PIN")) {
+        emit(state.copyWith(
+          status: ConfigError(CoreStrings.pinMismatchError),
+        ));
+      } else {
+        _emitStatus(ConfigError(AuthErrorType.unknown.message));
+      }
     }
   }
 
   Future<void> savePin(
-      String currentPin, String newAndUpdatePin, bool hasPin) async {
-    emit(state.copyWith(
-      isLoading: true,
-      isFormValid: false,
-    ));
+    String currentPin,
+    String newPin,
+    bool hasPin,
+  ) async {
+    emit(state.copyWith(status: ConfigLoading()));
+
     try {
-      clearMessages();
       if (hasPin) {
-        await saveUpdatePin(currentPin, newAndUpdatePin);
+        await _updatePinUseCase(
+          currentPin: currentPin,
+          newPin: newPin,
+        );
       } else {
-        await saveNewPin(newAndUpdatePin);
+        await _savePinUseCase(newPin);
       }
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   emit(state.copyWith(
-      //     isLoading: false,
-      //   ));
-      // });
+
       emit(state.copyWith(
-        isLoading: false,
+        status: ConfigPinCreatedSuccess(CoreStrings.savePinSuccess),
+        hasPin: true,
       ));
     } catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
-    }
-  }
-
-  Future<void> removePin() async {
-    emit(state.copyWith(
-      isLoading: true,
-      successMessage: '',
-      errorMessage: '',
-    ));
-
-    final stopwatch = Stopwatch()..start();
-    const minDuration = Duration(milliseconds: 600);
-
-    try {
-      await _pinService.removePin(_uid);
-
-      await _vaultService.initializePreferences();
-      final prefs = await _vaultService.prefs();
-      await prefs.setVisibleCreatePinInfo(false);
-
-      await getPinVerification();
-
-      final elapsed = stopwatch.elapsed;
-      if (elapsed < minDuration) {
-        await Future.delayed(minDuration - elapsed);
-      }
-
       emit(state.copyWith(
-        isLoading: false,
-        successMessage: 'PIN removido com sucesso.',
-      ));
-    } catch (e) {
-      final elapsed = stopwatch.elapsed;
-      if (elapsed < minDuration) {
-        await Future.delayed(minDuration - elapsed);
-      }
-
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Não foi possível remover o PIN. Tente novamente.',
+        status: ConfigError(CoreStrings.savePinError),
       ));
     }
   }
 
-  // Future<void> getPinVerification() async {
-  //   emit(state.copyWith(
-  //     isCheckingPin: true,
-  //   ));
-  //   final pin = await _pinService.getPin(_uid);
-
-  //   if (pin.isNullOrBlank) {
-  //     emit(state.copyWith(hasPin: false, isCheckingPin: false));
-  //     return;
-  //   }
-
-  //   final pinInt = int.tryParse(pin?? '') ?? 0;
-
-  //   emit(state.copyWith(
-  //     hasPin: pinInt != 0,
-  //     isCheckingPin: false,
-  //   ));
-  // }
-
-  Future<void> getPinVerification() async {
-    emit(state.copyWith(isCheckingPin: true));
-
-    final hasPin = await _pinService.hasPin();
-
-    emit(state.copyWith(
-      hasPin: hasPin,
-      isCheckingPin: false,
-    ));
-  }
-
-  Future<String> pinDecrypt() async {
-    final pin = await _pinService.getPin(_uid);
-    return pin ?? '';
+  Future<void> _ensureMinDuration(
+    Stopwatch stopwatch,
+    Duration minDuration,
+  ) async {
+    final elapsed = stopwatch.elapsed;
+    if (elapsed < minDuration) {
+      await Future.delayed(minDuration - elapsed);
+    }
   }
 
   Future<void> confirmAndRemovePin(String typedPin) async {
-    emit(state.copyWith(
-      isLoading: true,
-      errorMessage: '',
-      successMessage: '',
-    ));
-
-    final uid = _authService.currentUserId;
-    if (uid.isEmpty) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Usuário não autenticado.',
-      ));
-      return;
-    }
+    emit(state.copyWith(status: ConfigLoading()));
 
     try {
-      // 🔐 Valida PIN digitado
-      final isValid = await _pinService.validatePin(uid, typedPin.trim());
-
-      if (!isValid) {
-        emit(state.copyWith(
-          isLoading: false,
-          errorMessage: 'O PIN informado não corresponde ao PIN cadastrado.',
-        ));
-        return;
-      }
-
-      // 🗑️ Remove PIN
-      await _pinService.removePin(uid);
-
-      // 🧠 Ajustes de UI / UX
-      await _vaultService.initializePreferences();
-      final prefs = await _vaultService.prefs();
-      await prefs.setVisibleCreatePinInfo(false);
+      await _confirmAndRemovePinUseCase(typedPin);
 
       emit(state.copyWith(
-        isLoading: false,
+        status: ConfigPinRemoveSuccess(CoreStrings.removePinSuccess),
         hasPin: false,
-        successMessage: 'PIN removido com sucesso.',
       ));
     } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Não foi possível remover o PIN. Tente novamente.',
-      ));
-    }
-  }
-
-  // -------------------------
-  // Platform
-  // -------------------------
-  Future<void> verifyPlatform() async {
-    emit(state.copyWith(isAndroid: Platform.isAndroid));
-    // if (Platform.isAndroid) {
-    //   final p = await AndroidPathProvider.downloadsPath;
-    //   emit(state.copyWith(isAndroid: true, path: p));
-    // } else {
-    //   final directory = await getApplicationDocumentsDirectory();
-    //   emit(state.copyWith(isAndroid: false, path: directory.path));
-    // }
-  }
-
-  // -------------------------
-  // Permission
-  // -------------------------
-  Future<void> requestPermission(Permission permission) async {
-    await _vaultService.initializePreferences();
-    final prefs = await _vaultService.prefs();
-    final status = await permission.request();
-
-    if (status.isGranted) {
-      await prefs.setPermissionStorage(true);
-      emit(state.copyWith(successMessage: 'Permissão concedida.'));
-    } else {
-      await prefs.setPermissionStorage(false);
-      emit(state.copyWith(errorMessage: 'Permissão negada.'));
-    }
-  }
-
-  Future<bool> checkPermission() async {
-    await _vaultService.initializePreferences();
-    final prefs = await _vaultService.prefs();
-    return prefs.getPermissionStorage();
-  }
-
-  void togglePasswordVisibility() {
-    final newSufixIcon = !state.sufixIcon;
-    emit(state.copyWith(
-      sufixIcon: newSufixIcon,
-      obscureText: newSufixIcon, // seu padrão atual
-    ));
-  }
-
-  // -------------------------
-  // File picker
-  // -------------------------
-  Future<void> selectFile() async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      final directory = CoreStrings.appName;
-
-      final picked = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        allowMultiple: false,
-        initialDirectory: directory,
-        lockParentWindow: true,
-      );
-
-      final file = picked?.files.firstOrNull;
-
-      if (file == null) {
-        emit(state.copyWith(isLoading: false, selectedFile: false));
-        return;
+      if (e.toString().contains("INVALID_PIN")) {
+        _emitStatus(ConfigError(CoreStrings.pinMismatchError));
+      } else {
+        _emitStatus(ConfigError(CoreStrings.removePinError));
       }
-
-      emit(state.copyWith(
-        isLoading: false,
-        selectedFile: true,
-        selectedFileName: file.name,
-      ));
-    } on PlatformException catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        selectedFile: false,
-        errorMessage: e.message ?? e.toString(),
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        selectedFile: false,
-        errorMessage: e.toString(),
-      ));
-    }
-  }
-
-  // -------------------------
-  // Zip encryption
-  // -------------------------
-  String _generateListItensFileName() {
-    final now = DateTime.now();
-
-    final date =
-        '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
-
-    final time = '${now.hour.toString().padLeft(2, '0')}-'
-        '${now.minute.toString().padLeft(2, '0')}-'
-        '${now.second.toString().padLeft(2, '0')}';
-
-    return 'LPB_${date}_$time.zip';
-  }
-
-  Future<void> selectedFolder() async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      final directory = CoreStrings.appName;
-
-      final folderPath = await FilePicker.platform.getDirectoryPath(
-        initialDirectory: directory,
-        lockParentWindow: true,
-      );
-
-      if (folderPath == null) {
-        emit(state.copyWith(isLoading: false, selectedFolder: false));
-        return;
-      }
-
-      String folderName = folderPath.split('/').last;
-
-      if (folderName.isEmpty) {
-        List<String> partes = folderPath.split('/');
-        folderName =
-            partes.length > 1 ? partes[partes.length - 2] : "Pasta selecionada";
-      }
-
-      emit(state.copyWith(
-        isLoading: false,
-        selectedFolder: true,
-        selectedFolderPath: folderPath,
-        folderName: folderName,
-      ));
-    } on PlatformException catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        selectedFolder: false,
-        errorMessage: e.message ?? e.toString(),
-      ));
-    } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        selectedFolder: false,
-        errorMessage: e.toString(),
-      ));
     }
   }
 
   void resetSelectedFolder() {
     emit(state.copyWith(
-      selectedFolder: false,
-      selectedFolderPath: '',
-      folderName: '',
-    ));
+        // selectedFolder: false,
+        // selectedFolderPath: '',
+        // folderName: '',
+        ));
   }
 
-  Future<void> selectZipFile() async {
+  Future<String?> selectZipFile() async {
+    try {
+      return await _selectZipFileUseCase();
+    } catch (_) {
+      emit(state.copyWith(
+        status: ConfigError(CoreStrings.selectFileError),
+      ));
+      return null;
+    }
+  }
+
+  Future<void> createManualBackup() async {
+    emit(state.copyWith(status: const ConfigLoading()));
+
+    try {
+      await _createManualBackupUseCase();
+
+      emit(state.copyWith(
+        status: const ConfigBackupSaved(CoreStrings.backupCreatedSuccess),
+      ));
+    } catch (_) {
+      emit(state.copyWith(
+        status: ConfigError(CoreStrings.createManualBackupError),
+      ));
+    }
+  }
+
+  Future<void> shareExportBackup() async {
     emit(state.copyWith(
-      selectedZipPath: '',
-      selectedZipName: '',
-      hasSelectedZip: false,
+      status: const ConfigLoading(),
     ));
+
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['zip'],
-        allowMultiple: false,
-      );
-
-      if (result == null) {
-        emit(state.copyWith(hasSelectedZip: false));
-        return;
-      }
-
-      final file = result.files.single;
+      await _shareBackupUseCase();
 
       emit(state.copyWith(
-        selectedZipPath: file.path!,
-        selectedZipName: file.name,
-        hasSelectedZip: true,
+        status: ConfigBackupShared(CoreStrings.backupSharedSuccess),
       ));
-    } catch (e) {
+    } catch (_) {
       emit(state.copyWith(
-        hasSelectedZip: false,
-        errorMessage: 'Falha ao selecionar arquivo',
+        status: ConfigError(CoreStrings.shareBackupError),
       ));
     }
   }
 
-  Future<void> exportBackup() async {
-    clearMessages();
-    emit(state.copyWith(isLoading: true, saveZip: false));
+  Future<void> restoreManualBackup(String path) async {
+    if (path.isNullOrBlank) {
+      emit(state.copyWith(
+        status: ConfigError(CoreStrings.noFileSelected),
+      ));
+      return;
+    }
+
+    emit(state.copyWith(status: const ConfigLoading()));
+
     try {
-      final Directory dbDir = await LockPassPaths.dbDir;
-      final File dbFile = File(p.join(dbDir.path, 'lockpass_itens.db'));
-
-      if (!await dbFile.exists()) {
-        throw Exception("Arquivo de banco de dados não encontrado.");
-      }
-
-      final fileName = _generateListItensFileName();
-      final Directory tempDir = await getTemporaryDirectory();
-      final String tempPath = p.join(tempDir.path, fileName);
-      final zipFile = File(tempPath);
-
-      await ZipFile.createFromFiles(
-          sourceDir: dbDir, // Diretório base
-          files: [dbFile], // Lista de arquivos para incluir
-          zipFile: zipFile, // Onde salvar o ZIP
-          includeBaseDirectory: false);
-
-      String? outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Onde deseja salvar o backup?',
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: ['zip'],
-        bytes: await zipFile.readAsBytes(), // Passamos os dados do arquivo
-      );
-
-      if (outputFile.isNullOrBlank) {
-        emit(state.copyWith(isLoading: false));
-        return;
-      }
-
-      if (await zipFile.exists()) {
-        await zipFile.delete();
-      }
+      await _restoreManualBackupUseCase(path);
 
       emit(state.copyWith(
-        isLoading: false,
-        saveZip: true,
+        status: ConfigRestoreBackupManualSuccess(CoreStrings.backupRestoredSuccess),
       ));
     } catch (e) {
       emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Não foi possível salvar a lista.',
+        status: ConfigError(CoreStrings.restoreFileInvalidError),
       ));
     }
   }
 
-  Future<void> importManualBackup() async {
-    final path = state.selectedZipPath;
-    if (path == null || path.isEmpty) return;
-
-    emit(state.copyWith(isLoading: true, errorMessage: '', successMessage: ''));
-
-    final dbHelper = DataBaseHelper();
-    final Directory destinationDir = await LockPassPaths.dbDir;
-    final File dbFileAtual =
-        File(p.join(destinationDir.path, 'lockpass_itens.db'));
-    final File dbFileBackup =
-        File(p.join(destinationDir.path, 'lockpass_itens.db.bak'));
+  Future<void> restoreAutomaticBackup() async {
+    emit(state.copyWith(
+      status: const ConfigLoading(),
+    ));
 
     try {
-      await dbHelper.closeDatabase();
-
-      if (await dbFileAtual.exists()) {
-        if (await dbFileBackup.exists()) await dbFileBackup.delete();
-        await dbFileAtual.rename(dbFileBackup.path);
-      }
-
-      await ZipFile.extractToDirectory(
-        zipFile: File(path),
-        destinationDir: destinationDir,
-      );
-
-      await dbHelper.database;
-
-      if (await dbFileBackup.exists()) await dbFileBackup.delete();
+      await _restoreAutomaticBackupUseCase();
 
       emit(state.copyWith(
-        isLoading: false,
-        successMessage: "Backup restaurado com sucesso!",
-        selectedZipName: '',
-        selectedZipPath: '',
-        hasSelectedZip: false,
+        status: ConfigRestoreBackupAutomaticSuccess(CoreStrings.restoreAutomaticBackupSuccess),
       ));
-    } catch (e) {
-      print("Erro na importação: $e");
-
-      if (await dbFileBackup.exists()) {
-        if (await dbFileAtual.exists()) await dbFileAtual.delete();
-        await dbFileBackup.rename(dbFileAtual.path);
-      }
-
+    } catch (_) {
       emit(state.copyWith(
-        isLoading: false,
-        errorMessage: "Falha ao restaurar: arquivo inválido ou corrompido.",
-        selectedZipName: '',
-        selectedZipPath: '',
-        hasSelectedZip: false,
+        status: ConfigError(CoreStrings.restoreAutomaticBackupError),
       ));
-    }
-  }
-
-  Future<void> importAutomaticBackup() async {
-    emit(state.copyWith(isLoading: true));
-
-    try {
-      // 1. Localiza o backup automático
-      final directory = await getApplicationDocumentsDirectory();
-      final backupFile = File(p.join(directory.path, 'LPB_automatic.zip'));
-
-      if (!await backupFile.exists()) {
-        emit(state.copyWith(
-            isLoading: false,
-            errorMessage: "Nenhum backup automático encontrado."));
-        return;
-      }
-
-      final dbHelper = DataBaseHelper();
-      final Directory destinationDir = await LockPassPaths.dbDir;
-      final File dbFileAtual =
-          File(p.join(destinationDir.path, 'lockpass_itens.db'));
-      final File dbFileBackup =
-          File(p.join(destinationDir.path, 'lockpass_itens.db.bak'));
-
-      await dbHelper.closeDatabase();
-
-      if (await dbFileAtual.exists()) {
-        if (await dbFileBackup.exists()) await dbFileBackup.delete();
-        await dbFileAtual.rename(dbFileBackup.path);
-      }
-
-      await ZipFile.extractToDirectory(
-        zipFile: backupFile,
-        destinationDir: destinationDir,
-      );
-
-      await dbHelper.database;
-
-      if (await dbFileBackup.exists()) await dbFileBackup.delete();
-
-      emit(state.copyWith(
-          isLoading: false, successMessage: "Backup automático restaurado!"));
-    } catch (e) {
-      // Lógica de Rollback aqui (renomear o .bak de volta para .db)
-      // ...
-      emit(
-          state.copyWith(isLoading: false, errorMessage: "Erro ao restaurar."));
     }
   }
 
   Future<void> updatePassword(
-      String currentPassword, String newPassword) async {
-    emit(state.copyWith(isLoading: true, updatedPassword: false));
-    clearMessages();
+    String currentPassword,
+    String newPassword,
+  ) async {
+    emit(state.copyWith(
+      status: const ConfigLoading(),
+    ));
+
     try {
-      await _authService.updatePassword(
+      await _updatePasswordUseCase(
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
-      signOut();
-      // Sucesso
+
       emit(state.copyWith(
-        isLoading: false,
-        successMessage: "Sua senha foi alterada!",
-        updatedPassword: true,
+        status: ConfigResetPasswordSuccess(CoreStrings.changePasswordSuccess),
       ));
     } on AuthException catch (e) {
-      emit(state.copyWith(isLoading: false, errorMessage: e.message));
+      emit(state.copyWith(
+        status: ConfigError(e.message),
+      ));
+    } catch (_) {
+      emit(state.copyWith(
+        status: ConfigError(
+          CoreStrings.changePasswordError,
+        ),
+      ));
     }
   }
 
-  void isFormValid(String currentPassword, String newPassword) {
-    final isFormValid = currentPassword.isNotNullOrBlank && newPassword.length >= 6;
-    emit(state.copyWith(isFormValid: isFormValid));
-  }
-}
+  void clearStatus() => emit(state.copyWith(status: const ConfigInitial()));
 
-extension<T> on List<T> {
-  T? get firstOrNull => isEmpty ? null : first;
+  Future<void> setLockTimeout(int value) async {
+    _emitStatus(const ConfigLoading());
+    try {
+      final setTime = await _setLockTimeoutUseCase(value);
+      if (!setTime) {
+        _emitStatus(ConfigError(CoreStrings.saveLockTimerImpossible));
+        return;
+      }
+      _emitStatus(ConfigSuccess(CoreStrings.saveLockTimerSuccess));
+    } catch (_) {
+      _emitStatus(ConfigError(CoreStrings.saveLockTimerError));
+    }
+  }
+
+  int getLockTimeout() {
+    return _getLockTimeoutUseCase();
+  }
 }
