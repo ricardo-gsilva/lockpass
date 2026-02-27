@@ -4,6 +4,7 @@ import 'package:lockpass/core/constants/core_colors.dart';
 import 'package:lockpass/core/constants/core_keys.dart';
 import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/di/service_locator.dart';
+import 'package:lockpass/core/extensions/context_extensions.dart';
 import 'package:lockpass/core/navigation/app_routes.dart';
 import 'package:lockpass/features/splash/presentation/controller/splash_controller.dart';
 import 'package:lockpass/features/splash/presentation/state/splash_state.dart';
@@ -82,7 +83,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 15),
+                      padding: EdgeInsets.only(bottom: 20 + context.bottomSystemSpace),
                       child: BlocBuilder<SplashController, SplashState>(
                         builder: (context, state) {
                           return TextCustom(
