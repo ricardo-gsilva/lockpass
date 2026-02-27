@@ -146,21 +146,16 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                           prev.selectedItem != curr.selectedItem,
                       builder: (context, state) {
                         final item = state.selectedItem ?? widget.item;
-                        final groupOptions = state.allGroups
-                            .map((g) => g.groupName)
-                            .where((name) => name.isNotEmpty)
-                            .toSet()
-                            .toList();
+                        final groupOptions =
+                            state.allGroups.map((g) => g.groupName).where((name) => name.isNotEmpty).toSet().toList();
                         return Padding(
                           padding: const EdgeInsets.only(top: 15, bottom: 10),
                           child: SingleChildScrollView(
                             child: Form(
                               key: _formKey,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
                               onChanged: () {
-                                final isValid =
-                                    _formKey.currentState?.validate() ?? false;
+                                final isValid = _formKey.currentState?.validate() ?? false;
                                 final currentItem = item.copyWith(
                                   group: groupController.text.trim(),
                                   service: serviceController.text.trim(),
@@ -185,16 +180,14 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                                       width: 45,
                                       height: 5,
                                       decoration: BoxDecoration(
-                                        color: CoreColors.textTertiary
-                                            .withValues(alpha: 0.5),
+                                        color: CoreColors.textTertiary.withValues(alpha: 0.5),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(height: 12),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       TextCustom(
                                         text: item.login,
@@ -205,9 +198,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                                       Row(
                                         children: [
                                           Visibility(
-                                            visible: state.listMode ==
-                                                    ListViewModeEnum.list &&
-                                                !_isEditingItem,
+                                            visible: state.listMode == ListViewModeEnum.list && !_isEditingItem,
                                             child: IconButtonCustom(
                                               icon: CoreIcons.delete,
                                               color: CoreColors.textSecundary,
@@ -216,18 +207,13 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                                                   context: context,
                                                   child: BlocProvider.value(
                                                     value: controller,
-                                                    child:
-                                                        ConfirmationBottomSheet(
+                                                    child: ConfirmationBottomSheet(
                                                       title: CoreStrings.delete,
-                                                      description: CoreStrings
-                                                          .deleteThisLogin,
+                                                      description: CoreStrings.deleteThisLogin,
                                                       confirmButtonText: CoreStrings.moveToTrash,
-                                                      confirmButtonColor:
-                                                          CoreColors
-                                                              .buttonColorSecond,
+                                                      confirmButtonColor: CoreColors.buttonColorSecond,
                                                       onConfirm: () {
-                                                        controller
-                                                            .moveToTrash(item);
+                                                        controller.moveToTrash(item);
                                                         Navigator.popUntil(context, ModalRoute.withName('/home'));
                                                       },
                                                     ),
@@ -238,12 +224,9 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                                           ),
                                           SizedBox(width: 10),
                                           Visibility(
-                                            visible: state.listMode ==
-                                                ListViewModeEnum.list,
+                                            visible: state.listMode == ListViewModeEnum.list,
                                             child: IconButtonCustom(
-                                              icon: _isEditingItem
-                                                  ? CoreIcons.close
-                                                  : CoreIcons.edit,
+                                              icon: _isEditingItem ? CoreIcons.close : CoreIcons.edit,
                                               color: CoreColors.textSecundary,
                                               onPressed: () {
                                                 _resetControllers(item);
@@ -263,11 +246,9 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                                           siteController: siteController,
                                           emailController: emailController,
                                           loginController: loginController,
-                                          passwordController:
-                                              passwordController,
+                                          passwordController: passwordController,
                                           groupOptions: groupOptions,
-                                          selectedType:
-                                              state.selectedItem?.group ?? '',
+                                          selectedType: state.selectedItem?.group ?? '',
                                         )
                                       : ItemInfoViewWidget(
                                           item: item,
@@ -325,8 +306,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                     final updatedItem = item.copyWith(
                       group: groupController.text.trim(),
                       service: serviceController.text.trim(),
-                      site: siteController.text.trim().isEmpty 
-                        ? null : siteController.text.trim(),
+                      site: siteController.text.trim().isEmpty ? null : siteController.text.trim(),
                       email: emailController.text.trim(),
                       login: loginController.text.trim(),
                       password: passwordController.text.trim(),
@@ -374,12 +354,13 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
                         confirmButtonText: CoreStrings.delete,
                         confirmButtonColor: CoreColors.buttonColorSecond,
                         onConfirm: () async {
+                          final navigator = Navigator.of(context);
+
                           await controller.deletePermanently(item);
-                          if (context.mounted) {
-                            Future.delayed(Duration.zero, () {
-                              if (context.mounted) Navigator.of(context).pop();
-                            });
-                          }
+
+                          if (!context.mounted) return;
+
+                          navigator.pop();
                         },
                       ),
                     ),

@@ -26,7 +26,7 @@ extension AuthErrorTypeMessage on AuthErrorType {
 }
 extension FirebaseAuthCodeMapper on String {
   AuthErrorType toAuthErrorType() {
-    final code = this.toLowerCase().replaceAll('_', '-');
+    final code = toLowerCase().replaceAll('_', '-');
     return switch (code) {
       'invalid-email' => AuthErrorType.invalidEmail,
       'user-disabled' => AuthErrorType.userDisabled,

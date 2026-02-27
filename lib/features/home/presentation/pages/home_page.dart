@@ -103,8 +103,9 @@ class _HomePageState extends State<HomePage> {
                       icon: CoreIcons.config,
                       color: CoreColors.textPrimary,
                       onPressed: () async {
-                        await homeController
-                            .setHideCreatePinInfo(dontShowAgain);
+                        await homeController.setHideCreatePinInfo(dontShowAgain);
+                        if (!context.mounted) return;
+
                         homeController.onItemTapped(2);
                         Navigator.of(context).pop();
                       },
@@ -122,6 +123,9 @@ class _HomePageState extends State<HomePage> {
                     backgroundButton: CoreColors.buttonColorSecond,
                     onPressed: () async {
                       await homeController.setHideCreatePinInfo(dontShowAgain);
+
+                      if (!context.mounted) return;
+
                       Navigator.of(context).pop();
                     },
                   ),
@@ -167,11 +171,9 @@ class _HomePageState extends State<HomePage> {
                 ),
                 leading: MenuAnchor(
                   style: MenuStyle(
-                    backgroundColor:
-                        WidgetStateProperty.all(CoreColors.titleItem),
+                    backgroundColor: WidgetStateProperty.all(CoreColors.titleItem),
                     shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   builder: (context, controller, child) {
@@ -183,8 +185,7 @@ class _HomePageState extends State<HomePage> {
                           controller.open();
                         }
                       },
-                      icon:
-                          const Icon(Icons.account_circle, color: CoreColors.buttonColorPrimary),
+                      icon: const Icon(Icons.account_circle, color: CoreColors.buttonColorPrimary),
                     );
                   },
                   menuChildren: [
@@ -228,12 +229,9 @@ class _HomePageState extends State<HomePage> {
                 unselectedItemColor: CoreColors.unselectBottomBar,
                 items: [
                   BottomNavigationBarItem(
-                    icon: state.viewMode == ListViewEnum.list
-                        ? const Icon(CoreIcons.group)
-                        : const Icon(CoreIcons.list),
-                    label: state.viewMode == ListViewEnum.list
-                        ? CoreStrings.group
-                        : CoreStrings.list,
+                    icon:
+                        state.viewMode == ListViewEnum.list ? const Icon(CoreIcons.group) : const Icon(CoreIcons.list),
+                    label: state.viewMode == ListViewEnum.list ? CoreStrings.group : CoreStrings.list,
                   ),
                   const BottomNavigationBarItem(
                     icon: Icon(CoreIcons.add),

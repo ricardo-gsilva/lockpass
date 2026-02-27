@@ -58,8 +58,6 @@ class ListItemController extends Cubit<ListItemState> {
     try {
       final result = await _loadItemsUseCase(state.listMode);
 
-      print(result);
-
       final groups = _buildGroups(result.sorted);
 
       emit(state.copyWith(

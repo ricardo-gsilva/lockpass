@@ -37,9 +37,11 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
         listenWhen: (previous, current) => previous.ready != current.ready,
         listener: (context, state) async {
           if (state.ready) {
-            await Future.delayed(const Duration(seconds: 2), (){
-              Navigator.pushReplacementNamed(context, AppRoutes.login);
-            });
+            await Future.delayed(const Duration(seconds: 2));
+
+            if(!context.mounted) return;
+            
+            Navigator.pushReplacementNamed(context, AppRoutes.login);
           }          
         },
         child: Scaffold(
