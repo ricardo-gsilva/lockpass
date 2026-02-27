@@ -5,6 +5,10 @@ extension StringValidators on String? {
 
   bool get isNotNullOrBlank => !isNullOrBlank;
 
+  bool get isNull => this == null;
+
+  bool get isNotNull => this != null;
+
   String get trimmed => (this ?? '').trim();
 
   String? get requiredError {

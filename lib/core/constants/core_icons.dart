@@ -25,4 +25,5 @@ class CoreIcons {
   static const IconData deleteAccount = Icons.delete_forever_rounded;
   static const IconData close = Icons.close;
   static const IconData pin = Icons.pin;
+  static const IconData timerBlock = Icons.timer;
 }

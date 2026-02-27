@@ -22,7 +22,12 @@ class CoreColors {
   static const Color titleItem = Color(0xFFFFCA28);
   static const Color deleteItem = Color(0xFFF44336);
   static const Color transparent = Color(0x00000000);
-  static const Color pinIsEmpty = Color(0xFF2E7D32);
+  static const Color pinIsEmpty = Color(0xFF2E7D32);  
   static const Color alertError = Color(0xFFF44336);
-  
+  static const Color alertSuccess = Color(0xFF4CAF50);
+  static const Color alertDefault = Color(0xFF607D8B);
+  static const Color black = Color(0xFF000000);
+  static const Color black54 = Color(0x89000000);
+  static const Color iconPrimary = Color(0xFFFF9800);
+  static const Color iconSecondary = Color(0xFF2196F3);  
 }

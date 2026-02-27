@@ -16,12 +16,12 @@ extension AuthErrorTypeMessage on AuthErrorType {
         AuthErrorType.invalidEmail => CoreStrings.fEmailInvalid,
         AuthErrorType.invalidCredentials => CoreStrings.fInvalidLoginCredentials,
         AuthErrorType.userDisabled => CoreStrings.fUserDisabled,
-        AuthErrorType.tooManyRequests => 'Muitas tentativas. Tente novamente em alguns minutos.',
-        AuthErrorType.networkFailed => 'Sem conexão. Verifique sua internet.',
-        AuthErrorType.weakPassword => 'A nova senha deve ter no mínimo 6 caracteres.',
-        AuthErrorType.requiresRecentLogin => 'Sessão expirada. Por segurança, faça login novamente.',
-        AuthErrorType.internalError => "Não foi possível validar suas informações. Verifique sua senha atual e sua conexão e tente novamente.",
-        AuthErrorType.unknown => 'Algo deu errado. Tente novamente.',        
+        AuthErrorType.tooManyRequests => CoreStrings.tooManyAttempts,
+        AuthErrorType.networkFailed => CoreStrings.noConnection,
+        AuthErrorType.weakPassword => CoreStrings.passwordTooShort,
+        AuthErrorType.requiresRecentLogin => CoreStrings.sessionExpired,
+        AuthErrorType.internalError => CoreStrings.infoValidationFailed,
+        AuthErrorType.unknown => CoreStrings.genericError,
       };
 }
 extension FirebaseAuthCodeMapper on String {
@@ -32,9 +32,9 @@ extension FirebaseAuthCodeMapper on String {
       'user-disabled' => AuthErrorType.userDisabled,
       'too-many-requests' => AuthErrorType.tooManyRequests,
       'network-request-failed' => AuthErrorType.networkFailed,
-      'weak-password' => AuthErrorType.weakPassword, // Importante para troca de senha
+      'weak-password' => AuthErrorType.weakPassword,
       'internal-error' => AuthErrorType.internalError,
-      'requires-recent-login' => AuthErrorType.requiresRecentLogin, // Segurança do Firebase
+      'requires-recent-login' => AuthErrorType.requiresRecentLogin,
       'invalid-credential' ||
       'wrong-password' ||
       'user-not-found' ||

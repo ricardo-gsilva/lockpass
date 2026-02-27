@@ -10,9 +10,6 @@ import 'package:lockpass/features/list_item/presentation/page/list_item_page.dar
 import 'package:lockpass/features/login/presentation/pages/login_page.dart';
 import 'package:lockpass/features/splash/presentation/pages/splash_screen_page.dart';
 
-
-
-
 class AppRoutes {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static const splash = '/splashScreen';
