@@ -1,0 +1,1 @@
+enum HomeTab { list, add, config, group}

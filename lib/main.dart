@@ -2,44 +2,40 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lockpass/core/constants/core_strings.dart';
+import 'package:lockpass/core/di/service_locator.dart';
+import 'package:lockpass/core/navigation/app_routes.dart';
+import 'package:lockpass/core/security/screen/screen_protection.dart';
+import 'package:lockpass/core/session/presentation/page/app_lifecycle_wrapper.dart';
 import 'package:lockpass/firebase_options.dart';
-import 'package:lockpass/screens/add_item.dart';
-import 'package:lockpass/screens/card_item.dart';
-import 'package:lockpass/screens/config.dart';
-import 'package:lockpass/screens/create_user.dart';
-import 'package:lockpass/screens/home_page.dart';
-import 'package:lockpass/screens/login_page.dart';
-import 'package:lockpass/screens/splash_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ScreenProtection.enable();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
+    options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  await setupGetIt();
+  runApp(const MainLockPass());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainLockPass extends StatelessWidget {
+  const MainLockPass({super.key});
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
     return MaterialApp(
-      title: 'LockPass',
+      navigatorKey: AppRoutes.navigatorKey,
+      title: CoreStrings.appName,
       debugShowCheckedModeBanner: false,
-      routes: {
-        '/splashScreen': (_) => const SplashScreenPage(),
-        '/login': (_) => const LoginPage(),
-        '/home':(_) => const HomePage(),
-        '/createUser': (_) => const CreateUser(),
-        '/addItem': (_) => const AddItem(),
-        '/config': (_) => const Config(),
-        '/cardItem':(_) => const CardItem()
+      builder: (context, child) {
+        return AppLifecycleWrapper(child: child!);
       },
-      initialRoute: '/splashScreen',
+      routes: AppRoutes.routes,
+      initialRoute: AppRoutes.splash,
     );
   }
 }

@@ -8,7 +8,6 @@
             "name": "Iphone SE",
             "request": "launch",
             "type": "dart",
-            "deviceId": "FF4264A3-469D-4A30-A840-C31E6E098361"
         },    
         {
             "name": "Android 8.1.0",
@@ -26,8 +25,17 @@
             "name": "iPhone 14 Pro",
             "request": "launch",
             "type": "dart",
-            "deviceId": "70729D49-812E-470B-AAD6-4997AF25F3B5"
         },
+        {
+            "name": "iPhone 15 Pro",
+            "request": "launch",
+            "type": "dart",
+        }, 
+        {
+            "name": "iPhone 15 Pro Max",
+            "request": "launch",
+            "type": "dart",
+        },        
         {
             "name": "MacOs",
             "request": "launch",
