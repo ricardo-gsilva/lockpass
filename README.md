@@ -60,18 +60,22 @@ This structure promotes scalability, maintainability, and strong domain boundari
 
 ## Project Structure
 
+```text
 lib
 ├── core        # Shared logic, services, security and DI
 ├── data        # Data sources and repository implementations
 ├── domain      # Entities and repository contracts
 ├── features    # Feature-based modules (presentation + domain)
 └── main.dart
+```
 
 Each feature follows a consistent internal structure:
 
+```text
 feature/
 ├── domain      # UseCases
 └── presentation
     ├── controller (Cubit/BLoC)
     ├── state
     └── page
+```
