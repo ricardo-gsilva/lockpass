@@ -270,7 +270,7 @@ static const String enterCurrentPin = "Digite seu PIN atual";
 static const String removePinExplanation = "Digite o PIN atual para confirmar sua identidade.\n\nAo remover o PIN, o acesso ao aplicativo passará a ser realizado utilizando o e-mail e a senha cadastrados.\n\nCaso deseje, será possível criar um novo PIN posteriormente.";
 static const String signingOut = "Deslogando... ";
 static const String logoutAction = "Deslogar";
-static const String logoutConfirmationQuestion = "Você tem certeza que deseja deslogar do aplicativo?";
+static const String logoutConfirmationQuestion = "Você tem certeza que deseja deslogar?\n\nApós sair, será necessário entrar novamente com seu e-mail e senha. O PIN poderá ser usado novamente após o login.";
 
 static const String screenLockTitle = "Bloqueio de Tela";
 static const String screenLockExplanation = "Escolha em quanto tempo o app será bloqueado.\n\nIsso vale quando você ficar sem mexer ou alternar para outro app.\n\nObs: Não bloquear é menos seguro.";
