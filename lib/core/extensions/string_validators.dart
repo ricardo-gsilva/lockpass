@@ -28,6 +28,12 @@ extension StringValidators on String? {
     return null;
   }
 
+  String? get emailOptionalError {
+    if (isNullOrBlank) return null;
+    if (!isValidEmail) return CoreStrings.emailInvalid;
+    return null;
+  }
+
   String? get passwordError {
     final value = this?.trim();
     if (value == null) return CoreStrings.passwordRequired;

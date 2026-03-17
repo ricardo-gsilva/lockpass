@@ -1,18 +1,17 @@
 import 'package:equatable/equatable.dart';
 import 'package:lockpass/core/extensions/string_validators.dart';
 
-class ItensEntity extends Equatable{
+class ItensEntity extends Equatable {
   final String userId;
   final int? id;
   final String group;
   final String service;
   final String? site;
-  final String email;
+  final String? email;
   final String login;
   final String password;
   final bool isDeleted;
   final DateTime? deletedAt;
-
 
   const ItensEntity({
     required this.userId,
@@ -20,29 +19,27 @@ class ItensEntity extends Equatable{
     required this.group,
     required this.service,
     this.site,
-    required this.email,
+    this.email,
     required this.login,
     required this.password,
     this.isDeleted = false,
     this.deletedAt,
   });
 
-  const ItensEntity.empty()
-      : userId = '',
-        id = 0,
-        group = '',
-        service = '',
-        site = '',
-        email = '',
-        login = '',
-        password = '',
-        isDeleted = false,
-        deletedAt = null;
+  // const ItensEntity.empty()
+  //     : userId = '',
+  //       id = 0,
+  //       group = '',
+  //       service = '',
+  //       site = null,
+  //       email = null,
+  //       login = '',
+  //       password = '',
+  //       isDeleted = false,
+  //       deletedAt = null;
 
-    bool isValid() {
-    return service.isNotNullOrBlank &&
-        login.isNotNullOrBlank &&
-        password.isNotNullOrBlank;
+  bool isValid() {
+    return service.isNotNullOrBlank && login.isNotNullOrBlank && password.isNotNullOrBlank;
   }
 
   bool isDifferentFrom(ItensEntity other) {
@@ -53,7 +50,7 @@ class ItensEntity extends Equatable{
         login != other.login ||
         password != other.password ||
         isDeleted != other.isDeleted;
-  }  
+  }
 
   ItensEntity copyWith({
     String? userId,
@@ -83,15 +80,15 @@ class ItensEntity extends Equatable{
 
   @override
   List<Object?> get props => [
-    userId,
-    id,
-    group,
-    service,
-    site,
-    email,
-    login,
-    password,
-    isDeleted,
-    deletedAt,
-  ];
+        userId,
+        id,
+        group,
+        service,
+        site,
+        email,
+        login,
+        password,
+        isDeleted,
+        deletedAt,
+      ];
 }

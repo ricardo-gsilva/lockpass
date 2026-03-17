@@ -80,7 +80,7 @@ class _ItemDetailsBottomSheetState extends State<ItemDetailsBottomSheet> {
     groupController.text = item.group;
     serviceController.text = item.service;
     siteController.text = item.site ?? '';
-    emailController.text = item.email;
+    emailController.text = item.email?? '';
     loginController.text = item.login;
     passwordController.text = item.password;
   }

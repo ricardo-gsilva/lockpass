@@ -7,7 +7,7 @@ class ItensModel extends ItensEntity {
     required super.group,
     required super.service,
     super.site,
-    required super.email,
+    super.email,
     required super.login,
     required super.password,
     super.isDeleted = false,

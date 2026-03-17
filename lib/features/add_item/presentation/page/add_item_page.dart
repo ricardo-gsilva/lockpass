@@ -90,7 +90,6 @@ class _AddItemPageState extends State<AddItemPage> {
                         addItemController.onFormChanged(
                           group: groupController.text,
                           service: serviceController.text,
-                          email: emailController.text,
                           login: loginController.text,
                           password: passwordController.text,
                         );
@@ -199,7 +198,7 @@ class _AddItemPageState extends State<AddItemPage> {
                               label: CoreStrings.labelEmailRegister,
                               controller: emailController,
                               color: CoreColors.textPrimary,
-                              validator: (value) => value.emailError,
+                              validator: (value) => value.emailOptionalError,
                             ),
                           ),
                           ListTile(
@@ -262,7 +261,8 @@ class _AddItemPageState extends State<AddItemPage> {
                                           service: serviceController.text.trim(),
                                           site: siteController.text.trim().isEmpty
                                             ? null : siteController.text.trim(),
-                                          email: emailController.text.trim(),
+                                          email: emailController.text.trim().isEmpty
+                                            ? null : emailController.text.trim(),
                                           login: loginController.text.trim(),
                                           password: passwordController.text.trim(),
                                         );
