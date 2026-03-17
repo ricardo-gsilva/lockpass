@@ -49,10 +49,14 @@ class LoadItemsUseCase {
           userId: uid,
           group: await EncryptDecrypt.decryptInformation(payloadB64: item.group, dek: dek) ?? "Erro",
           service: await EncryptDecrypt.decryptInformation(payloadB64: item.service, dek: dek) ?? "Serviço Indisponível",
-          email: await EncryptDecrypt.decryptInformation(payloadB64: item.email, dek: dek) ?? "",
+          email: item.email != null
+            ? await EncryptDecrypt.decryptInformation(payloadB64: item.email!, dek: dek) ?? ""
+            : "",
           login: await EncryptDecrypt.decryptInformation(payloadB64: item.login, dek: dek) ?? "",
           password: await EncryptDecrypt.decryptInformation(payloadB64: item.password, dek: dek) ?? "",
-          site: item.site != null ? await EncryptDecrypt.decryptInformation(payloadB64: item.site!, dek: dek) : "",
+          site: item.site != null
+            ? await EncryptDecrypt.decryptInformation(payloadB64: item.site!, dek: dek) ?? ""
+            : "",
         );
       }),
     );

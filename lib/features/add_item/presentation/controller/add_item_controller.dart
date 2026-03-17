@@ -23,14 +23,11 @@ class AddItemController extends Cubit<AddItemState> {
   void onFormChanged({
     required String group,
     required String service,
-    required String email,
     required String login,
     required String password,
   }) {
     final valid = group.isNotNullOrBlank &&
         service.isNotNullOrBlank &&
-        email.isNotNullOrBlank &&
-        email.isValidEmail &&
         login.isNotNullOrBlank &&
         password.isNotNullOrBlank;
 

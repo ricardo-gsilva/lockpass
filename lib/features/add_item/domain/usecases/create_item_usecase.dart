@@ -37,15 +37,23 @@ class CreateItemUseCase {
     final encryptUid = EncryptDecrypt.generateUserMask(uid);
     final encryptedGroup = await EncryptDecrypt.encryptInformation(plainText: group.trim(), dek: dek);
     final encryptedService = await EncryptDecrypt.encryptInformation(plainText: item.service.trim(), dek: dek);
-    final encryptedSite =
-        item.site != null ? await EncryptDecrypt.encryptInformation(plainText: item.site!.trim(), dek: dek) : null;
-    final encryptedEmail = await EncryptDecrypt.encryptInformation(plainText: item.email.trim(), dek: dek);
+    final encryptedSite = item.site != null && item.site!.trim().isNotEmpty
+        ? await EncryptDecrypt.encryptInformation(
+            plainText: item.site!.trim(),
+            dek: dek,
+          )
+        : null;
+    final encryptedEmail = item.email != null && item.email!.trim().isNotEmpty
+        ? await EncryptDecrypt.encryptInformation(
+            plainText: item.email!.trim(),
+            dek: dek,
+          )
+        : null;
     final encryptedLogin = await EncryptDecrypt.encryptInformation(plainText: item.login.trim(), dek: dek);
     final encryptedPassword = await EncryptDecrypt.encryptInformation(plainText: item.password.trim(), dek: dek);
 
     final isSecurity = encryptedGroup.isNotNull &&
         encryptedService.isNotNull &&
-        encryptedEmail.isNotNull &&
         encryptedLogin.isNotNull &&
         encryptedPassword.isNotNull;
     if (!isSecurity) {

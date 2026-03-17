@@ -221,7 +221,7 @@ class ListItemController extends Cubit<ListItemState> {
     final filtered = state.allItems.where((e) {
       return e.service.toLowerCase().contains(query) ||
           e.login.toLowerCase().contains(query) ||
-          e.email.toLowerCase().contains(query) ||
+          (e.email ?? '').toLowerCase().contains(query) ||
           (e.site ?? '').toLowerCase().contains(query) ||
           e.group.toLowerCase().contains(query);
     }).toList();

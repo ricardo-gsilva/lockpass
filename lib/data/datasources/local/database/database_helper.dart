@@ -56,7 +56,7 @@ class DataBaseHelper {
         $colGroup TEXT NOT NULL,
         $colService TEXT NOT NULL,
         $colSite TEXT,
-        $colEmail TEXT NOT NULL,
+        $colEmail TEXT,
         $colLogin TEXT NOT NULL,
         $colPassword TEXT NOT NULL,
         $colIsDeleted INTEGER NOT NULL DEFAULT 0,

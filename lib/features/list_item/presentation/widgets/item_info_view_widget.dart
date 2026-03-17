@@ -47,7 +47,7 @@ class ItemInfoViewWidget extends StatelessWidget {
         ),
         InfoItemCustom(
           title: CoreStrings.email,
-          subtitle: item.email.isNotNullOrBlank? item.email : CoreStrings.notInformed,
+          subtitle: item.email.isNotNullOrBlank? item.email! : CoreStrings.notInformed,
           titleColor: CoreColors.textSecundary,
           subtitleColor: CoreColors.textSecundary,
         ),
