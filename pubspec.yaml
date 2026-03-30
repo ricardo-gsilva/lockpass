@@ -1,5 +1,5 @@
 name: lockpass
-description: A new Flutter project.
+description: Aplicativo mobile de gerenciamento de senhas com armazenamento seguro, autenticação por PIN e criptografia local.
 publish_to: 'none'
 
 version: 2.0.0+2
@@ -34,7 +34,7 @@ dev_dependencies:
     sdk: flutter
     
   flutter_lints: ^6.0.0
-  mockito: ^5.4.3
+  mocktail: ^1.0.4
 
 flutter:
   uses-material-design: true
