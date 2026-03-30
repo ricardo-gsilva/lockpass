@@ -1,5 +1,10 @@
-sealed class AuthStatus {
+import 'package:equatable/equatable.dart';
+
+sealed class AuthStatus extends Equatable {
   const AuthStatus();
+
+  @override
+  List<Object?> get props => const [];
 }
 
 class AuthInitial extends AuthStatus {
@@ -13,6 +18,9 @@ class AuthLoading extends AuthStatus {
 class AuthError extends AuthStatus {
   final String message;
   const AuthError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 sealed class AuthSuccess extends AuthStatus {
