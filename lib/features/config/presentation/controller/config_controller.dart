@@ -39,6 +39,7 @@ class ConfigController extends Cubit<ConfigState> {
   final SelectZipFileUseCase _selectZipFileUseCase;
   final SetLockTimeoutUseCase _setLockTimeoutUseCase;
   final GetLockTimeoutUseCase _getLockTimeoutUseCase;
+  final bool _isAndroid;
 
   ConfigController({
     required ItensRepository itensRepository,
@@ -57,6 +58,7 @@ class ConfigController extends Cubit<ConfigState> {
     required SelectZipFileUseCase selectZipFileUseCase,
     required SetLockTimeoutUseCase setLockTimeoutUseCase,
     required GetLockTimeoutUseCase getLockTimeoutUseCase,
+    bool? isAndroidOverride,
   })  : _getPinStatusUseCase = getPinStatusUseCase,
         _reauthAndRemovePinUseCase = reauthAndRemovePinUseCase,
         _deleteAccountUseCase = deleteAccountUseCase,
@@ -72,12 +74,13 @@ class ConfigController extends Cubit<ConfigState> {
         _selectZipFileUseCase = selectZipFileUseCase,
         _setLockTimeoutUseCase = setLockTimeoutUseCase,
         _getLockTimeoutUseCase = getLockTimeoutUseCase,
+        _isAndroid = isAndroidOverride ?? Platform.isAndroid,
         super(const ConfigState()) {
-    _initialize();
+    Future.microtask(_initialize);
   }
 
   void _initialize() async {
-    emit(state.copyWith(isAndroid: Platform.isAndroid));
+    emit(state.copyWith(isAndroid: _isAndroid));
     await getPinVerification();
   }
 
