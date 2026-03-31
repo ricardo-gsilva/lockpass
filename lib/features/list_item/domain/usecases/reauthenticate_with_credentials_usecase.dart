@@ -20,6 +20,8 @@ class ReauthenticateWithCredentialsUseCase {
       if (!isValid) {
         throw AuthErrorType.invalidCredentials;
       }
+    } on AuthErrorType {
+      rethrow;
     } on AuthException {
       rethrow;
     } catch (_) {

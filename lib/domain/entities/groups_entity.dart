@@ -1,4 +1,6 @@
-class GroupsEntity {
+import 'package:equatable/equatable.dart';
+
+class GroupsEntity extends Equatable {
   final String groupName;
   final bool visible;
 
@@ -15,6 +17,9 @@ class GroupsEntity {
       visible: visible ?? this.visible,
     );
   }
+
+  @override
+  List<Object?> get props => [groupName, visible];
 
   @override
   String toString() {

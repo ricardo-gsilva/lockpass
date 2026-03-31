@@ -1,5 +1,10 @@
-sealed class ListItemStatus {
+import 'package:equatable/equatable.dart';
+
+sealed class ListItemStatus extends Equatable {
   const ListItemStatus();
+
+  @override
+  List<Object?> get props => const [];
 }
 
 class ListItemInitial extends ListItemStatus {
@@ -16,17 +21,26 @@ class ListItemLoaded extends ListItemStatus {
 
 class ListItemError extends ListItemStatus {
   final String message;
-  ListItemError(this.message);
+  const ListItemError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class ListItemSuccess extends ListItemStatus {
   final String message;
-  ListItemSuccess(this.message);
+  const ListItemSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class ListItemActionSuccess extends ListItemStatus {
   final String message;
-  ListItemActionSuccess(this.message);
+  const ListItemActionSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class TrashAuthSuccess extends ListItemStatus {
@@ -35,7 +49,10 @@ class TrashAuthSuccess extends ListItemStatus {
 
 class TrashAuthFailure extends ListItemStatus {
   final String message;
-  TrashAuthFailure(this.message);
+  const TrashAuthFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class ItemRestoredSuccess extends ListItemStatus {
