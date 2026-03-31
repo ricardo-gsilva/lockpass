@@ -15,7 +15,6 @@ import 'package:lockpass/features/login/domain/usecases/register_user_usecase.da
 import 'package:lockpass/features/login/domain/usecases/reset_password_usecase.dart';
 import 'package:lockpass/features/login/presentation/controller/login_controller.dart';
 import 'package:lockpass/features/login/presentation/pages/login_page.dart';
-import 'package:lockpass/features/login/presentation/state/auth_state.dart';
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 
 class _TestAssetBundle extends CachingAssetBundle {
