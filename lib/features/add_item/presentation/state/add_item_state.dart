@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:lockpass/features/add_item/presentation/state/add_item_status.dart';
 
-class AddItemState {
+class AddItemState extends Equatable {
   final bool isFormValid;
   final bool obscureText;
   final bool sufixIcon;
@@ -30,4 +31,13 @@ class AddItemState {
       status: status ?? this.status,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        isFormValid,
+        obscureText,
+        sufixIcon,
+        listItensDrop,
+        status,
+      ];
 }

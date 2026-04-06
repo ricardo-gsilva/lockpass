@@ -9,15 +9,25 @@ import 'package:lockpass/features/add_item/presentation/state/add_item_state.dar
 import 'package:lockpass/domain/entities/itens_entity.dart';
 import 'package:lockpass/features/add_item/presentation/state/add_item_status.dart';
 
+typedef AddItemDelayFn = Future<void> Function(Duration duration);
+
+Future<void> _defaultDelay(Duration duration) => Future.delayed(duration);
+
 class AddItemController extends Cubit<AddItemState> {
   final CreateItemUseCase _createItemUseCase;
   final LoadItemGroupsUseCase _loadItemGroupsUseCase;
+  final Duration _minSubmitDuration;
+  final AddItemDelayFn _delay;
 
   AddItemController({
     required CreateItemUseCase createItemUseCase,
     required LoadItemGroupsUseCase loadItemGroupsUseCase,
+    Duration minSubmitDuration = const Duration(milliseconds: 600),
+    AddItemDelayFn delay = _defaultDelay,
   })  : _createItemUseCase = createItemUseCase,
         _loadItemGroupsUseCase = loadItemGroupsUseCase,
+        _minSubmitDuration = minSubmitDuration,
+        _delay = delay,
         super(const AddItemState());
 
   void onFormChanged({
@@ -46,8 +56,7 @@ class AddItemController extends Cubit<AddItemState> {
 
     emit(state.copyWith(status: const AddItemLoading()));
 
-    const minDuration = Duration(milliseconds: 600);
-    final stopwatch = Stopwatch()..start();
+    final stopwatch = _minSubmitDuration > Duration.zero ? (Stopwatch()..start()) : null;
 
     try {
       await _createItemUseCase(
@@ -55,12 +64,14 @@ class AddItemController extends Cubit<AddItemState> {
         state.listItensDrop,
       );
 
-      final remaining = minDuration - stopwatch.elapsed;
-      if (remaining > Duration.zero) {
-        await Future.delayed(remaining);
+      if (stopwatch != null) {
+        final remaining = _minSubmitDuration - stopwatch.elapsed;
+        if (remaining > Duration.zero) {
+          await _delay(remaining);
+        }
       }
 
-      emit(state.copyWith(status: AddItemSuccess()));
+      emit(state.copyWith(status: const AddItemSuccess()));
     } on AuthErrorType catch (type) {
       emit(state.copyWith(
         status: AddItemFailure(type.message),

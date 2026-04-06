@@ -69,5 +69,6 @@ class ListItemState extends Equatable {
         hasDeletedItems,
         canSave,
         selectedItem,
+        searchText,
       ];
 }

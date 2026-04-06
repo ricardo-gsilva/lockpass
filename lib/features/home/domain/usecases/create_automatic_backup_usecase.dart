@@ -1,4 +1,5 @@
 import 'package:lockpass/core/security/backup/backup_service.dart';
+import 'package:lockpass/core/security/crypto/encrypt_decrypt.dart';
 import 'package:lockpass/domain/repositories/itens_repository.dart';
 
 class CreateAutomaticBackupUseCase {
@@ -11,7 +12,8 @@ class CreateAutomaticBackupUseCase {
   );
 
   Future<void> call(String uid) async {
-    final itens = await _itensRepository.getActiveItensByUser(uid);
+    final uidSearchMask = EncryptDecrypt.generateUserMask(uid);
+    final itens = await _itensRepository.getActiveItensByUser(uidSearchMask);
 
     if (itens.isEmpty) return;
 

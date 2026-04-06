@@ -228,10 +228,10 @@ class _SecurityValidationBottomSheetState extends State<SecurityValidationBottom
                                       ),
                                     ),
                                     ButtonCustom(
-                                      isLoading: state.status == ListItemLoading(),
+                                      isLoading: state.status is ListItemLoading,
                                       backgroundButton: CoreColors.buttonColorSecond,
                                       colorText: CoreColors.textPrimary,
-                                      text: state.status == ListItemLoading() ? CoreStrings.loading : CoreStrings.showDeleted,
+                                      text: state.status is ListItemLoading ? CoreStrings.loading : CoreStrings.showDeleted,
                                       onPressed: _canSubmit
                                           ? () async {
                                               await listItemController.authenticateTrashMode(

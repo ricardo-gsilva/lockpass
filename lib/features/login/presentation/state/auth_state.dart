@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 
-class AuthState {
+class AuthState extends Equatable {
   final AuthStatus status;
   final bool canSubmitPin;
   final bool canAuthWithPin;
@@ -22,4 +23,7 @@ class AuthState {
       canAuthWithPin: canAuthWithPin ?? this.canAuthWithPin,
     );
   }
+
+  @override
+  List<Object?> get props => [status, canSubmitPin, canAuthWithPin];
 }

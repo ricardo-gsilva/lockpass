@@ -1,9 +1,10 @@
+import 'package:equatable/equatable.dart';
 import 'package:lockpass/features/home/presentation/enums/home_tab_enum.dart';
 import 'package:lockpass/features/home/presentation/state/home_event.dart';
 import 'package:lockpass/features/home/presentation/state/home_status.dart';
 import 'package:lockpass/features/list_item/presentation/enums/list_view_enum.dart';
 
-class HomeState {
+class HomeState extends Equatable {
   final HomeStatus status;
   final HomeEvent? event;
   final HomeTab currentTab;
@@ -37,4 +38,14 @@ class HomeState {
       userEmail: userEmail ?? this.userEmail,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        status,
+        event,
+        currentTab,
+        viewMode,
+        selectedIndex,
+        userEmail,
+      ];
 }
