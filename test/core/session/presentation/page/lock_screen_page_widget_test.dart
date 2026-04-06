@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +12,6 @@ import 'package:lockpass/core/session/domain/usecases/unlock_with_credentials_us
 import 'package:lockpass/core/session/domain/usecases/unlock_with_pin_usecase.dart';
 import 'package:lockpass/core/session/presentation/controller/lock_screen_controller.dart';
 import 'package:lockpass/core/session/presentation/page/lock_screen_page.dart';
-import 'package:lockpass/core/session/presentation/state/lock_screen_state.dart';
 import 'package:lockpass/core/session/presentation/state/lock_screen_status.dart';
 
 import '../../../../test_utils/widget_test_pump.dart';
