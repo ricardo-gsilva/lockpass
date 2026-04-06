@@ -126,15 +126,13 @@ class ListItemGroupedWidget extends StatelessWidget {
                                       trailing: const Icon(CoreIcons.visibility,
                                           size: 20),
                                       onTap: () {
-                                        final decryptedItem =
-                                            controller.decryptedPass(item);
                                         showCustomBottomSheet(
                                           context: context,
                                           isScrollControlled: true,
                                           child: BlocProvider.value(
                                             value: controller,
                                             child: ItemDetailsBottomSheet(
-                                              item: decryptedItem,
+                                              item: item,
                                             ),
                                           ),
                                         ).whenComplete(() {

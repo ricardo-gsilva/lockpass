@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lockpass/core/extensions/context_extensions.dart';
 import 'package:lockpass/core/extensions/string_validators.dart';
+import 'package:lockpass/core/di/service_locator.dart';
 import 'package:lockpass/core/ui/overlays/overlay_toast_utils.dart';
 import 'package:lockpass/features/config/presentation/controller/config_controller.dart';
 import 'package:lockpass/features/config/presentation/state/config_state.dart';
@@ -14,7 +15,9 @@ import 'package:lockpass/core/ui/components/textbutton_custom.dart';
 import 'package:lockpass/core/ui/components/iconbutton_custom.dart';
 import 'package:lockpass/core/ui/components/info_dialog.dart';
 import 'package:lockpass/core/ui/components/text_custom.dart';
+import 'package:lockpass/core/ui/factorys/fields_factory.dart';
 import 'package:lockpass/features/config/presentation/state/config_status.dart';
+import 'package:lockpass/features/list_item/presentation/controller/list_item_controller.dart';
 import 'package:path/path.dart' as p;
 
 class RestoreBackupManualBottomSheet extends StatefulWidget {
@@ -26,6 +29,8 @@ class RestoreBackupManualBottomSheet extends StatefulWidget {
 
 class _RestoreBackupManualBottomSheetState extends State<RestoreBackupManualBottomSheet> {
   String? _selectedPath;
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   void showInfo(String content) {
     showDialog(
@@ -52,11 +57,17 @@ class _RestoreBackupManualBottomSheetState extends State<RestoreBackupManualBott
   }
 
   @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final controller = context.read<ConfigController>();
     return BlocListener<ConfigController, ConfigState>(
       listenWhen: (previous, current) => previous.status != current.status,
-      listener: (context, state) {
+      listener: (context, state) async {
         switch (state.status) {
           case ConfigRestoreBackupManualSuccess(:final message):
             if (!context.mounted) return;
@@ -64,6 +75,10 @@ class _RestoreBackupManualBottomSheetState extends State<RestoreBackupManualBott
               Navigator.of(context).pop();
             }
             OverlayToast.showSuccess(content: message);
+            if (getIt.isRegistered<ListItemController>()) {
+              // Recarrega a lista imediatamente após o restore.
+              await getIt<ListItemController>().loadItems();
+            }
             break;
           case ConfigError(:final message):
             OverlayToast.showError(content: message);
@@ -176,6 +191,19 @@ class _RestoreBackupManualBottomSheetState extends State<RestoreBackupManualBott
                                   )
                                 ],
                               ),
+                              const SizedBox(height: 10),
+                              FieldsFactory.password(
+                                controller: _passwordController,
+                                obscureText: _obscurePassword,
+                                onToggleVisibility: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                                label: CoreStrings.backupPasswordLabel,
+                                color: CoreColors.textSecundary,
+                              ),
+                              const SizedBox(height: 6),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
@@ -194,7 +222,14 @@ class _RestoreBackupManualBottomSheetState extends State<RestoreBackupManualBott
                                     fontSize: 16,
                                     backgroundButton: CoreColors.buttonColorSecond,
                                     onPressed: _selectedPath?.isNotEmpty == true
-                                        ? () => controller.restoreManualBackup(_selectedPath!)
+                                        ? () {
+                                            final pw = _passwordController.text.trim();
+                                            if (pw.isEmpty) {
+                                              OverlayToast.showError(content: CoreStrings.exportPasswordRequired);
+                                              return;
+                                            }
+                                            controller.restoreManualBackup(_selectedPath!, pw);
+                                          }
                                         : null,
                                   )
                                 ],

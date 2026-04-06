@@ -97,7 +97,7 @@ class ItemEditViewWidget extends StatelessWidget {
           colorFocusedBorder: CoreColors.focusedBorder,
           width: double.infinity,
           controller: emailController,
-          validator: (value) => value.emailError,
+          validator: (value) => value.emailOptionalError,
         ),
         EditItem(
           title: CoreStrings.login,

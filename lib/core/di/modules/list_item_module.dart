@@ -8,7 +8,6 @@ import 'package:lockpass/features/list_item/domain/usecases/delete_item_usecase.
 import 'package:lockpass/features/list_item/domain/usecases/move_to_trash_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/restore_item_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/reauthenticate_with_credentials_usecase.dart';
-import 'package:lockpass/features/list_item/domain/usecases/decrypt_item_password_usecase.dart';
 import 'package:lockpass/features/list_item/presentation/controller/list_item_controller.dart';
 
 void registerListItemModule() {
@@ -49,10 +48,6 @@ void registerListItemModule() {
     () => CheckHasDeletedItemsUseCase(getIt(), getIt()),
   );
 
-  getIt.registerLazySingleton<DecryptItemPasswordUseCase>(
-    () => DecryptItemPasswordUseCase(getIt()),
-  );
-
   // Controller
   getIt.registerFactory<ListItemController>(
     () => ListItemController(
@@ -65,7 +60,6 @@ void registerListItemModule() {
       reauthenticateWithCredentialsUseCase: getIt(),
       authenticateTrashWithPinUseCase: getIt(),
       checkHasDeletedItemsUseCase: getIt(),
-      decryptItemPasswordUseCase: getIt(),
     ),
   );
 }

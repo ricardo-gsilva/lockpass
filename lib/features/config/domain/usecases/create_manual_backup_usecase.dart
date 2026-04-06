@@ -7,8 +7,8 @@ class CreateManualBackupUseCase {
 
   CreateManualBackupUseCase(this._backupService, this._authService,);
 
-  Future<void> call() async {
+  Future<void> call(String exportPassword) async {
     final uid = _authService.currentUserId;
-    await _backupService.createManualBackup(uid);
+    await _backupService.createManualBackup(uid, exportPassword: exportPassword);
   }
 }

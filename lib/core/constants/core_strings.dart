@@ -7,6 +7,7 @@ class CoreStrings {
 
   //C
   static const String cancel = 'Cancelar';
+  static const String confirm = 'Confirmar';
   static const String chooseFileUpload = 'Escolha o arquivo para carregar.';
   static const String chooseGroupOrRegisterNew = 'Escolha um Grupo ou Cadastre um Novo';
   static const String config = 'Configurações';
@@ -109,7 +110,7 @@ class CoreStrings {
 
   //U
   static const String updatePin = 'Atualizar PIN';
-  static const String userCreateSuccess = 'Usuário criado com Sucesso!';
+  static const String userCreateSuccess = 'Conta criada! Enviamos um e-mail de verificação.';
 
   //W
   static const String wantDeleteRegisteredPin = 'Deseja excluir o PIN cadastrado?';
@@ -363,11 +364,22 @@ static const String backupFileNotFound = "Arquivo de backup não encontrado.";
 static const String autoBackupNotFound = "Nenhum backup automático encontrado.";
 static const String invalidBackupFile = "O arquivo de backup é inválido ou não contém dados compatíveis.";
 static const String decryptionBackupError = "Falha na descriptografia. O backup pode ser de outra conta ou a chave está incorreta.";
+static const String backupDifferentUserError = "Esse backup pertence a outro usuário. Faça login na conta correta para restaurar.";
+static const String backupPasswordIncorrect = "Senha do backup incorreta. Tente novamente.";
 static const String replaceDatabaseError = "Erro ao substituir o banco de dados:";
 static const String restoreProcessError = "Erro durante a restauração:";
 
+static const String backupPasswordTitle = "Senha do backup";
+static const String backupPasswordLabel = "Senha";
+static const String backupPasswordConfirmLabel = "Confirmar senha";
+static const String backupPasswordTooShort = "A senha do backup deve ter no mínimo 6 caracteres.";
+static const String backupPasswordMismatch = "As senhas não conferem.";
+static const String exportPasswordRequired = "Informe a senha do backup.";
+
 static const String saveBackupLocationPrompt = "Onde deseja salvar o backup?";
 static const String exportCancelled = "Exportação cancelada.";
+
+static const String emailNotVerified = "Verifique seu e-mail antes de entrar. Enviamos um link de confirmação para sua caixa de entrada.";
 
 static const String tooManyAttempts = "Muitas tentativas. Tente novamente em alguns minutos.";
 static const String noConnection = "Sem conexão. Verifique sua internet.";

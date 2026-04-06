@@ -3,7 +3,6 @@ import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/errors/auth_errors_type.dart';
 import 'package:lockpass/features/list_item/domain/usecases/authenticate_with_pin_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/check_if_has_deleted_items_usecase.dart';
-import 'package:lockpass/features/list_item/domain/usecases/decrypt_item_password_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_item_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_permanentetly_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/edit_item_usecase.dart';
@@ -19,7 +18,6 @@ import 'package:lockpass/features/list_item/presentation/state/list_item_status.
 
 class ListItemController extends Cubit<ListItemState> {
   final LoadItemsUseCase _loadItemsUseCase;
-  final DecryptItemPasswordUseCase _decryptItemPasswordUseCase;
   final EditItemUseCase _editItemUseCase;
   final DeleteItemUseCase _deleteItemUseCase;
   final MoveItemToTrashUseCase _moveItemToTrashUseCase;
@@ -31,7 +29,6 @@ class ListItemController extends Cubit<ListItemState> {
 
   ListItemController({
     required LoadItemsUseCase loadItemsUseCase,
-    required DecryptItemPasswordUseCase decryptItemPasswordUseCase,
     required EditItemUseCase editItemUseCase,
     required DeleteItemUseCase deleteItemUseCase,
     required MoveItemToTrashUseCase moveItemToTrashUseCase,
@@ -41,7 +38,6 @@ class ListItemController extends Cubit<ListItemState> {
     required AuthenticateTrashWithPinUseCase authenticateTrashWithPinUseCase,
     required CheckHasDeletedItemsUseCase checkHasDeletedItemsUseCase,
   })  : _loadItemsUseCase = loadItemsUseCase,
-        _decryptItemPasswordUseCase = decryptItemPasswordUseCase,
         _editItemUseCase = editItemUseCase,
         _deleteItemUseCase = deleteItemUseCase,
         _moveItemToTrashUseCase = moveItemToTrashUseCase,
@@ -97,10 +93,6 @@ class ListItemController extends Cubit<ListItemState> {
         canSave: false,
       ),
     );
-  }
-
-  ItensEntity decryptedPass(ItensEntity item) {
-    return _decryptItemPasswordUseCase(item);
   }
 
   void toggleGroup(GroupsEntity groups) {

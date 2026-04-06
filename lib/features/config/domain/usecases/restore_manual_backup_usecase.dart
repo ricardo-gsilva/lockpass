@@ -10,8 +10,12 @@ class RestoreManualBackupUseCase {
     this._authService,
   );
 
-  Future<void> call(String path) async {
+  Future<void> call(String path, String exportPassword) async {
     final uid = _authService.currentUserId;
-    await _backupService.restoreManualBackup(path, uid);
+    await _backupService.restoreManualBackup(
+      path,
+      uid,
+      exportPassword: exportPassword,
+    );
   }
 }
