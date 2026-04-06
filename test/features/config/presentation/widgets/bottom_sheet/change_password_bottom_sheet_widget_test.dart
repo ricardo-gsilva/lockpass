@@ -8,6 +8,7 @@ import 'package:lockpass/features/config/presentation/controller/config_controll
 import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/change_password_bottom_sheet.dart';
 
 import '../../test_config_fakes.dart';
+import '../../../../../test_utils/widget_test_pump.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -30,14 +31,14 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.enterText(find.byType(TextFormField).at(0), 'abcdef');
       await tester.enterText(find.byType(TextFormField).at(1), 'abcdef');
       await tester.pump();
 
       await tester.tap(find.widgetWithText(ElevatedButton, CoreStrings.change));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byKey(CoreKeys.alertDialogSaveList), findsOneWidget);
 
@@ -47,7 +48,8 @@ void main() {
           matching: find.text(CoreStrings.change),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(controller.lastUpdatePasswordArgs?.currentPassword, 'abcdef');
       expect(controller.lastUpdatePasswordArgs?.newPassword, 'abcdef');

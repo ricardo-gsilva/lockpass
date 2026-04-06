@@ -6,6 +6,7 @@ import 'package:lockpass/features/config/presentation/controller/config_controll
 import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/remove_pin_bottom_sheet.dart';
 
 import '../../test_config_fakes.dart';
+import '../../../../../test_utils/widget_test_pump.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -25,13 +26,14 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.enterText(find.byType(TextFormField), '13579');
       await tester.pump();
 
       await tester.tap(find.widgetWithText(ElevatedButton, CoreStrings.removePinAction));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(controller.lastConfirmAndRemovePinArg, '13579');
       expect(find.byType(RemovePinBottomSheet), findsNothing);

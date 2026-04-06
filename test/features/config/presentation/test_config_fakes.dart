@@ -94,10 +94,12 @@ class TestConfigController extends ConfigController {
   int selectZipFileCalls = 0;
   int restoreManualBackupCalls = 0;
   int restoreAutomaticBackupCalls = 0;
+  int reauthenticateCalls = 0;
 
   ({String currentPin, String newPin, bool hasPin})? lastSavePinArgs;
   String? lastConfirmAndRemovePinArg;
   ({String currentPassword, String newPassword})? lastUpdatePasswordArgs;
+  ({String email, String password})? lastReauthenticateArgs;
   int? lastSetLockTimeoutArg;
   String? lastRestoreManualBackupPath;
 
@@ -184,6 +186,16 @@ class TestConfigController extends ConfigController {
   Future<void> restoreAutomaticBackup() async {
     restoreAutomaticBackupCalls += 1;
     emit(state.copyWith(status: const ConfigRestoreBackupAutomaticSuccess('ok')));
+  }
+
+  @override
+  Future<void> reauthenticate({
+    required String email,
+    required String password,
+  }) async {
+    reauthenticateCalls += 1;
+    lastReauthenticateArgs = (email: email, password: password);
+    emit(state.copyWith(status: ConfigPinResetSuccess('ok'), hasPin: false));
   }
 }
 

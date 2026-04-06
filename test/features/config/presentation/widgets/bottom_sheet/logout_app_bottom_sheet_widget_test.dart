@@ -7,6 +7,7 @@ import 'package:lockpass/features/config/presentation/controller/config_controll
 import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/logout_app_bottom_sheet.dart';
 
 import '../../test_config_fakes.dart';
+import '../../../../../test_utils/widget_test_pump.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +30,10 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle(); // open sheet
+      await pumpModal(tester); // open sheet
 
       await tester.tap(find.widgetWithText(ElevatedButton, CoreStrings.logoutAction));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(controller.signOutCalls, 1);
       expect(find.byKey(const Key('login-page')), findsOneWidget);

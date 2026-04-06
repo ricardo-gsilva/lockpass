@@ -7,6 +7,7 @@ import 'package:lockpass/features/config/presentation/controller/config_controll
 import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/save_list_logins_bottom_sheet.dart';
 
 import '../../test_config_fakes.dart';
+import '../../../../../test_utils/widget_test_pump.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,10 +27,10 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(find.text(CoreStrings.saveToDeviceAction));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(controller.createManualBackupCalls, 1);
       expect(find.byKey(CoreKeys.alertDialogSaveList), findsOneWidget);
@@ -40,7 +41,7 @@ void main() {
           matching: find.text(CoreStrings.close),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byType(SaveListLoginsBottomSheet), findsNothing);
     });

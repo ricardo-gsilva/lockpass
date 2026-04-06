@@ -15,6 +15,7 @@ import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/resto
 import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/save_list_logins_bottom_sheet.dart';
 
 import '../test_config_fakes.dart';
+import '../../../../test_utils/widget_test_pump.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -68,49 +69,49 @@ void main() {
       await tester.pump();
 
       await tester.tap(_tapTarget(CoreKeys.createPinConfig));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(CreateAndUpdatePinBottomSheet), findsOneWidget);
       Navigator.of(tester.element(find.byType(CreateAndUpdatePinBottomSheet))).pop();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(find.descendant(of: _deletePinConfigOption(), matching: find.byType(TextButton)));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(RemovePinBottomSheet), findsOneWidget);
       Navigator.of(tester.element(find.byType(RemovePinBottomSheet))).pop();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(_tapTarget(CoreKeys.saveListLoginConfig));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(SaveListLoginsBottomSheet), findsOneWidget);
       Navigator.of(tester.element(find.byType(SaveListLoginsBottomSheet))).pop();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(_tapTarget(CoreKeys.updateListConfig));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(RestoreBackupChoiceBottomSheet), findsOneWidget);
       Navigator.of(tester.element(find.byType(RestoreBackupChoiceBottomSheet))).pop();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(find.text(CoreStrings.changePasswordAction));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(ChangePasswordBottomSheet), findsOneWidget);
       Navigator.of(tester.element(find.byType(ChangePasswordBottomSheet))).pop();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(find.text(CoreStrings.screenLockTimer));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(LockTimeoutBottomSheet), findsOneWidget);
       Navigator.of(tester.element(find.byType(LockTimeoutBottomSheet))).pop();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(_tapTarget(CoreKeys.logoutConfig));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(LogoutAppBottomSheet), findsOneWidget);
       Navigator.of(tester.element(find.byType(LogoutAppBottomSheet))).pop();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(_tapTarget(CoreKeys.deleteAccount));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(find.byType(DeleteAccountBottomSheet), findsOneWidget);
     });
   });

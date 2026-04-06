@@ -9,6 +9,7 @@ import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/resto
 import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/restore_backup_manual_bottom_sheet.dart';
 
 import '../../test_config_fakes.dart';
+import '../../../../../test_utils/widget_test_pump.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -29,19 +30,20 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(find.text(CoreStrings.manualBackup));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byType(RestoreBackupManualBottomSheet), findsOneWidget);
 
       await tester.tap(find.byKey(CoreKeys.iconUploadList));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       expect(controller.selectZipFileCalls, 1);
 
       await tester.tap(find.byKey(CoreKeys.buttonLoadUploadList));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(controller.lastRestoreManualBackupPath, '/tmp/backup.zip');
       expect(find.byType(RestoreBackupManualBottomSheet), findsNothing);
@@ -61,15 +63,16 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       await tester.tap(find.text(CoreStrings.automaticBackup));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byType(RestoreBackupAutomaticBottomSheet), findsOneWidget);
 
       await tester.tap(find.byKey(CoreKeys.buttonLoadUploadList));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(controller.restoreAutomaticBackupCalls, 1);
       expect(find.byType(RestoreBackupAutomaticBottomSheet), findsNothing);

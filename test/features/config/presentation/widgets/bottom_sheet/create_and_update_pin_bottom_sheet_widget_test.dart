@@ -8,6 +8,7 @@ import 'package:lockpass/features/config/presentation/state/config_state.dart';
 import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/create_and_update_pin_bottom_sheet.dart';
 
 import '../../test_config_fakes.dart';
+import '../../../../../test_utils/widget_test_pump.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,7 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       ElevatedButton saveButton = tester.widget(
         find.descendant(
@@ -52,7 +53,8 @@ void main() {
       expect(saveButton.onPressed, isNotNull);
 
       await tester.tap(find.byKey(CoreKeys.buttonCreatePin));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(controller.lastSavePinArgs?.newPin, '13579');
       expect(controller.lastSavePinArgs?.hasPin, isFalse);
@@ -76,7 +78,7 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       // Two fields: current pin (keyed) and new pin.
       await tester.enterText(find.byType(TextFormField).at(0), '24680');
@@ -84,7 +86,8 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byKey(CoreKeys.buttonCreatePin));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(controller.lastSavePinArgs?.currentPin, '24680');
       expect(controller.lastSavePinArgs?.newPin, '13579');
