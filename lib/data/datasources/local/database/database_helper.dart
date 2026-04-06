@@ -4,7 +4,6 @@ import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/paths/lockpass_paths.dart';
 import 'package:lockpass/data/models/itens_model.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path_provider/path_provider.dart';
 
 class DataBaseHelper {
   static DataBaseHelper? _dataBaseHelper;

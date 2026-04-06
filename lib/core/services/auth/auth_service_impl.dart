@@ -21,7 +21,7 @@ class AuthServiceImpl implements AuthService {
 
   @override
   String get currentUserEmail {
-    return FirebaseAuth.instance.currentUser?.email ?? '';
+    return _auth.currentUser?.email ?? '';
   }
 
   @override
