@@ -42,7 +42,6 @@ import 'package:lockpass/features/home/domain/usecases/set_hide_create_pin_useca
 import 'package:lockpass/features/home/presentation/controller/home_controller.dart';
 import 'package:lockpass/features/list_item/domain/usecases/authenticate_with_pin_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/check_if_has_deleted_items_usecase.dart';
-import 'package:lockpass/features/list_item/domain/usecases/decrypt_item_password_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_item_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_permanentetly_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/edit_item_usecase.dart';
@@ -158,7 +157,6 @@ void main() {
       expect(getIt<ReauthenticateWithCredentialsUseCase>(), isA<ReauthenticateWithCredentialsUseCase>());
       expect(getIt<AuthenticateTrashWithPinUseCase>(), isA<AuthenticateTrashWithPinUseCase>());
       expect(getIt<CheckHasDeletedItemsUseCase>(), isA<CheckHasDeletedItemsUseCase>());
-      expect(getIt<DecryptItemPasswordUseCase>(), isA<DecryptItemPasswordUseCase>());
 
       final controller = getIt<ListItemController>();
       addTearDown(controller.close);

@@ -249,7 +249,7 @@ void main() {
       build: () => buildController(isAndroidOverride: true),
       act: (cubit) async {
         await Future<void>.delayed(Duration.zero);
-        await cubit.restoreManualBackup('');
+        await cubit.restoreManualBackup('', '');
       },
       skip: 3,
       expect: () => const [

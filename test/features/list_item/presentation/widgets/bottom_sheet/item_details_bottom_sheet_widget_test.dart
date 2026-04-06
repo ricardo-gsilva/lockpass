@@ -7,7 +7,6 @@ import 'package:lockpass/domain/entities/groups_entity.dart';
 import 'package:lockpass/domain/entities/itens_entity.dart';
 import 'package:lockpass/features/list_item/domain/usecases/authenticate_with_pin_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/check_if_has_deleted_items_usecase.dart';
-import 'package:lockpass/features/list_item/domain/usecases/decrypt_item_password_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_item_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_permanentetly_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/edit_item_usecase.dart';
@@ -30,11 +29,6 @@ class _NoOpLoadItemsUseCase implements LoadItemsUseCase {
   ) async {
     return (items: <ItensEntity>[], sorted: <ItensEntity>[], hasDeleted: false, mode: currentMode);
   }
-}
-
-class _NoOpDecryptItemPasswordUseCase implements DecryptItemPasswordUseCase {
-  @override
-  ItensEntity call(ItensEntity item) => item;
 }
 
 class _RecordingEditItemUseCase implements EditItemUseCase {
@@ -108,7 +102,6 @@ class _TestListItemController extends ListItemController {
     required this.deletePermanentlyUseCase,
   }) : super(
           loadItemsUseCase: _NoOpLoadItemsUseCase(),
-          decryptItemPasswordUseCase: _NoOpDecryptItemPasswordUseCase(),
           editItemUseCase: editUseCase,
           deleteItemUseCase: _NoOpDeleteItemUseCase(),
           moveItemToTrashUseCase: moveToTrashUseCase,

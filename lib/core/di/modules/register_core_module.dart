@@ -57,9 +57,19 @@ Future<void> registerCoreModule() async {
     ),
   );
 
+  // Crypto / DEK
+  getIt.registerLazySingleton<SecureStorageDekStore>(
+    () => SecureStorageDekStoreImpl(),
+  );
+
+  getIt.registerLazySingleton<DekManager>(
+    () => DekManager(getIt<SecureStorageDekStore>()),
+  );
+
   getIt.registerLazySingleton<BackupService>(
     () => BackupServiceImpl(
       dbHelper: getIt(),
+      dekManager: getIt(),
     ),
   );
 
@@ -72,14 +82,5 @@ Future<void> registerCoreModule() async {
     () => ItensRepositoryImpl(
       dbHelper: getIt(),
     ),
-  );
-
-  // Crypto / DEK
-  getIt.registerLazySingleton<SecureStorageDekStore>(
-    () => SecureStorageDekStoreImpl(),
-  );
-
-  getIt.registerLazySingleton<DekManager>(
-    () => DekManager(getIt<SecureStorageDekStore>()),
   );
 }

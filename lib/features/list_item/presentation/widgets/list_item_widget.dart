@@ -52,14 +52,13 @@ class ListItemWidget extends StatelessWidget {
                   color: CoreColors.textPrimary,
                 ),
                 onTap: () async {
-                  final decryptedItem = controller.decryptedPass(item);
                   showCustomBottomSheet(
                     context: context,
                     isScrollControlled: true,
                     child: BlocProvider.value(
                       value: controller,
                       child: ItemDetailsBottomSheet(
-                        item: decryptedItem,
+                        item: item,
                       ),
                     ),
                   ).whenComplete(() {
@@ -118,14 +117,13 @@ class ListItemWidget extends StatelessWidget {
                   color: CoreColors.textPrimary,
                 ),
                 onTap: () async {
-                  final decryptedItem = controller.decryptedPass(item);
                   showCustomBottomSheet(
                     context: context,
                     isScrollControlled: true,
                     child: BlocProvider.value(
                       value: controller,
                       child: ItemDetailsBottomSheet(
-                        item: decryptedItem,
+                        item: item,
                       ),
                     ),
                   ).whenComplete(() {

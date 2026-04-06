@@ -150,7 +150,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.addNewGroup,
+                              text: '${CoreStrings.group}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -163,7 +163,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.nameService,
+                              text: '${CoreStrings.service}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -194,7 +194,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.emailRegister,
+                              text: CoreStrings.email,
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -208,7 +208,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.login,
+                              text: '${CoreStrings.login}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -225,7 +225,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.password,
+                              text: '${CoreStrings.itemPassword}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),

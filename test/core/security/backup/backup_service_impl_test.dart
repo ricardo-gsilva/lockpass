@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/security/backup/backup_service_impl.dart';
+import 'package:lockpass/core/security/crypto/dek/dek_manager.dart';
+import 'package:lockpass/core/security/crypto/dek/secure_storage/secure_storage_dek_store.dart';
 import 'package:lockpass/data/datasources/local/database/database_helper.dart';
 
 class _FakeFilePicker extends FilePicker {
@@ -28,6 +31,23 @@ class _FakeFilePicker extends FilePicker {
     bool readSequential = false,
   }) async {
     return pickFilesResult;
+  }
+}
+
+class _InMemoryDekStore implements SecureStorageDekStore {
+  final Map<String, Uint8List> _store = {};
+
+  @override
+  Future<Uint8List?> readDek(String uid) async => _store[uid];
+
+  @override
+  Future<void> writeDek(String uid, Uint8List dek) async {
+    _store[uid] = Uint8List.fromList(dek);
+  }
+
+  @override
+  Future<void> deleteDek(String uid) async {
+    _store.remove(uid);
   }
 }
 
@@ -68,7 +88,10 @@ void main() {
 
     test('selectZipFile returns null when user cancels', () async {
       FilePicker.platform = _FakeFilePicker(pickFilesResult: null);
-      final service = BackupServiceImpl(dbHelper: DataBaseHelper());
+      final service = BackupServiceImpl(
+        dbHelper: DataBaseHelper(),
+        dekManager: DekManager(_InMemoryDekStore()),
+      );
 
       final path = await service.selectZipFile();
       expect(path, isNull);
@@ -80,14 +103,20 @@ void main() {
           PlatformFile(name: 'a.zip', size: 1, path: '/tmp/a.zip'),
         ]),
       );
-      final service = BackupServiceImpl(dbHelper: DataBaseHelper());
+      final service = BackupServiceImpl(
+        dbHelper: DataBaseHelper(),
+        dekManager: DekManager(_InMemoryDekStore()),
+      );
 
       final path = await service.selectZipFile();
       expect(path, '/tmp/a.zip');
     });
 
     test('createAutomaticBackup returns early when database file does not exist', () async {
-      final service = BackupServiceImpl(dbHelper: DataBaseHelper());
+      final service = BackupServiceImpl(
+        dbHelper: DataBaseHelper(),
+        dekManager: DekManager(_InMemoryDekStore()),
+      );
 
       await service.createAutomaticBackup('uid');
 
@@ -97,10 +126,17 @@ void main() {
     });
 
     test('restoreManualBackup throws when zip path does not exist', () async {
-      final service = BackupServiceImpl(dbHelper: DataBaseHelper());
+      final service = BackupServiceImpl(
+        dbHelper: DataBaseHelper(),
+        dekManager: DekManager(_InMemoryDekStore()),
+      );
 
       expect(
-        () => service.restoreManualBackup('${tempRoot.path}/missing.zip', 'uid'),
+        () => service.restoreManualBackup(
+          '${tempRoot.path}/missing.zip',
+          'uid',
+          exportPassword: 'pw',
+        ),
         throwsA(
           isA<Exception>().having((e) => e.toString(), 'message', contains(CoreStrings.backupFileNotFound)),
         ),
@@ -108,7 +144,10 @@ void main() {
     });
 
     test('restoreAutomaticBackup throws when automatic zip does not exist', () async {
-      final service = BackupServiceImpl(dbHelper: DataBaseHelper());
+      final service = BackupServiceImpl(
+        dbHelper: DataBaseHelper(),
+        dekManager: DekManager(_InMemoryDekStore()),
+      );
 
       expect(
         () => service.restoreAutomaticBackup('uid'),
