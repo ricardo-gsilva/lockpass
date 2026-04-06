@@ -20,11 +20,11 @@ void main() {
       final useCase = CreateManualBackupUseCase(backup, auth);
 
       when(() => auth.currentUserId).thenReturn('uid');
-      when(() => backup.createManualBackup('uid')).thenAnswer((_) async {});
+      when(() => backup.createManualBackup('uid', exportPassword: any(named: 'exportPassword'))).thenAnswer((_) async {});
 
-      await useCase();
+      await useCase('pw');
 
-      verify(() => backup.createManualBackup('uid')).called(1);
+      verify(() => backup.createManualBackup('uid', exportPassword: 'pw')).called(1);
     });
 
     test('ShareBackupUseCase calls BackupService.shareBackup', () async {
@@ -33,11 +33,11 @@ void main() {
       final useCase = ShareBackupUseCase(backup, auth);
 
       when(() => auth.currentUserId).thenReturn('uid');
-      when(() => backup.shareBackup('uid')).thenAnswer((_) async {});
+      when(() => backup.shareBackup('uid', exportPassword: any(named: 'exportPassword'))).thenAnswer((_) async {});
 
-      await useCase();
+      await useCase('pw');
 
-      verify(() => backup.shareBackup('uid')).called(1);
+      verify(() => backup.shareBackup('uid', exportPassword: 'pw')).called(1);
     });
 
     test('RestoreManualBackupUseCase calls BackupService.restoreManualBackup', () async {
@@ -46,12 +46,12 @@ void main() {
       final useCase = RestoreManualBackupUseCase(backup, auth);
 
       when(() => auth.currentUserId).thenReturn('uid');
-      when(() => backup.restoreManualBackup('/tmp/a.zip', 'uid'))
+      when(() => backup.restoreManualBackup('/tmp/a.zip', 'uid', exportPassword: any(named: 'exportPassword')))
           .thenAnswer((_) async {});
 
-      await useCase('/tmp/a.zip');
+      await useCase('/tmp/a.zip', 'pw');
 
-      verify(() => backup.restoreManualBackup('/tmp/a.zip', 'uid')).called(1);
+      verify(() => backup.restoreManualBackup('/tmp/a.zip', 'uid', exportPassword: 'pw')).called(1);
     });
 
     test('RestoreAutomaticBackupUseCase calls BackupService.restoreAutomaticBackup', () async {
@@ -83,4 +83,3 @@ void main() {
     });
   });
 }
-

@@ -158,13 +158,13 @@ class TestConfigController extends ConfigController {
   int getLockTimeout() => lockTimeoutValue;
 
   @override
-  Future<void> createManualBackup() async {
+  Future<void> createManualBackup(String exportPassword) async {
     createManualBackupCalls += 1;
     emit(state.copyWith(status: const ConfigBackupSaved('ok')));
   }
 
   @override
-  Future<void> shareExportBackup() async {
+  Future<void> shareExportBackup(String exportPassword) async {
     shareBackupCalls += 1;
     emit(state.copyWith(status: const ConfigBackupShared('ok')));
   }
@@ -176,7 +176,7 @@ class TestConfigController extends ConfigController {
   }
 
   @override
-  Future<void> restoreManualBackup(String path) async {
+  Future<void> restoreManualBackup(String path, String exportPassword) async {
     restoreManualBackupCalls += 1;
     lastRestoreManualBackupPath = path;
     emit(state.copyWith(status: const ConfigRestoreBackupManualSuccess('ok')));

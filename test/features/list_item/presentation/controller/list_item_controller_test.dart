@@ -6,7 +6,6 @@ import 'package:lockpass/domain/entities/groups_entity.dart';
 import 'package:lockpass/domain/entities/itens_entity.dart';
 import 'package:lockpass/features/list_item/domain/usecases/authenticate_with_pin_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/check_if_has_deleted_items_usecase.dart';
-import 'package:lockpass/features/list_item/domain/usecases/decrypt_item_password_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_item_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/delete_permanentetly_usecase.dart';
 import 'package:lockpass/features/list_item/domain/usecases/edit_item_usecase.dart';
@@ -21,9 +20,6 @@ import 'package:lockpass/features/list_item/presentation/state/list_item_status.
 import 'package:mocktail/mocktail.dart';
 
 class _MockLoadItemsUseCase extends Mock implements LoadItemsUseCase {}
-
-class _MockDecryptItemPasswordUseCase extends Mock
-    implements DecryptItemPasswordUseCase {}
 
 class _MockEditItemUseCase extends Mock implements EditItemUseCase {}
 
@@ -51,7 +47,6 @@ void main() {
   });
 
   late _MockLoadItemsUseCase loadItemsUseCase;
-  late _MockDecryptItemPasswordUseCase decryptItemPasswordUseCase;
   late _MockEditItemUseCase editItemUseCase;
   late _MockDeleteItemUseCase deleteItemUseCase;
   late _MockMoveToTrashUseCase moveToTrashUseCase;
@@ -64,7 +59,6 @@ void main() {
   ListItemController buildController() {
     return ListItemController(
       loadItemsUseCase: loadItemsUseCase,
-      decryptItemPasswordUseCase: decryptItemPasswordUseCase,
       editItemUseCase: editItemUseCase,
       deleteItemUseCase: deleteItemUseCase,
       moveItemToTrashUseCase: moveToTrashUseCase,
@@ -78,7 +72,6 @@ void main() {
 
   setUp(() {
     loadItemsUseCase = _MockLoadItemsUseCase();
-    decryptItemPasswordUseCase = _MockDecryptItemPasswordUseCase();
     editItemUseCase = _MockEditItemUseCase();
     deleteItemUseCase = _MockDeleteItemUseCase();
     moveToTrashUseCase = _MockMoveToTrashUseCase();

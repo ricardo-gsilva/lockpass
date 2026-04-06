@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:lockpass/core/security/backup/backup_service_impl.dart';
+import 'package:lockpass/core/security/crypto/dek/dek_manager.dart';
+import 'package:lockpass/core/security/crypto/dek/secure_storage/secure_storage_dek_store_impl.dart';
 import 'package:lockpass/data/datasources/local/database/database_helper.dart';
 import 'package:lockpass/data/models/itens_model.dart';
 import 'package:path/path.dart' as p;
@@ -15,9 +17,15 @@ void main() {
     testWidgets('createAutomaticBackup + restoreAutomaticBackup replaces database', (tester) async {
       const uid = 'user-1';
       final dbHelper = DataBaseHelper();
-      final service = BackupServiceImpl(dbHelper: dbHelper);
+      final dekStore = SecureStorageDekStoreImpl();
+      final dekManager = DekManager(dekStore);
+      final service = BackupServiceImpl(
+        dbHelper: dbHelper,
+        dekManager: dekManager,
+      );
 
       await dbHelper.deleteLocalDatabase();
+      await dekStore.deleteDek(uid);
 
       // Seed DB with 1 item and close (stabilize file on disk).
       await dbHelper.addItem(
@@ -65,10 +73,10 @@ void main() {
 
       await dbHelper.closeDatabase();
       await dbHelper.deleteLocalDatabase();
+      await dekStore.deleteDek(uid);
       if (await autoZip.exists()) {
         await autoZip.delete();
       }
     });
   });
 }
-

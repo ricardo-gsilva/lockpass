@@ -32,6 +32,12 @@ void main() {
       await tester.tap(find.text(CoreStrings.saveToDeviceAction));
       await pumpModal(tester);
 
+      // Backup password dialog
+      await tester.enterText(find.byType(TextField).at(0), 'secret123');
+      await tester.enterText(find.byType(TextField).at(1), 'secret123');
+      await tester.tap(find.text(CoreStrings.confirm));
+      await pumpModal(tester);
+
       expect(controller.createManualBackupCalls, 1);
       expect(find.byKey(CoreKeys.alertDialogSaveList), findsOneWidget);
 

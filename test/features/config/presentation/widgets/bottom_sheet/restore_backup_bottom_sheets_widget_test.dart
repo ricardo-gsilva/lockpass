@@ -41,6 +41,10 @@ void main() {
       await pumpModal(tester);
       expect(controller.selectZipFileCalls, 1);
 
+      // Backup password is required for manual restore.
+      await tester.enterText(find.byType(TextField), 'secret123');
+      await pumpModal(tester);
+
       await tester.tap(find.byKey(CoreKeys.buttonLoadUploadList));
       await pumpModal(tester);
       await flushToasts(tester);
