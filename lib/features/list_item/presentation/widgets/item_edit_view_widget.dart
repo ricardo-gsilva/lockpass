@@ -58,7 +58,7 @@ class ItemEditViewWidget extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         EditItem(
-          title: CoreStrings.group,
+          title: '${CoreStrings.group}*',
           width: double.infinity,
           cursorColor: CoreColors.textSecundary,
           colorTextInput: CoreColors.textSecundary,
@@ -68,7 +68,7 @@ class ItemEditViewWidget extends StatelessWidget {
           colorFocusedBorder: CoreColors.focusedBorder,
         ),
         EditItem(
-          title: CoreStrings.service,
+          title: '${CoreStrings.service}*',
           width: double.infinity,
           cursorColor: CoreColors.textSecundary,
           colorTextInput: CoreColors.textSecundary,
@@ -100,7 +100,7 @@ class ItemEditViewWidget extends StatelessWidget {
           validator: (value) => value.emailOptionalError,
         ),
         EditItem(
-          title: CoreStrings.login,
+          title: '${CoreStrings.login}*',
           cursorColor: CoreColors.textSecundary,
           colorTextInput: CoreColors.textSecundary,
           labelColor: CoreColors.textSecundary,
@@ -111,7 +111,7 @@ class ItemEditViewWidget extends StatelessWidget {
           validator: (value) => value.requiredError,
         ),
         EditItem(
-          title: CoreStrings.password,
+          title: '${CoreStrings.itemPassword}*',
           cursorColor: CoreColors.textSecundary,
           colorTextInput: CoreColors.textSecundary,
           labelColor: CoreColors.textSecundary,

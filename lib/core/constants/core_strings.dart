@@ -74,6 +74,7 @@ class CoreStrings {
 
   //P
   static const String password = 'Password';
+  static const String itemPassword = 'Senha';
   static const String passwordRequired = "A senha é obrigatória";
   static const String passwordMinLength = "Mínimo de 6 caracteres";
   static const String pin = 'PIN';

@@ -42,8 +42,8 @@ void main() {
 
       expect(find.text(CoreStrings.selectGroup), findsOneWidget);
       expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
-      expect(find.text(CoreStrings.service), findsOneWidget);
-      expect(find.text(CoreStrings.login), findsOneWidget);
+      expect(find.text('${CoreStrings.service}*'), findsOneWidget);
+      expect(find.text('${CoreStrings.login}*'), findsOneWidget);
     });
 
     testWidgets('selecting group option updates groupController.text', (tester) async {
