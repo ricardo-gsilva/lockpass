@@ -17,6 +17,8 @@ import 'package:lockpass/features/login/presentation/controller/login_controller
 import 'package:lockpass/features/login/presentation/pages/login_page.dart';
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 
+import '../../../test_utils/widget_test_pump.dart';
+
 class _TestAssetBundle extends CachingAssetBundle {
   _TestAssetBundle(this._transparentPngBytes);
 
@@ -203,7 +205,7 @@ void main() {
           matching: find.byType(ElevatedButton),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(capturedEmail, 'user@test.com');
       expect(capturedPassword, '123456');
@@ -211,4 +213,3 @@ void main() {
     });
   });
 }
-

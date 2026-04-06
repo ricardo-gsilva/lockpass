@@ -11,6 +11,8 @@ import 'package:lockpass/features/login/presentation/controller/login_controller
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 import 'package:lockpass/features/login/presentation/widgets/create_account_bottom_sheet.dart';
 
+import '../../../../test_utils/widget_test_pump.dart';
+
 class _FakeCheckPinAvailabilityUseCase implements CheckPinAvailabilityUseCase {
   @override
   Future<bool> call() async => false;
@@ -130,7 +132,7 @@ void main() {
           onResult: (value) => result = value,
         ),
       );
-      await tester.pumpAndSettle(); // open sheet
+      await pumpModal(tester); // open sheet
 
       expect(find.text(CoreStrings.register1), findsOneWidget);
       expect(find.text(CoreStrings.register2), findsOneWidget);
@@ -141,7 +143,8 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(capturedEmail, 'user@test.com');
       expect(capturedPassword, '123456');

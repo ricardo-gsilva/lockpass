@@ -11,6 +11,8 @@ import 'package:lockpass/features/login/presentation/controller/login_controller
 import 'package:lockpass/features/login/presentation/state/auth_status.dart';
 import 'package:lockpass/features/login/presentation/widgets/reset_password_bottom_sheet.dart';
 
+import '../../../../test_utils/widget_test_pump.dart';
+
 class _FakeCheckPinAvailabilityUseCase implements CheckPinAvailabilityUseCase {
   @override
   Future<bool> call() async => false;
@@ -112,7 +114,7 @@ void main() {
       addTearDown(controller.close);
 
       await tester.pumpWidget(_app(controller));
-      await tester.pumpAndSettle(); // open sheet
+      await pumpModal(tester); // open sheet
 
       expect(find.text(CoreStrings.resetPassword), findsOneWidget);
       expect(find.text(CoreStrings.send), findsOneWidget);
@@ -121,8 +123,10 @@ void main() {
       await tester.enterText(find.byType(TextFormField), 'user@test.com');
       await tester.pump();
 
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, CoreStrings.send));
+      await tester.pump();
+      await pumpModal(tester); // allow sheet to close
+      await flushToasts(tester);
 
       expect(captured, 'user@test.com');
       expect(find.text(CoreStrings.resetPassword), findsNothing);
