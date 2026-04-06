@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/features/list_item/presentation/widgets/bottom_sheet/delete_item_bottom_sheet.dart';
 
+import '../../../../../test_utils/widget_test_pump.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -40,7 +42,7 @@ void main() {
       );
 
       await tester.tap(find.text('open'));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.text(CoreStrings.delete), findsOneWidget);
       expect(find.text(CoreStrings.deleteThisLogin), findsOneWidget);
@@ -53,10 +55,9 @@ void main() {
       expect(confirmCalls, 1);
 
       await tester.tap(find.text(CoreStrings.cancel));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.text(CoreStrings.deleteThisLogin), findsNothing);
     });
   });
 }
-

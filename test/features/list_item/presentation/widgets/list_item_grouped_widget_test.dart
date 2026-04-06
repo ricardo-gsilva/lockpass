@@ -18,6 +18,9 @@ import 'package:lockpass/features/list_item/presentation/controller/list_item_co
 import 'package:lockpass/features/list_item/presentation/enums/list_view_mode_enum.dart';
 import 'package:lockpass/features/list_item/presentation/state/list_item_state.dart';
 import 'package:lockpass/features/list_item/presentation/widgets/list_item_grouped_widget.dart';
+import 'package:lockpass/features/list_item/presentation/widgets/bottom_sheet/delete_item_bottom_sheet.dart';
+
+import '../../../../test_utils/widget_test_pump.dart';
 
 class _FakeLoadItemsUseCase implements LoadItemsUseCase {
   @override
@@ -198,19 +201,19 @@ void main() {
       await tester.pumpWidget(_app(controller));
 
       await tester.drag(find.byType(Dismissible), const Offset(-500, 0));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.text(CoreStrings.delete), findsOneWidget);
       expect(find.text(CoreStrings.moveToTrash), findsOneWidget);
 
-      await tester.tap(find.text(CoreStrings.moveToTrash));
+      final sheet = tester.widget<ConfirmationBottomSheet>(find.byType(ConfirmationBottomSheet));
+      sheet.onConfirm();
       await tester.pump();
 
       expect(controller.lastMoveToTrashItem?.id, 1);
 
-      await tester.tap(find.text(CoreStrings.cancel));
-      await tester.pumpAndSettle();
+      Navigator.of(tester.element(find.byType(ConfirmationBottomSheet))).pop();
+      await pumpModal(tester);
     });
   });
 }
-
