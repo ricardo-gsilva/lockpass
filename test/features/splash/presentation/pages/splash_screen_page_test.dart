@@ -13,6 +13,8 @@ import 'package:lockpass/features/splash/presentation/pages/splash_screen_page.d
 import 'package:lockpass/features/splash/presentation/state/splash_state.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../../../test_utils/widget_test_pump.dart';
+
 class _TestSplashController extends SplashController {
   _TestSplashController({
     SplashState? seed,
@@ -187,7 +189,7 @@ void main() {
       expect(find.byKey(const Key('login-page')), findsNothing);
 
       await tester.pump(const Duration(seconds: 2));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byKey(const Key('login-page')), findsOneWidget);
     });

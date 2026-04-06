@@ -10,6 +10,8 @@ import 'package:lockpass/features/add_item/presentation/page/add_item_page.dart'
 import 'package:lockpass/features/add_item/presentation/state/add_item_state.dart';
 import 'package:lockpass/features/add_item/presentation/state/add_item_status.dart';
 
+import '../../../../test_utils/widget_test_pump.dart';
+
 class _FakeCreateItemUseCase implements CreateItemUseCase {
   @override
   Future<void> call(ItensEntity item, List<String> existingGroups) async {}
@@ -168,7 +170,8 @@ void main() {
 
       await tester.ensureVisible(_saveButton());
       await tester.tap(_saveButton());
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
+      await flushToasts(tester);
 
       expect(find.byKey(const Key('home-page')), findsOneWidget);
     });
@@ -185,9 +188,9 @@ void main() {
 
       // Open dropdown and select "Social".
       await tester.tap(find.byKey(CoreKeys.dropDownAddItem));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
       await tester.tap(find.text('Social').last);
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       final groupField = tester.widget<TextFormField>(find.byType(TextFormField).at(0));
       expect(groupField.controller?.text, 'Social');

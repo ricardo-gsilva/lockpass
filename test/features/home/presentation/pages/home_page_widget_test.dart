@@ -36,6 +36,8 @@ import 'package:lockpass/features/list_item/presentation/controller/list_item_co
 import 'package:lockpass/features/list_item/presentation/enums/list_view_mode_enum.dart';
 import 'package:lockpass/features/list_item/presentation/state/list_item_state.dart';
 
+import '../../../../test_utils/widget_test_pump.dart';
+
 class _TestAssetBundle extends CachingAssetBundle {
   _TestAssetBundle(this._transparentPngBytes);
 
@@ -316,7 +318,7 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.account_circle));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.text('${CoreStrings.loggedInAs} a@b.com'), findsOneWidget);
 
@@ -382,13 +384,13 @@ void main() {
 
       await tester.pumpWidget(_app());
       await tester.pump(); // init -> emits event
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byKey(CoreKeys.alertDialogCreatePin), findsOneWidget);
       expect(controller.clearEventCalled, isTrue);
 
       await tester.tap(find.byKey(CoreKeys.buttonCreatePin));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(controller.lastHideCreatePinValue, isFalse);
       expect(find.byKey(CoreKeys.alertDialogCreatePin), findsNothing);
@@ -408,7 +410,7 @@ void main() {
 
       await tester.pumpWidget(_app());
       await tester.pump();
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byKey(CoreKeys.alertDialogCreatePin), findsOneWidget);
 
@@ -421,7 +423,7 @@ void main() {
           matching: find.byIcon(CoreIcons.config),
         ),
       );
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(controller.lastHideCreatePinValue, isTrue);
       expect(controller.lastTappedIndex, 2);
@@ -451,7 +453,7 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.text(CoreStrings.add));
-      await tester.pumpAndSettle();
+      await pumpModal(tester);
 
       expect(find.byType(AddItemPage), findsOneWidget);
 
