@@ -75,10 +75,16 @@ class DekManager {
       mac: Mac(macBytes),
     );
 
-    final dek = await _aes.decrypt(
-      secretBox,
-      secretKey: SecretKey(kek),
-    );
+    List<int> dek;
+    try {
+      dek = await _aes.decrypt(
+        secretBox,
+        secretKey: SecretKey(kek),
+      );
+    } catch (_) {
+      // Senha errada (ou payload corrompido).
+      throw Exception('INVALID_EXPORT_PASSWORD');
+    }
 
     final dekBytes = Uint8List.fromList(dek);
     if (dekBytes.length != 32) throw Exception('INVALID_DEK');

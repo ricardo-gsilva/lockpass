@@ -24,11 +24,11 @@ class CreateItemUseCase {
   ) async {
     final uid = _authService.currentUserId;
 
-    final dek = await _dekManager.getOrCreateDek(uid);
-
     if (uid.isEmpty) {
       throw AuthErrorType.requiresRecentLogin;
     }
+
+    final dek = await _dekManager.getOrCreateDek(uid);
 
     final group = (item.group.isNullOrBlank)
         ? (existingGroups.isNotEmpty ? existingGroups.first : CoreStrings.noDefinedGroup)

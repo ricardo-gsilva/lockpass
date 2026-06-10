@@ -20,7 +20,8 @@ import 'package:lockpass/features/config/presentation/widgets/bottom_sheet/resto
 import 'package:lockpass/features/config/presentation/widgets/config_options_custom.dart';
 
 class ConfigPage extends StatefulWidget {
-  const ConfigPage({super.key});
+  final ConfigController? controller;
+  const ConfigPage({super.key, this.controller});
 
   @override
   State<ConfigPage> createState() => _ConfigPageState();
@@ -28,6 +29,7 @@ class ConfigPage extends StatefulWidget {
 
 class _ConfigPageState extends State<ConfigPage> {
   late final ConfigController configController;
+  late final bool _ownsController;
 
   void showBottomSheet(
     Widget bottomSheet, {
@@ -47,12 +49,15 @@ class _ConfigPageState extends State<ConfigPage> {
   @override
   void initState() {
     super.initState();
-    configController = getIt<ConfigController>();
+    configController = widget.controller ?? getIt<ConfigController>();
+    _ownsController = widget.controller == null;
   }
 
   @override
   void dispose() {
-    configController.close();
+    if (_ownsController) {
+      configController.close();
+    }
     super.dispose();
   }
 

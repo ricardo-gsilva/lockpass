@@ -10,8 +10,8 @@ class ShareBackupUseCase {
     this._authService,
   );
 
-  Future<void> call() async {
+  Future<void> call(String exportPassword) async {
     final uid = _authService.currentUserId;
-    await _backupService.shareBackup(uid);
+    await _backupService.shareBackup(uid, exportPassword: exportPassword);
   }
 }

@@ -4,7 +4,6 @@ import 'package:lockpass/core/constants/core_strings.dart';
 import 'package:lockpass/core/paths/lockpass_paths.dart';
 import 'package:lockpass/data/models/itens_model.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path_provider/path_provider.dart';
 
 class DataBaseHelper {
   static DataBaseHelper? _dataBaseHelper;
@@ -44,7 +43,6 @@ class DataBaseHelper {
       dbPath,
       version: 1,
       onCreate: _createDb,
-      onUpgrade: _onUpgrade,
     );
   }
 
@@ -66,8 +64,6 @@ class DataBaseHelper {
 
     await db.execute('CREATE INDEX idx_${itensTable}_is_deleted ON $itensTable($colIsDeleted)');
   }
-
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   Future<int> addItem(ItensModel item) async {
     final model = ItensModel.fromEntity(item);
@@ -118,6 +114,9 @@ class DataBaseHelper {
 
   Future<int> deleteItem(ItensModel item) async {
     Database db = await database;
+    if (item.id == null) {
+      throw Exception(CoreStrings.itemUpdateIdError);
+    }
     return await db.delete(
       itensTable,
       where: '$colId = ?',
@@ -133,14 +132,17 @@ class DataBaseHelper {
   }
 
   Future<void> deleteLocalDatabase() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = '${directory.path}/lockpass_itens.db';
-
+    await closeDatabase();
+    final dbDir = await LockPassPaths.dbDir;
+    final path = '${dbDir.path}/lockpass_itens.db';
     await deleteDatabase(path);
   }
 
   Future<int> softDeleteItem(ItensModel item) async {
     final db = await database;
+    if (item.id == null) {
+      throw Exception(CoreStrings.itemUpdateIdError);
+    }
 
     return await db.update(
       itensTable,
@@ -155,6 +157,9 @@ class DataBaseHelper {
 
   Future<int> restoreItem(ItensModel item) async {
     final db = await database;
+    if (item.id == null) {
+      throw Exception(CoreStrings.itemUpdateIdError);
+    }
 
     return await db.update(
       itensTable,

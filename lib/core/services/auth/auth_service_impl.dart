@@ -21,7 +21,7 @@ class AuthServiceImpl implements AuthService {
 
   @override
   String get currentUserEmail {
-    return FirebaseAuth.instance.currentUser?.email ?? '';
+    return _auth.currentUser?.email ?? '';
   }
 
   @override
@@ -67,8 +67,12 @@ class AuthServiceImpl implements AuthService {
   @override
   Future<bool> register(String email, String password) async {
     try {
-      await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await credential.user?.sendEmailVerification();
+      await _auth.signOut();
       return true;
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.code.toAuthErrorType().message);
@@ -78,7 +82,19 @@ class AuthServiceImpl implements AuthService {
   @override
   Future<void> login(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = credential.user;
+      await user?.reload();
+      final refreshed = _auth.currentUser;
+
+      if (refreshed != null && refreshed.emailVerified == false) {
+        await _auth.signOut();
+        throw AuthException(AuthErrorType.emailNotVerified.message);
+      }
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.code.toAuthErrorType().message);
     }

@@ -24,6 +24,8 @@ class AuthenticateTrashWithPinUseCase {
       if (!isValid) {
         throw AuthErrorType.invalidCredentials;
       }
+    } on AuthErrorType {
+      rethrow;
     } catch (_) {
       throw AuthErrorType.unknown;
     }

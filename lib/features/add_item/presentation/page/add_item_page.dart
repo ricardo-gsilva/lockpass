@@ -16,7 +16,8 @@ import 'package:lockpass/core/ui/components/text_custom.dart';
 import 'package:lockpass/features/add_item/presentation/state/add_item_status.dart';
 
 class AddItemPage extends StatefulWidget {
-  const AddItemPage({super.key});
+  final AddItemController? controller;
+  const AddItemPage({super.key, this.controller});
 
   @override
   State<AddItemPage> createState() => _AddItemPageState();
@@ -30,6 +31,7 @@ class _AddItemPageState extends State<AddItemPage> {
   TextEditingController loginController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   late final AddItemController addItemController;
+  late final bool _ownsController;
   final _formKey = GlobalKey<FormState>();
   bool _obscurePassword = true;
   final String userId = '';
@@ -37,20 +39,23 @@ class _AddItemPageState extends State<AddItemPage> {
   @override
   void initState() {
     super.initState();
-    addItemController = getIt<AddItemController>();
+    addItemController = widget.controller ?? getIt<AddItemController>();
+    _ownsController = widget.controller == null;
     addItemController.setDropDownGroups();
   }
 
   @override
   void dispose() {
-    super.dispose();
     groupController.dispose();
     serviceController.dispose();
     siteController.dispose();
     emailController.dispose();
     loginController.dispose();
     passwordController.dispose();
-    addItemController.close();
+    if (_ownsController) {
+      addItemController.close();
+    }
+    super.dispose();
   }
 
   @override
@@ -145,7 +150,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.addNewGroup,
+                              text: '${CoreStrings.group}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -158,7 +163,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.nameService,
+                              text: '${CoreStrings.service}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -189,7 +194,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.emailRegister,
+                              text: CoreStrings.email,
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -203,7 +208,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.login,
+                              text: '${CoreStrings.login}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),
@@ -220,7 +225,7 @@ class _AddItemPageState extends State<AddItemPage> {
                           ),
                           ListTile(
                             title: TextCustom(
-                              text: CoreStrings.password,
+                              text: '${CoreStrings.itemPassword}*',
                               color: CoreColors.textPrimary,
                               fontSize: 16,
                             ),

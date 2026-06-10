@@ -10,12 +10,18 @@ class DeleteAccountUseCase {
   final ItensRepository _itensRepository;
   final VaultService _vaultService;
   final AuthService _authService;
+  final Future<Directory> Function() _getApplicationDocumentsDirectory;
+  final File Function(String path) _fileFactory;
 
   DeleteAccountUseCase(
     this._itensRepository,
     this._vaultService,
-    this._authService,
-  );
+    this._authService, {
+    Future<Directory> Function()? getApplicationDocumentsDirectoryFn,
+    File Function(String path)? fileFactory,
+  })  : _getApplicationDocumentsDirectory =
+            getApplicationDocumentsDirectoryFn ?? getApplicationDocumentsDirectory,
+        _fileFactory = fileFactory ?? ((path) => File(path));
 
   Future<void> call() async {
     await _itensRepository.closeDatabase();
@@ -28,9 +34,8 @@ class DeleteAccountUseCase {
   }
 
   Future<void> _deleteAutomaticBackup() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    final backupFile =
-        File(p.join(appDir.path, 'LPB_automatic.zip'));
+    final appDir = await _getApplicationDocumentsDirectory();
+    final backupFile = _fileFactory(p.join(appDir.path, 'LPB_automatic.zip'));
 
     if (await backupFile.exists()) {
       await backupFile.delete();

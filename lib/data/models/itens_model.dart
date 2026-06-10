@@ -30,19 +30,18 @@ class ItensModel extends ItensEntity {
   }
 
   factory ItensModel.fromMap(Map<String, dynamic> map) {
+    final deletedAtRaw = map['deleted_at'] as String?;
     return ItensModel(
-      userId: map['userId'] ?? '',
-      id: map['id'],
-      group: map['itemGroup'] ?? '',
-      service: map['service'] ?? '',
-      site: map['site'],
-      email: map['email'] ?? '',
-      login: map['login'] ?? '',
-      password: map['password'] ?? '',
+      userId: (map['userId'] as String?) ?? '',
+      id: map['id'] as int?,
+      group: (map['itemGroup'] as String?) ?? '',
+      service: (map['service'] as String?) ?? '',
+      site: map['site'] as String?,
+      email: map['email'] as String?,
+      login: (map['login'] as String?) ?? '',
+      password: (map['password'] as String?) ?? '',
       isDeleted: (map['is_deleted'] ?? 0) == 1,
-      deletedAt: map['deleted_at'] != null
-          ? DateTime.tryParse(map['deleted_at'])
-          : null,
+      deletedAt: deletedAtRaw != null ? DateTime.tryParse(deletedAtRaw) : null,
     );
   }
 

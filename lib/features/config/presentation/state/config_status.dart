@@ -1,5 +1,10 @@
-sealed class ConfigStatus {
+import 'package:equatable/equatable.dart';
+
+sealed class ConfigStatus extends Equatable {
   const ConfigStatus();
+
+  @override
+  List<Object?> get props => const [];
 }
 
 class ConfigInitial extends ConfigStatus {
@@ -12,12 +17,18 @@ class ConfigLoading extends ConfigStatus {
 
 class ConfigSuccess extends ConfigStatus {
   final String message;
-  ConfigSuccess(this.message);
+  const ConfigSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class ConfigError extends ConfigStatus {
   final String message;
-  ConfigError(this.message);
+  const ConfigError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class ConfigBackupSaved extends ConfigStatus {

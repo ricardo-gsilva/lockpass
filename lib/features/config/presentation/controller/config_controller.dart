@@ -39,6 +39,7 @@ class ConfigController extends Cubit<ConfigState> {
   final SelectZipFileUseCase _selectZipFileUseCase;
   final SetLockTimeoutUseCase _setLockTimeoutUseCase;
   final GetLockTimeoutUseCase _getLockTimeoutUseCase;
+  final bool _isAndroid;
 
   ConfigController({
     required ItensRepository itensRepository,
@@ -57,6 +58,7 @@ class ConfigController extends Cubit<ConfigState> {
     required SelectZipFileUseCase selectZipFileUseCase,
     required SetLockTimeoutUseCase setLockTimeoutUseCase,
     required GetLockTimeoutUseCase getLockTimeoutUseCase,
+    bool? isAndroidOverride,
   })  : _getPinStatusUseCase = getPinStatusUseCase,
         _reauthAndRemovePinUseCase = reauthAndRemovePinUseCase,
         _deleteAccountUseCase = deleteAccountUseCase,
@@ -72,12 +74,13 @@ class ConfigController extends Cubit<ConfigState> {
         _selectZipFileUseCase = selectZipFileUseCase,
         _setLockTimeoutUseCase = setLockTimeoutUseCase,
         _getLockTimeoutUseCase = getLockTimeoutUseCase,
+        _isAndroid = isAndroidOverride ?? Platform.isAndroid,
         super(const ConfigState()) {
-    _initialize();
+    Future.microtask(_initialize);
   }
 
   void _initialize() async {
-    emit(state.copyWith(isAndroid: Platform.isAndroid));
+    emit(state.copyWith(isAndroid: _isAndroid));
     await getPinVerification();
   }
 
@@ -292,11 +295,11 @@ class ConfigController extends Cubit<ConfigState> {
     }
   }
 
-  Future<void> createManualBackup() async {
+  Future<void> createManualBackup(String exportPassword) async {
     emit(state.copyWith(status: const ConfigLoading()));
 
     try {
-      await _createManualBackupUseCase();
+      await _createManualBackupUseCase(exportPassword);
 
       emit(state.copyWith(
         status: const ConfigBackupSaved(CoreStrings.backupCreatedSuccess),
@@ -308,13 +311,13 @@ class ConfigController extends Cubit<ConfigState> {
     }
   }
 
-  Future<void> shareExportBackup() async {
+  Future<void> shareExportBackup(String exportPassword) async {
     emit(state.copyWith(
       status: const ConfigLoading(),
     ));
 
     try {
-      await _shareBackupUseCase();
+      await _shareBackupUseCase(exportPassword);
 
       emit(state.copyWith(
         status: ConfigBackupShared(CoreStrings.backupSharedSuccess),
@@ -326,7 +329,7 @@ class ConfigController extends Cubit<ConfigState> {
     }
   }
 
-  Future<void> restoreManualBackup(String path) async {
+  Future<void> restoreManualBackup(String path, String exportPassword) async {
     if (path.isNullOrBlank) {
       emit(state.copyWith(
         status: ConfigError(CoreStrings.noFileSelected),
@@ -337,15 +340,26 @@ class ConfigController extends Cubit<ConfigState> {
     emit(state.copyWith(status: const ConfigLoading()));
 
     try {
-      await _restoreManualBackupUseCase(path);
+      await _restoreManualBackupUseCase(path, exportPassword);
 
       emit(state.copyWith(
         status: ConfigRestoreBackupManualSuccess(CoreStrings.backupRestoredSuccess),
       ));
     } catch (e) {
-      emit(state.copyWith(
-        status: ConfigError(CoreStrings.restoreFileInvalidError),
-      ));
+      final msg = e.toString();
+      if (msg.contains('BACKUP_USER_MISMATCH')) {
+        emit(state.copyWith(status: ConfigError(CoreStrings.backupDifferentUserError)));
+        return;
+      }
+      if (msg.contains('INVALID_EXPORT_PASSWORD')) {
+        emit(state.copyWith(status: ConfigError(CoreStrings.backupPasswordIncorrect)));
+        return;
+      }
+      if (msg.contains(CoreStrings.decryptionBackupError)) {
+        emit(state.copyWith(status: ConfigError(CoreStrings.decryptionBackupError)));
+        return;
+      }
+      emit(state.copyWith(status: ConfigError(CoreStrings.restoreFileInvalidError)));
     }
   }
 
